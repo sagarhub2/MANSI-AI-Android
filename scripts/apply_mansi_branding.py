@@ -385,11 +385,27 @@ for final_path in root.rglob("*"):
 from PIL import Image, ImageOps, ImageDraw
 
 res = root / "res"
-logo_path = res / "drawable/ic_jarvis_logo.png"
-if not logo_path.exists():
-    raise SystemExit(f"Cannot create launcher icons: missing {logo_path}")
-
-logo = Image.open(logo_path).convert("RGBA")
+# Prefer the new MANSI artwork when the bundled project includes it.
+# Older project ZIPs may not contain that added asset, so fall back safely
+# to the existing in-project logo instead of failing the entire APK build.
+preferred_logo = res / "drawable/mansi_launcher_source.png"
+legacy_logo = res / "drawable/ic_jarvis_logo.png"
+logo_path = preferred_logo if preferred_logo.is_file() else legacy_logo
+if not logo_path.is_file():
+    # Last-resort generated premium MANSI monogram so builds never fail only
+    # because the ZIP omitted the optional image asset.
+    logo = Image.new("RGBA", (512, 512), (16, 10, 40, 255))
+    draw = ImageDraw.Draw(logo)
+    draw.ellipse((42, 42, 470, 470), outline=(0, 225, 255, 255), width=14)
+    draw.ellipse((62, 62, 450, 450), outline=(180, 70, 255, 255), width=8)
+    draw.text((120, 160), "M", fill=(255, 255, 255, 255), stroke_width=3, stroke_fill=(0, 225, 255, 255))
+    draw.text((95, 285), "AI", fill=(0, 225, 255, 255), stroke_width=1, stroke_fill=(180, 70, 255, 255))
+    logo_path.parent.mkdir(parents=True, exist_ok=True)
+    logo.save(logo_path)
+    print("Generated fallback MANSI AI monogram because no bundled logo asset was present.")
+else:
+    print("Using launcher artwork: " + str(logo_path))
+    logo = Image.open(logo_path).convert("RGBA")
 # Crop to square, then place the full logo within Android's adaptive safe zone.
 side = min(logo.size)
 left = (logo.width - side) // 2
