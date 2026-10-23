@@ -220,8 +220,6 @@ visible_brand_replacements = {
     "Message JARVIS": "Message MANSI AI",
     "Jarvis Code": "MANSI AI Code",
     "JARVIS CODE": "MANSI AI CODE",
-    "Jarvis": "MANSI AI",
-    "JARVIS": "MANSI AI",
 }
 for brand_path in root.rglob("*"):
     if not brand_path.is_file() or brand_path.suffix.lower() not in {".xml", ".kt", ".java", ".json", ".txt", ".properties"}:
