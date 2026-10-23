@@ -377,3 +377,49 @@ for final_path in root.rglob("*"):
     if final_clean != final_text:
         final_path.write_text(final_clean, encoding="utf-8")
         print("Final visible brand cleanup: " + str(final_path))
+
+
+# FIX: Generate every launcher icon from the actual MANSI logo, including
+# Android adaptive icons (Android 8+) and legacy density icons.
+# Pillow is installed by the workflow before this script runs.
+from PIL import Image, ImageOps, ImageDraw
+
+res = root / "res"
+logo_path = res / "drawable/ic_jarvis_logo.png"
+if not logo_path.exists():
+    raise SystemExit(f"Cannot create launcher icons: missing {logo_path}")
+
+logo = Image.open(logo_path).convert("RGBA")
+# Crop to square, then place the full logo within Android's adaptive safe zone.
+side = min(logo.size)
+left = (logo.width - side) // 2
+top = (logo.height - side) // 2
+logo = logo.crop((left, top, left + side, top + side))
+
+# Adaptive foreground canvas is 108dp; keep key art within the central 66dp.
+adaptive = Image.new("RGBA", (432, 432), (0, 0, 0, 0))
+art = ImageOps.contain(logo, (264, 264), method=Image.Resampling.LANCZOS)
+adaptive.alpha_composite(art, ((432 - art.width) // 2, (432 - art.height) // 2))
+(res / "mipmap-anydpi-v26").mkdir(parents=True, exist_ok=True)
+adaptive.save(res / "mipmap-xxxhdpi/ic_launcher_foreground.png")
+for density, size in [("mdpi",108),("hdpi",162),("xhdpi",216),("xxhdpi",324),("xxxhdpi",432)]:
+    folder = res / f"mipmap-{density}"
+    folder.mkdir(parents=True, exist_ok=True)
+    foreground = adaptive.resize((size,size), Image.Resampling.LANCZOS)
+    foreground.save(folder / "ic_launcher_foreground.png")
+    # Legacy icons use a solid deep-purple background with the logo centered.
+    legacy = Image.new("RGBA", (size,size), (16, 10, 40, 255))
+    legacy_art = ImageOps.contain(logo, (int(size*0.78), int(size*0.78)), method=Image.Resampling.LANCZOS)
+    legacy.alpha_composite(legacy_art, ((size-legacy_art.width)//2, (size-legacy_art.height)//2))
+    legacy.save(folder / "ic_launcher.png")
+    legacy.save(folder / "ic_launcher_round.png")
+
+for filename in ["ic_launcher.xml", "ic_launcher_round.xml"]:
+    xml_path = res / "mipmap-anydpi-v26" / filename
+    xml_path.write_text('''<?xml version="1.0" encoding="utf-8"?>
+<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
+    <background android:drawable="@color/ic_launcher_background" />
+    <foreground android:drawable="@mipmap/ic_launcher_foreground" />
+</adaptive-icon>
+''', encoding="utf-8")
+print("FIXED launcher icons: MANSI logo generated for all legacy densities and adaptive foreground.")
