@@ -432,3 +432,18 @@ for filename in ["ic_launcher.xml", "ic_launcher_round.xml"]:
 </adaptive-icon>
 ''', encoding="utf-8")
 print("FIXED launcher icons: MANSI logo generated for all legacy densities and adaptive foreground.")
+
+
+# Force the launcher activity/application to reference the generated launcher icons.
+manifest = root / "AndroidManifest.xml"
+if not manifest.exists():
+    raise SystemExit(f"Missing Android manifest: {manifest}")
+manifest_text = manifest.read_text(encoding="utf-8")
+if 'android:icon="@mipmap/ic_launcher"' not in manifest_text:
+    manifest_text = re.sub(r'<application\b', '<application android:icon="@mipmap/ic_launcher" android:roundIcon="@mipmap/ic_launcher_round"', manifest_text, count=1)
+else:
+    manifest_text = re.sub(r'android:roundIcon="[^"]+"', 'android:roundIcon="@mipmap/ic_launcher_round"', manifest_text, count=1)
+    if 'android:roundIcon=' not in manifest_text:
+        manifest_text = manifest_text.replace('android:icon="@mipmap/ic_launcher"', 'android:icon="@mipmap/ic_launcher" android:roundIcon="@mipmap/ic_launcher_round"', 1)
+manifest.write_text(manifest_text, encoding="utf-8")
+print("Verified launcher manifest references MANSI-generated ic_launcher resources.")
