@@ -27,6 +27,26 @@ jobs:
           chmod +x source/mansi/gradlew
           python3 -m pip install --quiet Pillow
           python3 scripts/apply_mansi_branding.py
+          echo "---- REPAIR ANDROID STRING RESOURCE NAMES ----"
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          p = Path("source/mansi/app/src/main/res/values/strings.xml")
+          s = p.read_text(encoding="utf-8")
+          def fix_name(m):
+              name = m.group(1)
+              safe = re.sub(r"[^A-Za-z0-9_.]", "_", name)
+              safe = re.sub(r"_+", "_", safe).strip("_")
+              if not safe or not re.match(r"[A-Za-z_]", safe):
+                  safe = "mansi_string_" + safe
+              return 'name="' + safe + '"'
+          fixed = re.sub(r'name="([^"]*)"', fix_name, s)
+          p.write_text(fixed, encoding="utf-8")
+          invalid = re.findall(r'<string\s+name="([^"]*[^A-Za-z0-9_.][^"]*)"', fixed)
+          if invalid:
+              raise SystemExit("Invalid Android string resource names remain: " + repr(invalid))
+          print("Android string resource names repaired and validated.")
+          PY
           echo "---- LAUNCHER ICON VERIFICATION ----"
           grep -nE 'android:(icon|roundIcon)=' source/mansi/app/src/main/AndroidManifest.xml
           test -s source/mansi/app/src/main/res/mipmap-mdpi/ic_launcher.png
