@@ -32,6 +32,37 @@ jobs:
           # Restore all Java/Kotlin source; user-facing branding is handled in Android resources and assets.
           rm -rf source/mansi/app/src/main/java
           cp -a /tmp/mansi-java-original source/mansi/app/src/main/java
+          echo "---- APPLY SAFE VISIBLE BRANDING TO SOURCE LITERALS ----"
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          root = Path("source/mansi/app/src/main")
+          # Only replace quoted UI string literals; never alter package names,
+          # resource IDs, file paths, or Android resource identifiers.
+          literal = re.compile(r"""(["'])([^"'
+]*?jarvis[^"'
+]*?)\1""", re.IGNORECASE)
+          def replace_literal(match):
+              value = match.group(2)
+              low = value.lower()
+              if low.startswith(("com.jarvis.", "com/jarvis/", "@+id/", "@id/", "@string/", "@drawable/", "@mipmap/")):
+                  return match.group(0)
+              value = re.sub(r"(?i)jarvis\s*(?:[·•-]\s*)?code", "MANSI Code", value)
+              value = re.sub(r"(?i)jarvis", "MANSI AI", value)
+              return match.group(1) + value + match.group(1)
+          allowed = {".kt", ".java", ".xml", ".html", ".js", ".json", ".txt", ".properties"}
+          for path in root.rglob("*"):
+              if not path.is_file() or path.suffix.lower() not in allowed or path.name == "AndroidManifest.xml":
+                  continue
+              try:
+                  before = path.read_text(encoding="utf-8")
+              except (OSError, UnicodeDecodeError):
+                  continue
+              after = literal.sub(replace_literal, before)
+              if after != before:
+                  path.write_text(after, encoding="utf-8")
+                  print("Updated visible branding:", path)
+          PY
           echo "---- REPAIR ANDROID STRING RESOURCE NAMES ----"
           python3 - <<'PY'
           from pathlib import Path
