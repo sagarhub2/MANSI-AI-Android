@@ -109,7 +109,7 @@ if settings_kt.exists():
     src = settings_kt.read_text(encoding="utf-8")
     src = src.replace("https://www.instagram.com/techgptx.ai", "https://instagram.com/hyee__sagar")
     src = re.sub(
-        r'binding\\.btnSocialTelegram\\.setOnClickListener \\{.*?\\n        \\}',
+        r'binding\.btnSocialTelegram\\.setOnClickListener \{.*?\n        \}',
         'binding.btnSocialTelegram.setOnClickListener {\\n            openUrl("https://t.me/H_sagarr")\\n        }',
         src, count=1, flags=re.S
     )
@@ -127,12 +127,12 @@ if privacy_kt.exists():
     src = privacy_kt.read_text(encoding="utf-8")
     src = src.replace("https://www.instagram.com/techgptx.ai", "https://instagram.com/hyee__sagar")
     src = re.sub(
-        r'binding\\.btnJoinOfficialTelegram\\.setOnClickListener \\{.*?\\n        \\}',
+        r'binding\.btnJoinOfficialTelegram\\.setOnClickListener \{.*?\n        \}',
         'binding.btnJoinOfficialTelegram.setOnClickListener {\\n            openUrl("https://t.me/H_sagarr")\\n        }',
         src, count=1, flags=re.S
     )
     src = re.sub(
-        r'binding\\.btnJoinTelegram\\.setOnClickListener \\{.*?\\n        \\}',
+        r'binding\.btnJoinTelegram\\.setOnClickListener \{.*?\n        \}',
         'binding.btnJoinTelegram.setOnClickListener {\\n            openUrl("https://t.me/H_sagarr")\\n        }',
         src, count=1, flags=re.S
     )
