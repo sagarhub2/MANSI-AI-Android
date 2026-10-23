@@ -277,7 +277,8 @@ def replace_jarvis_in_literal(match):
     value = re.sub(r"(?i)jarvis", "MANSI AI", value)
     return quote + value + quote
 
-for sweep_path in root.rglob("*"):
+# Disabled: broad regex sweep corrupts Kotlin quoted strings and operators.
+for sweep_path in []:
     if not sweep_path.is_file() or sweep_path.suffix.lower() not in {".xml", ".kt", ".java", ".html", ".js", ".json", ".txt", ".properties"}:
         continue
     # Manifest class names are quoted strings but must never be rebranded.
