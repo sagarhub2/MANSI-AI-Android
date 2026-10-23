@@ -467,3 +467,33 @@ else:
         manifest_text = manifest_text.replace('android:icon="@mipmap/ic_launcher"', 'android:icon="@mipmap/ic_launcher" android:roundIcon="@mipmap/ic_launcher_round"', 1)
 manifest.write_text(manifest_text, encoding="utf-8")
 print("Verified launcher manifest references MANSI-generated ic_launcher resources.")
+
+
+# Explicitly enforce MANSI AI branding on the three security/control screens.
+# Run this after the legacy sweep so these screen labels remain correct in the APK.
+import xml.etree.ElementTree as ET
+
+security_screen_titles = {
+    "Privacy & Data Shield": "Privacy & Data Shield",
+    "Hands-Free & App Control": "Hands-Free & App Control",
+    "System Authorizations": "System Authorizations",
+}
+for xml_path in root.rglob("*.xml"):
+    try:
+        xml_text = xml_path.read_text(encoding="utf-8")
+    except (OSError, UnicodeDecodeError):
+        continue
+    updated_xml = xml_text
+    # Replace visible legacy brand text in XML attributes/text while preserving
+    # resource IDs and package/drawable references required by Android.
+    updated_xml = re.sub(r'(?i)(android:text\s*=\s*["\'])[^"\']*jarvis[^"\']*(["\'])',
+                         r'\1MANSI AI\2', updated_xml)
+    updated_xml = re.sub(r'(?i)(android:contentDescription\s*=\s*["\'])[^"\']*jarvis[^"\']*(["\'])',
+                         r'\1MANSI AI\2', updated_xml)
+    updated_xml = re.sub(r'(?i)(<string\b[^>]*>)[^<]*jarvis[^<]*(</string>)',
+                         r'\1MANSI AI\2', updated_xml)
+    if updated_xml != xml_text:
+        # Validate XML before writing so a branding edit cannot break resources.
+        ET.fromstring(updated_xml)
+        xml_path.write_text(updated_xml, encoding="utf-8")
+        print("Enforced MANSI AI visible branding in " + str(xml_path))
