@@ -45,6 +45,9 @@ jobs:
               ("Jarvis OS . TECHGPT X", "MANSI AI . SAGAR"),
               ("TechGPT X", "SAGAR"),
               ("TechGPTX", "SAGAR"),
+              ("Jarvis sagar neural Assistant", "MANSI AI"),
+              ("Jarvis operator . Primary", "MANSI AI"),
+              ("Jarvis pro . Puck", "MANSI AI"),
           ]
           suffixes = {".xml", ".kt", ".java", ".html", ".js", ".json", ".txt", ".properties"}
           for path in root.rglob("*"):
