@@ -277,6 +277,9 @@ def replace_jarvis_in_literal(match):
 for sweep_path in root.rglob("*"):
     if not sweep_path.is_file() or sweep_path.suffix.lower() not in {".xml", ".kt", ".java", ".html", ".js", ".json", ".txt", ".properties"}:
         continue
+    # Never rewrite Android theme resource identifiers; spaces make resource names invalid.
+    if sweep_path.as_posix().endswith("/res/values/themes.xml"):
+        continue
     try:
         sweep_text = sweep_path.read_text(encoding="utf-8")
     except (UnicodeDecodeError, OSError):
