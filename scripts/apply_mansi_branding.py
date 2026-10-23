@@ -224,6 +224,9 @@ visible_brand_replacements = {
 for brand_path in root.rglob("*"):
     if not brand_path.is_file() or brand_path.suffix.lower() not in {".xml", ".kt", ".java", ".json", ".txt", ".properties"}:
         continue
+    # Manifest android:name entries are executable class identifiers; never rewrite them.
+    if brand_path.name == "AndroidManifest.xml":
+        continue
     # Theme/style resource names are identifiers, not visible UI labels. Replacing
     # Jarvis in themes.xml creates invalid Android resource names and breaks builds.
     if "/res/values/" in brand_path.as_posix() and brand_path.suffix.lower() == ".xml":
