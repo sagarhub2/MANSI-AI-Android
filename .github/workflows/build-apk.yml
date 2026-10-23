@@ -29,6 +29,8 @@ jobs:
       - name: Inspect profile and battery-prompt strings
         run: |
           grep -RniE "YouTube|Primary User|TechGPT X|Jarvis Operator|Unrestricted Battery Required|Instagram|Telegram|battery" source/mansi/app/src/main --include="*.xml" --include="*.kt" --include="*.java" --include="*.html" --include="*.js" --include="*.json" --include="*.txt" || true
+          echo "---- VOICE CONFIG DIAGNOSTICS ----"
+          grep -RniE "voiceName|voice_name|voice name|SpeechSynthesis|TextToSpeech|setVoice|GeminiLive|LiveConfig|prebuilt_voice|Kore|Aoede|Puck|female|feminine" source/mansi/app/src/main --include="*.kt" --include="*.java" --include="*.xml" --include="*.json" --include="*.html" --include="*.js" | head -200 || true
 
       - name: Set up Java
         uses: actions/setup-java@v4
