@@ -42,7 +42,8 @@ jobs:
               return 'name="' + safe + '"'
           fixed = re.sub(r'name="([^"]*)"', fix_name, s)
           p.write_text(fixed, encoding="utf-8")
-          invalid = re.findall(r'<string\s+name="([^"]*[^A-Za-z0-9_.][^"]*)"', fixed)
+          names = re.findall(r'<string\s+name="([^"]*)"', fixed)
+          invalid = [name for name in names if not re.fullmatch(r"[A-Za-z0-9_.]+", name)]
           if invalid:
               raise SystemExit("Invalid Android string resource names remain: " + repr(invalid))
           print("Android string resource names repaired and validated.")
