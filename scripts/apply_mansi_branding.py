@@ -110,14 +110,14 @@ if settings_kt.exists():
     src = src.replace("https://www.instagram.com/techgptx.ai", "https://instagram.com/hyee__sagar")
     src = re.sub(
         r'binding\.btnSocialTelegram\.setOnClickListener \{.*?\n        \}',
-        'binding.btnSocialTelegram.setOnClickListener {\\n            openUrl("https://t.me/H_sagarr")\\n        }',
+        'binding.btnSocialTelegram.setOnClickListener {\n            openUrl("https://t.me/H_sagarr")\n        }',
         src, count=1, flags=re.S
     )
     # Hide the old YouTube profile shortcut; leave YouTube automation features untouched.
     if "binding.btnSocialYoutube.visibility = View.GONE" not in src:
         src = src.replace(
             "binding.btnSocialYoutube.setOnClickListener {",
-            "binding.btnSocialYoutube.visibility = View.GONE\\n        binding.btnSocialYoutube.setOnClickListener {",
+            "binding.btnSocialYoutube.visibility = View.GONE\n        binding.btnSocialYoutube.setOnClickListener {",
             1
         )
     settings_kt.write_text(src, encoding="utf-8")
@@ -128,18 +128,18 @@ if privacy_kt.exists():
     src = src.replace("https://www.instagram.com/techgptx.ai", "https://instagram.com/hyee__sagar")
     src = re.sub(
         r'binding\.btnJoinOfficialTelegram\.setOnClickListener \{.*?\n        \}',
-        'binding.btnJoinOfficialTelegram.setOnClickListener {\\n            openUrl("https://t.me/H_sagarr")\\n        }',
+        'binding.btnJoinOfficialTelegram.setOnClickListener {\n            openUrl("https://t.me/H_sagarr")\n        }',
         src, count=1, flags=re.S
     )
     src = re.sub(
         r'binding\.btnJoinTelegram\.setOnClickListener \{.*?\n        \}',
-        'binding.btnJoinTelegram.setOnClickListener {\\n            openUrl("https://t.me/H_sagarr")\\n        }',
+        'binding.btnJoinTelegram.setOnClickListener {\n            openUrl("https://t.me/H_sagarr")\n        }',
         src, count=1, flags=re.S
     )
     if "binding.btnJoinYoutube.visibility = View.GONE" not in src:
         src = src.replace(
             "binding.btnJoinYoutube.setOnClickListener {",
-            "binding.btnJoinYoutube.visibility = View.GONE\\n        binding.btnJoinYoutube.setOnClickListener {",
+            "binding.btnJoinYoutube.visibility = View.GONE\n        binding.btnJoinYoutube.setOnClickListener {",
             1
         )
     privacy_kt.write_text(src, encoding="utf-8")
