@@ -26,6 +26,17 @@ jobs:
           chmod +x source/mansi/gradlew
           python3 -m pip install --quiet Pillow
           python3 scripts/apply_mansi_branding.py
+          echo "---- LAUNCHER ICON VERIFICATION ----"
+          grep -nE 'android:(icon|roundIcon)=' source/mansi/app/src/main/AndroidManifest.xml
+          test -s source/mansi/app/src/main/res/mipmap-mdpi/ic_launcher.png
+          test -s source/mansi/app/src/main/res/mipmap-hdpi/ic_launcher.png
+          test -s source/mansi/app/src/main/res/mipmap-xhdpi/ic_launcher.png
+          test -s source/mansi/app/src/main/res/mipmap-xxhdpi/ic_launcher.png
+          test -s source/mansi/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png
+          test -s source/mansi/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml
+          test -s source/mansi/app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml
+          test -s source/mansi/app/src/main/res/mipmap-mdpi/ic_launcher_foreground.png
+          echo "Launcher resources exist; Gradle build will validate Android resource references."
 
       - name: Inspect profile and battery-prompt strings
         run: |
