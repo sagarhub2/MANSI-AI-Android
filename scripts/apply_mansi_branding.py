@@ -291,7 +291,39 @@ def replace_jarvis_in_literal(match):
     value = re.sub(r"(?i)jarvis", "MANSI AI", value)
     return quote + value + quote
 
-# Disabled: broad regex sweep corrupts Kotlin quoted strings and operators.
+# Safe final branding pass: update each individual quoted literal, never across code.
+# Keep internal package/class identifiers intact, but remove visible Jarvis labels everywhere.
+def clean_visible_literal(match):
+    literal = match.group(0)
+    inner = literal[1:-1]
+    if inner.startswith(("com.jarvis.", "com/Jarvis/", "@+id/", "@id/", "@string/", "@drawable/", "@mipmap/")):
+        return literal
+    inner = re.sub(r"(?i)jarvis\\s*(?:[·•-]\\s*)?code", "MANSI Code", inner)
+    inner = re.sub(r"(?i)jarvis", "MANSI AI", inner)
+    return literal[0] + inner + literal[-1]
+
+for safe_path in root.rglob("*"):
+    if not safe_path.is_file() or safe_path.suffix.lower() not in {".kt", ".java", ".xml", ".html", ".js", ".json", ".txt", ".properties"}:
+        continue
+    if safe_path.name == "AndroidManifest.xml":
+        continue
+    if "/res/values/" in safe_path.as_posix() and safe_path.suffix.lower() == ".xml":
+        # String values are user-visible; themes/styles are identifiers. Only strings.xml.
+        if safe_path.name != "strings.xml":
+            continue
+    try:
+        safe_text = safe_path.read_text(encoding="utf-8")
+    except (UnicodeDecodeError, OSError):
+        continue
+    cleaned = re.sub(r'"(?:\\\\.|[^"\\\\])*"|\\'(?:\\\\.|[^"\\\\])*\\'', clean_visible_literal, safe_text)
+    # Also clean visible XML text nodes, excluding tag/attribute syntax.
+    if safe_path.suffix.lower() == ".xml":
+        cleaned = re.sub(r">([^<>]*Jarvis[^<>]*)<", lambda m: ">" + re.sub(r"(?i)jarvis\\s*(?:[·•-]\\s*)?code", "MANSI Code", re.sub(r"(?i)jarvis", "MANSI AI", m.group(1))) + "<", cleaned)
+    if cleaned != safe_text:
+        safe_path.write_text(cleaned, encoding="utf-8")
+        print("Cleaned remaining visible Jarvis text in " + str(safe_path))
+
+# Disabled legacy cross-line regex sweep; it corrupts Kotlin source.
 for sweep_path in []:
     if not sweep_path.is_file() or sweep_path.suffix.lower() not in {".xml", ".kt", ".java", ".html", ".js", ".json", ".txt", ".properties"}:
         continue
