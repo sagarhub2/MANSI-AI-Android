@@ -1,0 +1,44 @@
+name: Build MANSI AI Debug APK
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "MANSI_AI_Android_GitHub_Upload.zip"
+      - ".github/workflows/build-apk.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Unpack Android project
+        run: |
+          unzip -q MANSI_AI_Android_GitHub_Upload.zip -d source
+          test -f source/mansi/gradlew
+          test -f source/mansi/settings.gradle.kts
+          chmod +x source/mansi/gradlew
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: gradle
+          cache-dependency-path: source/mansi/**/*.gradle*
+
+      - name: Build debug APK
+        working-directory: source/mansi
+        run: ./gradlew --no-daemon assembleDebug
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: MANSI-AI-debug-APK
+          path: source/mansi/app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
