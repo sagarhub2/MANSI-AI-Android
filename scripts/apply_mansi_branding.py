@@ -146,3 +146,19 @@ if privacy_kt.exists():
         )
     privacy_kt.write_text(src, encoding="utf-8")
 print("Applied personal Instagram/Telegram links and hid old YouTube profile shortcuts.")
+
+# Prefer a feminine voice in Gemini Live configuration where the project exposes
+# a voiceName setting. Gemini Live supports voice names such as Aoede and Kore;
+# use Kore as the default feminine-sounding voice without changing model/API flow.
+models_kt = root / "java/com/jarvis/assistant/data/model/GeminiLiveModels.kt"
+if models_kt.exists():
+    src = models_kt.read_text(encoding="utf-8")
+    import re
+    # Patch only explicit voiceName assignments/defaults; avoid guessing at unrelated code.
+    updated = re.sub(r'(voiceName\\s*[:=]\\s*["\\'])(?:Aoede|Puck|Charon|Fenrir|Leda|Orus|Zephyr|Kore)(["\\'])', r'\\g<1>Kore\\2', src)
+    if updated != src:
+        models_kt.write_text(updated, encoding="utf-8")
+        print("Set Gemini Live voiceName to Kore (feminine-sounding voice).")
+    else:
+        print("NOTE: No explicit supported voiceName literal found; existing voice config left unchanged.")
+
