@@ -226,7 +226,7 @@ for brand_path in root.rglob("*"):
         continue
     # Theme/style resource names are identifiers, not visible UI labels. Replacing
     # Jarvis in themes.xml creates invalid Android resource names and breaks builds.
-    if brand_path.as_posix().endswith(("/res/values/themes.xml", "/res/values/colors.xml")):
+    if "/res/values/" in brand_path.as_posix() and brand_path.suffix.lower() == ".xml":
         continue
     try:
         brand_text = brand_path.read_text(encoding="utf-8")
@@ -278,7 +278,7 @@ for sweep_path in root.rglob("*"):
     if not sweep_path.is_file() or sweep_path.suffix.lower() not in {".xml", ".kt", ".java", ".html", ".js", ".json", ".txt", ".properties"}:
         continue
     # Never rewrite Android theme resource identifiers; spaces make resource names invalid.
-    if sweep_path.as_posix().endswith(("/res/values/themes.xml", "/res/values/colors.xml")):
+    if "/res/values/" in sweep_path.as_posix() and sweep_path.suffix.lower() == ".xml":
         continue
     try:
         sweep_text = sweep_path.read_text(encoding="utf-8")
