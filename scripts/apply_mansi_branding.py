@@ -280,6 +280,9 @@ def replace_jarvis_in_literal(match):
 for sweep_path in root.rglob("*"):
     if not sweep_path.is_file() or sweep_path.suffix.lower() not in {".xml", ".kt", ".java", ".html", ".js", ".json", ".txt", ".properties"}:
         continue
+    # Manifest class names are quoted strings but must never be rebranded.
+    if sweep_path.name == "AndroidManifest.xml":
+        continue
     # Never rewrite Android theme resource identifiers; spaces make resource names invalid.
     if "/res/values/" in sweep_path.as_posix() and sweep_path.suffix.lower() == ".xml":
         continue
