@@ -99,3 +99,48 @@ if not changed:
     print("NOTE: No matching profile labels were found in source text files.")
 else:
     print("Updated profile branding in: " + ", ".join(changed))
+
+
+# Set the owner's social profile links and remove old YouTube profile links.
+import re
+
+settings_kt = root / "java/com/jarvis/assistant/ui/settings/SettingsFragment.kt"
+if settings_kt.exists():
+    src = settings_kt.read_text(encoding="utf-8")
+    src = src.replace("https://www.instagram.com/techgptx.ai", "https://instagram.com/hyee__sagar")
+    src = re.sub(
+        r'binding\\.btnSocialTelegram\\.setOnClickListener \\{.*?\\n        \\}',
+        'binding.btnSocialTelegram.setOnClickListener {\\n            openUrl("https://t.me/H_sagarr")\\n        }',
+        src, count=1, flags=re.S
+    )
+    # Hide the old YouTube profile shortcut; leave YouTube automation features untouched.
+    if "binding.btnSocialYoutube.visibility = View.GONE" not in src:
+        src = src.replace(
+            "binding.btnSocialYoutube.setOnClickListener {",
+            "binding.btnSocialYoutube.visibility = View.GONE\\n        binding.btnSocialYoutube.setOnClickListener {",
+            1
+        )
+    settings_kt.write_text(src, encoding="utf-8")
+
+privacy_kt = root / "java/com/jarvis/assistant/ui/settings/PrivacyShieldActivity.kt"
+if privacy_kt.exists():
+    src = privacy_kt.read_text(encoding="utf-8")
+    src = src.replace("https://www.instagram.com/techgptx.ai", "https://instagram.com/hyee__sagar")
+    src = re.sub(
+        r'binding\\.btnJoinOfficialTelegram\\.setOnClickListener \\{.*?\\n        \\}',
+        'binding.btnJoinOfficialTelegram.setOnClickListener {\\n            openUrl("https://t.me/H_sagarr")\\n        }',
+        src, count=1, flags=re.S
+    )
+    src = re.sub(
+        r'binding\\.btnJoinTelegram\\.setOnClickListener \\{.*?\\n        \\}',
+        'binding.btnJoinTelegram.setOnClickListener {\\n            openUrl("https://t.me/H_sagarr")\\n        }',
+        src, count=1, flags=re.S
+    )
+    if "binding.btnJoinYoutube.visibility = View.GONE" not in src:
+        src = src.replace(
+            "binding.btnJoinYoutube.setOnClickListener {",
+            "binding.btnJoinYoutube.visibility = View.GONE\\n        binding.btnJoinYoutube.setOnClickListener {",
+            1
+        )
+    privacy_kt.write_text(src, encoding="utf-8")
+print("Applied personal Instagram/Telegram links and hid old YouTube profile shortcuts.")
