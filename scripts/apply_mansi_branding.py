@@ -231,7 +231,7 @@ visible_brand_replacements = {
     "JARVIS INTELLIGENCE": "MANSI AI",
 }
 for brand_path in root.rglob("*"):
-    if not brand_path.is_file() or brand_path.suffix.lower() not in {".xml", ".kt", ".java", ".json", ".txt", ".properties"}:
+    if not brand_path.is_file() or brand_path.suffix.lower() not in {".xml", ".html", ".js", ".json", ".txt", ".properties"}:
         continue
     # Manifest android:name entries are executable class identifiers; never rewrite them.
     if brand_path.name == "AndroidManifest.xml":
@@ -292,7 +292,8 @@ def replace_jarvis_in_literal(match):
     return quote + value + quote
 
 # Safe final branding pass: protect Android IDs and code identifiers before literal replacement.
-for safe_path in root.rglob("*"):
+# Disabled broad sweep: raw replacement across Kotlin/Java source corrupted syntax.
+for safe_path in []:
     if not safe_path.is_file() or safe_path.suffix.lower() not in {".kt", ".java", ".xml", ".html", ".js", ".json", ".txt", ".properties"}:
         continue
     if safe_path.name == "AndroidManifest.xml":
