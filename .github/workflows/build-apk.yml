@@ -6,6 +6,7 @@ on:
     paths:
       - "MANSI_AI_Android_GitHub_Upload.zip"
       - ".github/workflows/build-apk.yml"
+      - "scripts/apply_mansi_branding.py"
 
 permissions:
   contents: read
@@ -23,6 +24,7 @@ jobs:
           test -f source/mansi/gradlew
           test -f source/mansi/settings.gradle.kts
           chmod +x source/mansi/gradlew
+          python3 scripts/apply_mansi_branding.py
 
       - name: Set up Java
         uses: actions/setup-java@v4
