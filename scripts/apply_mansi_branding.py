@@ -226,6 +226,10 @@ visible_brand_replacements = {
 for brand_path in root.rglob("*"):
     if not brand_path.is_file() or brand_path.suffix.lower() not in {".xml", ".kt", ".java", ".json", ".txt", ".properties"}:
         continue
+    # Theme/style resource names are identifiers, not visible UI labels. Replacing
+    # Jarvis in themes.xml creates invalid Android resource names and breaks builds.
+    if brand_path.as_posix().endswith("/res/values/themes.xml"):
+        continue
     try:
         brand_text = brand_path.read_text(encoding="utf-8")
     except (UnicodeDecodeError, OSError):
