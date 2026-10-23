@@ -39,10 +39,10 @@ jobs:
           replacements = [
               ("Jarvis system Authorized MANSI AI", "Mansi system Authorized MANSI AI"),
               ("Jarvis Autonomous device control", "Mansi AI Autonomous device control"),
-              ("MANSI AI OS . TECHGPT X", "MANSI AI OS . TECHGPT X"),
+              ("MANSI AI OS . TECHGPT X", "MANSI AI . SAGAR"),
               ("Jarvis Autonomous Device Control", "Mansi AI Autonomous device control"),
               ("Jarvis System Authorized", "Mansi system Authorized MANSI AI"),
-              ("Jarvis OS . TECHGPT X", "MANSI AI OS . TECHGPT X"),
+              ("Jarvis OS . TECHGPT X", "MANSI AI . SAGAR"),
               ("TechGPT X", "TECHGPT X"),
               ("TechGPTX", "TECHGPT X"),
               ("Jarvis sagar neural Assistant", "Mansi AI sagar neural Assistant"),
