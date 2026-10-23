@@ -291,37 +291,40 @@ def replace_jarvis_in_literal(match):
     value = re.sub(r"(?i)jarvis", "MANSI AI", value)
     return quote + value + quote
 
-# Safe final branding pass: update each individual quoted literal, never across code.
-# Keep internal package/class identifiers intact, but remove visible Jarvis labels everywhere.
-def clean_visible_literal(match):
-    literal = match.group(0)
-    inner = literal[1:-1]
-    if inner.startswith(("com.jarvis.", "com/Jarvis/", "@+id/", "@id/", "@string/", "@drawable/", "@mipmap/")):
-        return literal
-    inner = re.sub(r"(?i)jarvis\\s*(?:[·•-]\\s*)?code", "MANSI Code", inner)
-    inner = re.sub(r"(?i)jarvis", "MANSI AI", inner)
-    return literal[0] + inner + literal[-1]
-
+# Safe final branding pass: literal replacements only; no broad regex over source code.
 for safe_path in root.rglob("*"):
     if not safe_path.is_file() or safe_path.suffix.lower() not in {".kt", ".java", ".xml", ".html", ".js", ".json", ".txt", ".properties"}:
         continue
     if safe_path.name == "AndroidManifest.xml":
         continue
-    if "/res/values/" in safe_path.as_posix() and safe_path.suffix.lower() == ".xml":
-        # String values are user-visible; themes/styles are identifiers. Only strings.xml.
-        if safe_path.name != "strings.xml":
-            continue
+    if "/res/values/" in safe_path.as_posix() and safe_path.suffix.lower() == ".xml" and safe_path.name != "strings.xml":
+        continue
     try:
         safe_text = safe_path.read_text(encoding="utf-8")
     except (UnicodeDecodeError, OSError):
         continue
-    cleaned = re.sub(r'"(?:\\\\.|[^"\\\\])*"|\\'(?:\\\\.|[^"\\\\])*\\'', clean_visible_literal, safe_text)
-    # Also clean visible XML text nodes, excluding tag/attribute syntax.
-    if safe_path.suffix.lower() == ".xml":
-        cleaned = re.sub(r">([^<>]*Jarvis[^<>]*)<", lambda m: ">" + re.sub(r"(?i)jarvis\\s*(?:[·•-]\\s*)?code", "MANSI Code", re.sub(r"(?i)jarvis", "MANSI AI", m.group(1))) + "<", cleaned)
+    cleaned = safe_text
+    # Apply longest/specific labels first. Keep lowercase package names such as com.jarvis intact.
+    replacements = [
+        ("JARVIS CODE", "MANSI CODE"),
+        ("Jarvis Code", "MANSI Code"),
+        ("Jarvis code", "MANSI Code"),
+        ("JARVIS PRO", "MANSI AI"),
+        ("Jarvis Pro", "MANSI AI"),
+        ("JARVIS AI", "MANSI AI"),
+        ("Jarvis AI", "MANSI AI"),
+        ("JARVIS", "MANSI AI"),
+        ("Jarvis", "MANSI AI"),
+        ("jarvis", "MANSI AI"),
+    ]
+    for old_label, new_label in replacements:
+        cleaned = cleaned.replace(old_label, new_label)
+    # Restore package paths and references if a capitalized occurrence was part of an identifier.
+    cleaned = cleaned.replace("com.MANSI AI.", "com.jarvis.")
+    cleaned = cleaned.replace("com/MANSI AI/", "com/Jarvis/")
     if cleaned != safe_text:
         safe_path.write_text(cleaned, encoding="utf-8")
-        print("Cleaned remaining visible Jarvis text in " + str(safe_path))
+        print("Cleaned remaining Jarvis text in " + str(safe_path))
 
 # Disabled legacy cross-line regex sweep; it corrupts Kotlin source.
 for sweep_path in []:
