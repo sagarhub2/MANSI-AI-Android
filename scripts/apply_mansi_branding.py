@@ -210,3 +210,29 @@ for voice_path in root.rglob("*"):
     if revised != voice_text:
         voice_path.write_text(revised, encoding="utf-8")
         print("Updated female-only voice labels in " + str(voice_path))
+
+
+# Replace visible Jarvis chat branding while keeping Java/Kotlin package names intact.
+visible_brand_replacements = {
+    "Jarvis • Gemini Live • Active": "MANSI AI • Gemini Live • Active",
+    "Jarvis · Gemini Live · Active": "MANSI AI · Gemini Live · Active",
+    "Message Jarvis": "Message MANSI AI",
+    "Message JARVIS": "Message MANSI AI",
+    "Jarvis Code": "MANSI AI Code",
+    "JARVIS CODE": "MANSI AI CODE",
+    "Jarvis": "MANSI AI",
+    "JARVIS": "MANSI AI",
+}
+for brand_path in root.rglob("*"):
+    if not brand_path.is_file() or brand_path.suffix.lower() not in {".xml", ".kt", ".java", ".json", ".txt", ".properties"}:
+        continue
+    try:
+        brand_text = brand_path.read_text(encoding="utf-8")
+    except (UnicodeDecodeError, OSError):
+        continue
+    updated_brand_text = brand_text
+    for old_label, new_label in visible_brand_replacements.items():
+        updated_brand_text = updated_brand_text.replace(old_label, new_label)
+    if updated_brand_text != brand_text:
+        brand_path.write_text(updated_brand_text, encoding="utf-8")
+        print("Updated visible Jarvis branding in " + str(brand_path))
