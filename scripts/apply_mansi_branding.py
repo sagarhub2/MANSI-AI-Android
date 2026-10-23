@@ -245,6 +245,18 @@ for brand_path in root.rglob("*"):
     )
     for old_label, new_label in visible_brand_replacements.items():
         updated_brand_text = updated_brand_text.replace(old_label, new_label)
+    # Explicitly clean visible product labels found during the screen review.
+    extra_visible_replacements = {
+        "JARVIS App Identity": "MANSI AI App Identity",
+        "Jarvis App Identity": "MANSI AI App Identity",
+        "Jarvis updates & announcements": "MANSI AI updates & announcements",
+        "JARVIS updates & announcements": "MANSI AI updates & announcements",
+        "JARVIS OFF • TAP TO START": "MANSI AI OFF • TAP TO START",
+        "JARVIS INTELLIGENCE OS": "MANSI AI",
+        "Official application ID: com.jarvis.assistant": "MANSI AI Android application",
+    }
+    for old_label, new_label in extra_visible_replacements.items():
+        updated_brand_text = updated_brand_text.replace(old_label, new_label)
     for index, token in enumerate(protected_tokens):
         updated_brand_text = updated_brand_text.replace(f"__MANSI_PROTECTED_{index}__", token)
     if updated_brand_text != brand_text:
@@ -271,6 +283,6 @@ for sweep_path in root.rglob("*"):
         continue
     # Restrict changes to quoted literals; don't rename Kotlin/Java identifiers.
     swept = re.sub(r"""(["'])(.*?)(\\1)""", replace_jarvis_in_literal, sweep_text, flags=re.S)
-    if swept != sweep_text:
+    swept = re.sub(r"""(["\'])(.*?)(\1)""", replace_jarvis_in_literal, sweep_text, flags=re.S)
         sweep_path.write_text(swept, encoding="utf-8")
         print("Removed remaining Jarvis wording from string literals in " + str(sweep_path))
