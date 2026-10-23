@@ -155,7 +155,7 @@ if models_kt.exists():
     src = models_kt.read_text(encoding="utf-8")
     import re
     # Patch only explicit voiceName assignments/defaults; avoid guessing at unrelated code.
-    updated = re.sub(r'(voiceName\\s*[:=]\\s*["\\'])(?:Aoede|Puck|Charon|Fenrir|Leda|Orus|Zephyr|Kore)(["\\'])', r'\\g<1>Kore\\2', src)
+    updated = re.sub(r"""(voiceName\s*[:=]\s*["'])(?:Aoede|Puck|Charon|Fenrir|Leda|Orus|Zephyr|Kore)(["'])""", r"\g<1>Kore\2", src)
     if updated != src:
         models_kt.write_text(updated, encoding="utf-8")
         print("Set Gemini Live voiceName to Kore (feminine-sounding voice).")
