@@ -315,7 +315,6 @@ for safe_path in root.rglob("*"):
         ("Jarvis AI", "MANSI AI"),
         ("JARVIS", "MANSI AI"),
         ("Jarvis", "MANSI AI"),
-        ("jarvis", "MANSI AI"),
     ]
     for old_label, new_label in replacements:
         cleaned = cleaned.replace(old_label, new_label)
