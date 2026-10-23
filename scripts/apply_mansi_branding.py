@@ -155,10 +155,22 @@ if models_kt.exists():
     src = models_kt.read_text(encoding="utf-8")
     import re
     # Patch only explicit voiceName assignments/defaults; avoid guessing at unrelated code.
-    updated = re.sub(r"""(voiceName\s*[:=]\s*["'])(?:Aoede|Puck|Charon|Fenrir|Leda|Orus|Zephyr|Kore)(["'])""", r"\g<1>Kore\2", src)
+    # The actual project default is DEFAULT_VOICE = "Puck" (a masculine-sounding voice).
+    # Force the app's default Live voice to Kore, and keep any explicit voiceName
+    # defaults aligned with it. The live socket sends preferences.voice as voice_name.
+    updated = re.sub(
+        r'(?m)(const\s+val\s+DEFAULT_VOICE\s*=\s*["\'])([^"\']+)(["\'])',
+        r'\g<1>Kore\3',
+        src
+    )
+    updated = re.sub(
+        r"""(voiceName\s*[:=]\s*["'])(?:Aoede|Puck|Charon|Fenrir|Leda|Orus|Zephyr|Kore)(["'])""",
+        r"\g<1>Kore\2",
+        updated
+    )
     if updated != src:
         models_kt.write_text(updated, encoding="utf-8")
-        print("Set Gemini Live voiceName to Kore (feminine-sounding voice).")
+        print("Set Gemini Live DEFAULT_VOICE/voiceName to Kore (female voice).")
     else:
-        print("NOTE: No explicit supported voiceName literal found; existing voice config left unchanged.")
+        print("WARNING: GeminiLiveModels voice defaults were not changed; inspect source.")
 
