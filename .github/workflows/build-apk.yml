@@ -26,11 +26,12 @@ jobs:
           test -f source/mansi/settings.gradle.kts
           chmod +x source/mansi/gradlew
           python3 -m pip install --quiet Pillow
-          cp source/mansi/app/src/main/java/com/jarvis/assistant/vision/VisualTaskOrchestrator.kt /tmp/VisualTaskOrchestrator.kt.original
+          cp -a source/mansi/app/src/main/java /tmp/mansi-java-original
           python3 scripts/apply_mansi_branding.py
-          # The legacy branding sweep can rewrite Kotlin code literals and corrupt syntax in this large file.
-          # Restore its original compilable source; branding in UI/resources is handled separately.
-          cp /tmp/VisualTaskOrchestrator.kt.original source/mansi/app/src/main/java/com/jarvis/assistant/vision/VisualTaskOrchestrator.kt
+          # The legacy branding sweep rewrites Kotlin source literals and corrupts syntax across multiple files.
+          # Restore all Java/Kotlin source; user-facing branding is handled in Android resources and assets.
+          rm -rf source/mansi/app/src/main/java
+          cp -a /tmp/mansi-java-original source/mansi/app/src/main/java
           echo "---- REPAIR ANDROID STRING RESOURCE NAMES ----"
           python3 - <<'PY'
           from pathlib import Path
