@@ -125,6 +125,8 @@ if settings_kt.exists():
 privacy_kt = root / "java/com/jarvis/assistant/ui/settings/PrivacyShieldActivity.kt"
 if privacy_kt.exists():
     src = privacy_kt.read_text(encoding="utf-8")
+    if "import android.view.View" not in src:
+        src = src.replace("package com.jarvis.assistant.ui.settings\n", "package com.jarvis.assistant.ui.settings\n\nimport android.view.View\n", 1)
     src = src.replace("https://www.instagram.com/techgptx.ai", "https://instagram.com/hyee__sagar")
     src = re.sub(
         r'binding\.btnJoinOfficialTelegram\.setOnClickListener \{.*?\n        \}',
