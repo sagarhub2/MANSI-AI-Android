@@ -32,6 +32,65 @@ jobs:
           # Restore all Java/Kotlin source; user-facing branding is handled in Android resources and assets.
           rm -rf source/mansi/app/src/main/java
           cp -a /tmp/mansi-java-original source/mansi/app/src/main/java
+          echo "---- APPLY PROFILE LINK CHANGES AND REMOVE YOUTUBE PROFILE LINKS ----"
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          root = Path("source/mansi/app/src/main/java/com/jarvis/assistant/ui/settings")
+          instagram = "https://instagram.com/hyee__sagar"
+          telegram = "https://t.me/H_sagarr"
+          targets = {
+              "SettingsFragment.kt": [
+                  ("https://www.instagram.com/techgptx.ai", instagram),
+                  ("https://instagram.com/techgptx.ai", instagram),
+              ],
+              "PrivacyShieldActivity.kt": [
+                  ("https://www.instagram.com/techgptx.ai", instagram),
+                  ("https://instagram.com/techgptx.ai", instagram),
+              ],
+          }
+          for filename, replacements in targets.items():
+              path = root / filename
+              if not path.exists():
+                  print("Profile screen not found; skipping:", path)
+                  continue
+              source = path.read_text(encoding="utf-8")
+              before = source
+              for old, new in replacements:
+                  source = source.replace(old, new)
+              if filename == "SettingsFragment.kt":
+                  source = re.sub(
+                      r'binding\.btnSocialTelegram\.setOnClickListener \{.*?\n        \}',
+                      'binding.btnSocialTelegram.setOnClickListener {\n            openUrl("' + telegram + '")\n        }',
+                      source, count=1, flags=re.S
+                  )
+                  if "binding.btnSocialYoutube.visibility = android.view.View.GONE" not in source:
+                      source = source.replace(
+                          "binding.btnSocialYoutube.setOnClickListener {",
+                          "binding.btnSocialYoutube.visibility = android.view.View.GONE\n        binding.btnSocialYoutube.setOnClickListener {",
+                          1
+                      )
+              else:
+                  source = re.sub(
+                      r'binding\.btnJoinOfficialTelegram\.setOnClickListener \{.*?\n        \}',
+                      'binding.btnJoinOfficialTelegram.setOnClickListener {\n            openUrl("' + telegram + '")\n        }',
+                      source, count=1, flags=re.S
+                  )
+                  source = re.sub(
+                      r'binding\.btnJoinTelegram\.setOnClickListener \{.*?\n        \}',
+                      'binding.btnJoinTelegram.setOnClickListener {\n            openUrl("' + telegram + '")\n        }',
+                      source, count=1, flags=re.S
+                  )
+                  if "binding.btnJoinYoutube.visibility = android.view.View.GONE" not in source:
+                      source = source.replace(
+                          "binding.btnJoinYoutube.setOnClickListener {",
+                          "binding.btnJoinYoutube.visibility = android.view.View.GONE\n        binding.btnJoinYoutube.setOnClickListener {",
+                          1
+                      )
+              if source != before:
+                  path.write_text(source, encoding="utf-8")
+                  print("Updated profile links / removed YouTube shortcut:", path)
+          PY
           echo "---- APPLY SAFE VISIBLE BRANDING TO SOURCE RESOURCES ----"
           python3 - <<'PY'
           from pathlib import Path
