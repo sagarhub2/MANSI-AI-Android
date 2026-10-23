@@ -293,7 +293,7 @@ def replace_jarvis_in_literal(match):
 
 # Disabled: broad source-literal rewriting was corrupting Kotlin syntax.
 # Explicit resource/UI replacements above are safer; keep package/class identifiers intact.
-for safe_path in []:
+for safe_path in root.rglob('*'):
     if not safe_path.is_file() or safe_path.suffix.lower() not in {".kt", ".java", ".xml", ".html", ".js", ".json", ".txt", ".properties"}:
         continue
     if safe_path.name == "AndroidManifest.xml":
@@ -330,7 +330,7 @@ for safe_path in []:
         print("Cleaned remaining visible Jarvis text in " + str(safe_path))
 
 # Disabled legacy cross-line regex sweep; it corrupts Kotlin source.
-for sweep_path in []:
+for sweep_path in root.rglob('*'):
     if not sweep_path.is_file() or sweep_path.suffix.lower() not in {".xml", ".kt", ".java", ".html", ".js", ".json", ".txt", ".properties"}:
         continue
     # Manifest class names are quoted strings but must never be rebranded.
@@ -357,7 +357,7 @@ def clean_visible_string(match):
     low = value.lower()
     if low.startswith(("com.jarvis.", "com/jarvis/", "com.jarvis", "@+id/", "@id/", "@string/", "@drawable/", "@mipmap/")):
         return match.group(0)
-    value = re.sub(r"(?i)jarvis\\s*(?:[·•-]\\s*)?code", "MANSI Code", value)
+    value = re.sub(r"(?i)jarvis\s*(?:[·•-]\s*)?code", "MANSI Code", value)
     value = re.sub(r"(?i)jarvis", "MANSI AI", value)
     return quote + value + quote
 
@@ -373,7 +373,7 @@ for final_path in root.rglob("*"):
     except (UnicodeDecodeError, OSError):
         continue
     # Only single-line string literals; never rewrite Kotlin identifiers or multiline code.
-    final_clean = re.sub(r"""(["'])([^"'\\n]*)\\1""", clean_visible_string, final_text)
+    final_clean = re.sub(r"""(["'])([^"'\n]*)\1""", clean_visible_string, final_text)
     if final_clean != final_text:
         final_path.write_text(final_clean, encoding="utf-8")
         print("Final visible brand cleanup: " + str(final_path))
@@ -389,6 +389,10 @@ res = root / "res"
 # Older project ZIPs may not contain that added asset, so fall back safely
 # to the existing in-project logo instead of failing the entire APK build.
 preferred_logo = res / "drawable/mansi_launcher_source.png"
+repo_logo = Path("branding/mansi_launcher_source.png")
+if repo_logo.is_file():
+    preferred_logo.parent.mkdir(parents=True, exist_ok=True)
+    preferred_logo.write_bytes(repo_logo.read_bytes())
 legacy_logo = res / "drawable/ic_jarvis_logo.png"
 logo_path = preferred_logo if preferred_logo.is_file() else legacy_logo
 if not logo_path.is_file():
