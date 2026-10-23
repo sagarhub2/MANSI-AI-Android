@@ -32,6 +32,35 @@ jobs:
           # Restore all Java/Kotlin source; user-facing branding is handled in Android resources and assets.
           rm -rf source/mansi/app/src/main/java
           cp -a /tmp/mansi-java-original source/mansi/app/src/main/java
+          echo "---- APPLY REQUESTED MANSI AI / SAGAR BRANDING ----"
+          python3 - <<'PY'
+          from pathlib import Path
+          root = Path("source/mansi/app/src/main")
+          replacements = [
+              ("Jarvis system Authorized MANSI AI", "MANSI AI system Authorized MANSI AI"),
+              ("Jarvis Autonomous device control", "MANSI AI Autonomous device control"),
+              ("MANSI AI OS . TECHGPT X", "MANSI AI . SAGAR"),
+              ("Jarvis Autonomous Device Control", "MANSI AI Autonomous device control"),
+              ("Jarvis System Authorized", "MANSI AI system Authorized MANSI AI"),
+              ("Jarvis OS . TECHGPT X", "MANSI AI . SAGAR"),
+              ("TechGPT X", "SAGAR"),
+              ("TechGPTX", "SAGAR"),
+          ]
+          suffixes = {".xml", ".kt", ".java", ".html", ".js", ".json", ".txt", ".properties"}
+          for path in root.rglob("*"):
+              if not path.is_file() or path.suffix.lower() not in suffixes:
+                  continue
+              try:
+                  before = path.read_text(encoding="utf-8")
+              except (OSError, UnicodeDecodeError):
+                  continue
+              after = before
+              for old, new in replacements:
+                  after = after.replace(old, new)
+              if after != before:
+                  path.write_text(after, encoding="utf-8")
+                  print("Updated branding:", path)
+          PY
           echo "---- APPLY PROFILE LINK CHANGES AND REMOVE YOUTUBE PROFILE LINKS ----"
           python3 - <<'PY'
           from pathlib import Path
