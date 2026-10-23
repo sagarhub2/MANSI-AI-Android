@@ -291,8 +291,9 @@ def replace_jarvis_in_literal(match):
     value = re.sub(r"(?i)jarvis", "MANSI AI", value)
     return quote + value + quote
 
-# Safe final branding pass: replace quoted Jarvis UI text while preserving identifiers.
-for safe_path in root.rglob("*"):
+# Disabled: broad source-literal rewriting was corrupting Kotlin syntax.
+# Explicit resource/UI replacements above are safer; keep package/class identifiers intact.
+for safe_path in []:
     if not safe_path.is_file() or safe_path.suffix.lower() not in {".kt", ".java", ".xml", ".html", ".js", ".json", ".txt", ".properties"}:
         continue
     if safe_path.name == "AndroidManifest.xml":
