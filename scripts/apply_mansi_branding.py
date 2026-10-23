@@ -282,7 +282,7 @@ for sweep_path in root.rglob("*"):
     except (UnicodeDecodeError, OSError):
         continue
     # Restrict changes to quoted literals; don't rename Kotlin/Java identifiers.
-    swept = re.sub(r"""(["'])(.*?)(\\1)""", replace_jarvis_in_literal, sweep_text, flags=re.S)
     swept = re.sub(r"""(["\'])(.*?)(\1)""", replace_jarvis_in_literal, sweep_text, flags=re.S)
+    if swept != sweep_text:
         sweep_path.write_text(swept, encoding="utf-8")
         print("Removed remaining Jarvis wording from string literals in " + str(sweep_path))
