@@ -235,8 +235,20 @@ for brand_path in root.rglob("*"):
     except (UnicodeDecodeError, OSError):
         continue
     updated_brand_text = brand_text
+    # Protect Android resource IDs and code identifiers before changing visible labels.
+    protected_tokens = []
+    def protect_token(match):
+        protected_tokens.append(match.group(0))
+        return f"__MANSI_PROTECTED_{len(protected_tokens) - 1}__"
+    updated_brand_text = re.sub(
+        r'(?:android:id\\s*=\\s*["\\'][^"\\']+["\\']|@\\+?id/[A-Za-z0-9_]+|R\\.id\\.[A-Za-z0-9_]+|binding\\.[A-Za-z0-9_]+)',
+        protect_token,
+        updated_brand_text
+    )
     for old_label, new_label in visible_brand_replacements.items():
         updated_brand_text = updated_brand_text.replace(old_label, new_label)
+    for index, token in enumerate(protected_tokens):
+        updated_brand_text = updated_brand_text.replace(f"__MANSI_PROTECTED_{index}__", token)
     if updated_brand_text != brand_text:
         brand_path.write_text(updated_brand_text, encoding="utf-8")
         print("Updated visible Jarvis branding in " + str(brand_path))
