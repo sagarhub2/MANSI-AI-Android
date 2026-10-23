@@ -241,7 +241,7 @@ for brand_path in root.rglob("*"):
         protected_tokens.append(match.group(0))
         return f"__MANSI_PROTECTED_{len(protected_tokens) - 1}__"
     updated_brand_text = re.sub(
-        r"""(?:android:id\\s*=\\s*["'][^"']+["']|@\\+?id/[A-Za-z0-9_]+|R\\.id\\.[A-Za-z0-9_]+|binding\\.[A-Za-z0-9_]+)""",
+        r"""(?:android:id\s*=\s*["'][^"']+["']|@\+?id/[A-Za-z0-9_]+|R\.id\.[A-Za-z0-9_]+|binding\.[A-Za-z0-9_]+)""",
         protect_token,
         updated_brand_text
     )
