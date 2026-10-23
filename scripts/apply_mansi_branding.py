@@ -250,3 +250,27 @@ for brand_path in root.rglob("*"):
     if updated_brand_text != brand_text:
         brand_path.write_text(updated_brand_text, encoding="utf-8")
         print("Updated visible Jarvis branding in " + str(brand_path))
+
+
+# Final visible-brand sweep: remove remaining Jarvis wording from quoted UI
+# strings, while preserving Android package/class references and resource IDs.
+def replace_jarvis_in_literal(match):
+    quote, value = match.group(1), match.group(2)
+    if value.startswith(("com.jarvis.", "com/Jarvis/", "@+id/", "@id/", "@string/", "@drawable/", "@mipmap/")):
+        return match.group(0)
+    value = re.sub(r"(?i)jarvis(?:\\s+|[·•]\\s*)code", "MANSI AI Code", value)
+    value = re.sub(r"(?i)jarvis", "MANSI AI", value)
+    return quote + value + quote
+
+for sweep_path in root.rglob("*"):
+    if not sweep_path.is_file() or sweep_path.suffix.lower() not in {".xml", ".kt", ".java", ".html", ".js", ".json", ".txt", ".properties"}:
+        continue
+    try:
+        sweep_text = sweep_path.read_text(encoding="utf-8")
+    except (UnicodeDecodeError, OSError):
+        continue
+    # Restrict changes to quoted literals; don't rename Kotlin/Java identifiers.
+    swept = re.sub(r"""(["'])(.*?)(\\1)""", replace_jarvis_in_literal, sweep_text, flags=re.S)
+    if swept != sweep_text:
+        sweep_path.write_text(swept, encoding="utf-8")
+        print("Removed remaining Jarvis wording from string literals in " + str(sweep_path))
