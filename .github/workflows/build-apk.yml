@@ -7,6 +7,7 @@ on:
       - "MANSI_AI_Android_GitHub_Upload.zip"
       - ".github/workflows/build-apk.yml"
       - "scripts/apply_mansi_branding.py"
+      - "branding/**"
 
 permissions:
   contents: read
