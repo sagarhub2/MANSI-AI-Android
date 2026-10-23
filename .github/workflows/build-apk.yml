@@ -26,6 +26,10 @@ jobs:
           chmod +x source/mansi/gradlew
           python3 scripts/apply_mansi_branding.py
 
+      - name: Inspect profile and battery-prompt strings
+        run: |
+          grep -RniE "YouTube|Primary User|TechGPT X|Jarvis Operator|Unrestricted Battery Required|Instagram|Telegram|battery" source/mansi/app/src/main --include="*.xml" --include="*.kt" --include="*.java" --include="*.html" --include="*.js" --include="*.json" --include="*.txt" || true
+
       - name: Set up Java
         uses: actions/setup-java@v4
         with:
