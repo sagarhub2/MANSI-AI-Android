@@ -191,3 +191,22 @@ for const_path in root.rglob("*"):
     if voice_updated != voice_src:
         const_path.write_text(voice_updated, encoding="utf-8")
         print("Migrated masculine Puck voice default in " + str(const_path))
+
+# Make every voice selector entry use a supported feminine voice.
+for voice_path in root.rglob("*"):
+    if not voice_path.is_file() or voice_path.suffix.lower() not in {".kt", ".java", ".xml", ".json", ".txt"}:
+        continue
+    try:
+        voice_text = voice_path.read_text(encoding="utf-8")
+    except (UnicodeDecodeError, OSError):
+        continue
+    revised = voice_text
+    revised = revised.replace("Fenrir (Deep, protective charismatic male voice)", "Kore (Cute, gentle female voice)")
+    revised = revised.replace("Puck (Crisp, modern dynamic male voice)", "Aoede (Cute, playful female voice)")
+    revised = revised.replace("Charon (Distinguished butler male voice)", "Kore (Soft, sweet female voice)")
+    revised = revised.replace("Deep, protective charismatic male voice", "Cute, gentle female voice")
+    revised = revised.replace("Crisp, modern dynamic male voice", "Cute, playful female voice")
+    revised = revised.replace("Distinguished butler male voice", "Soft, sweet female voice")
+    if revised != voice_text:
+        voice_path.write_text(revised, encoding="utf-8")
+        print("Updated female-only voice labels in " + str(voice_path))
