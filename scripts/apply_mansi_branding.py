@@ -291,7 +291,7 @@ def replace_jarvis_in_literal(match):
     value = re.sub(r"(?i)jarvis", "MANSI AI", value)
     return quote + value + quote
 
-# Safe final branding pass: literal replacements only; no broad regex over source code.
+# Safe final branding pass: protect Android IDs and code identifiers before literal replacement.
 for safe_path in root.rglob("*"):
     if not safe_path.is_file() or safe_path.suffix.lower() not in {".kt", ".java", ".xml", ".html", ".js", ".json", ".txt", ".properties"}:
         continue
@@ -303,27 +303,30 @@ for safe_path in root.rglob("*"):
         safe_text = safe_path.read_text(encoding="utf-8")
     except (UnicodeDecodeError, OSError):
         continue
-    cleaned = safe_text
-    # Apply longest/specific labels first. Keep lowercase package names such as com.jarvis intact.
-    replacements = [
-        ("JARVIS CODE", "MANSI CODE"),
-        ("Jarvis Code", "MANSI Code"),
-        ("Jarvis code", "MANSI Code"),
-        ("JARVIS PRO", "MANSI AI"),
-        ("Jarvis Pro", "MANSI AI"),
-        ("JARVIS AI", "MANSI AI"),
-        ("Jarvis AI", "MANSI AI"),
-        ("JARVIS", "MANSI AI"),
+    protected = []
+    def protect_android_identifier(match):
+        protected.append(match.group(0))
+        return f"__MANSI_KEEP_{len(protected) - 1}__"
+    cleaned = re.sub(
+        r"""(?:android:id\s*=\s*["'][^"']+["']|@\+?id/[A-Za-z0-9_]+|R\.id\.[A-Za-z0-9_]+|binding\.[A-Za-z0-9_]+)""",
+        protect_android_identifier,
+        safe_text
+    )
+    for old_label, new_label in [
+        ("JARVIS CODE", "MANSI CODE"), ("Jarvis Code", "MANSI Code"),
+        ("Jarvis code", "MANSI Code"), ("JARVIS PRO", "MANSI AI"),
+        ("Jarvis Pro", "MANSI AI"), ("JARVIS AI", "MANSI AI"),
+        ("Jarvis AI", "MANSI AI"), ("JARVIS", "MANSI AI"),
         ("Jarvis", "MANSI AI"),
-    ]
-    for old_label, new_label in replacements:
+    ]:
         cleaned = cleaned.replace(old_label, new_label)
-    # Restore package paths and references if a capitalized occurrence was part of an identifier.
     cleaned = cleaned.replace("com.MANSI AI.", "com.jarvis.")
     cleaned = cleaned.replace("com/MANSI AI/", "com/Jarvis/")
+    for index, token in enumerate(protected):
+        cleaned = cleaned.replace(f"__MANSI_KEEP_{index}__", token)
     if cleaned != safe_text:
         safe_path.write_text(cleaned, encoding="utf-8")
-        print("Cleaned remaining Jarvis text in " + str(safe_path))
+        print("Cleaned remaining visible Jarvis text in " + str(safe_path))
 
 # Disabled legacy cross-line regex sweep; it corrupts Kotlin source.
 for sweep_path in []:
