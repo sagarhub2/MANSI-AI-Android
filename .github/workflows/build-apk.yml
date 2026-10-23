@@ -39,8 +39,7 @@ jobs:
           root = Path("source/mansi/app/src/main")
           # Only replace quoted UI string literals; never alter package names,
           # resource IDs, file paths, or Android resource identifiers.
-          literal = re.compile(r"""(["\'])([^"\']*?jarvis[^"\']*?)\\1""", re.IGNORECASE)
-]*?jarvis[^"'
+          literal = re.compile(r'(["\\\'])([^"\\\']*?jarvis[^"\\\']*?)\\1', re.IGNORECASE)
 ]*?)\1""", re.IGNORECASE)
           def replace_literal(match):
               value = match.group(2)
