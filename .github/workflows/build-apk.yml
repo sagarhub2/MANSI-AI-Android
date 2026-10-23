@@ -37,17 +37,17 @@ jobs:
           from pathlib import Path
           root = Path("source/mansi/app/src/main")
           replacements = [
-              ("Jarvis system Authorized MANSI AI", "MANSI AI system Authorized MANSI AI"),
-              ("Jarvis Autonomous device control", "MANSI AI Autonomous device control"),
-              ("MANSI AI OS . TECHGPT X", "MANSI AI . SAGAR"),
-              ("Jarvis Autonomous Device Control", "MANSI AI Autonomous device control"),
-              ("Jarvis System Authorized", "MANSI AI system Authorized MANSI AI"),
-              ("Jarvis OS . TECHGPT X", "MANSI AI . SAGAR"),
-              ("TechGPT X", "SAGAR"),
-              ("TechGPTX", "SAGAR"),
-              ("Jarvis sagar neural Assistant", "MANSI AI"),
-              ("Jarvis operator . Primary", "MANSI AI"),
-              ("Jarvis pro . Puck", "MANSI AI"),
+              ("Jarvis system Authorized MANSI AI", "Mansi system Authorized MANSI AI"),
+              ("Jarvis Autonomous device control", "Mansi AI Autonomous device control"),
+              ("MANSI AI OS . TECHGPT X", "MANSI AI OS . TECHGPT X"),
+              ("Jarvis Autonomous Device Control", "Mansi AI Autonomous device control"),
+              ("Jarvis System Authorized", "Mansi system Authorized MANSI AI"),
+              ("Jarvis OS . TECHGPT X", "MANSI AI OS . TECHGPT X"),
+              ("TechGPT X", "TECHGPT X"),
+              ("TechGPTX", "TECHGPT X"),
+              ("Jarvis sagar neural Assistant", "Mansi AI sagar neural Assistant"),
+              ("Jarvis operator . Primary", "Mansi AI operator . Primary"),
+              ("Jarvis pro . Puck", "Mansi AI pro . Puck"),
           ]
           suffixes = {".xml", ".kt", ".java", ".html", ".js", ".json", ".txt", ".properties"}
           for path in root.rglob("*"):
