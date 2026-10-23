@@ -175,24 +175,19 @@ if models_kt.exists():
         print("WARNING: GeminiLiveModels voice defaults were not changed; inspect source.")
 
 
-
-// Enforce a cute, feminine voice for every saved/default Gemini Live voice setting.
-// Preserve the user's explicit choice between supported feminine voices, but migrate
-// the old masculine Puck default so existing installs do not silently keep it.
-for (constPath of root.rglob("*")) {
-    if (!constPath.is_file() or constPath.suffix.lower() not in {".kt", ".java", ".xml", ".json", ".txt"}):
+# Enforce a cute, feminine voice for Gemini Live voice defaults.
+# Migrate the old masculine Puck default where a source file clearly refers to voice.
+for const_path in root.rglob("*"):
+    if not const_path.is_file() or const_path.suffix.lower() not in {".kt", ".java", ".xml", ".json", ".txt"}:
         continue
     try:
-        voiceSrc = constPath.read_text(encoding="utf-8")
+        voice_src = const_path.read_text(encoding="utf-8")
     except (UnicodeDecodeError, OSError):
         continue
-    voiceUpdated = voiceSrc
-    if "voice" in voiceSrc.lower() or "voice_name" in voiceSrc.lower() or "DEFAULT_VOICE" in voiceSrc:
-        voiceUpdated = re.sub(r'(?i)(DEFAULT_VOICE\s*=\s*["\'])Puck(["\'])', r'\1Kore\2', voiceUpdated)
-        voiceUpdated = re.sub(r'(?i)(voiceName\s*[:=]\s*["\'])Puck(["\'])', r'\1Kore\2', voiceUpdated)
-        # Migrate persisted Puck preference defaults only when the nearby source clearly
-        # identifies the setting as a voice preference.
-        voiceUpdated = re.sub(r'(?i)((?:voice|voice_name|voiceName)[^\n]{0,100}["\'])Puck(["\'])', r'\1Kore\2', voiceUpdated)
-    if voiceUpdated != voiceSrc:
-        constPath.write_text(voiceUpdated, encoding="utf-8")
-        print("Migrated masculine Puck voice default in " + str(constPath))
+    voice_updated = voice_src
+    if "voice" in voice_src.lower() or "voice_name" in voice_src.lower() or "DEFAULT_VOICE" in voice_src:
+        voice_updated = re.sub(r'(?i)(DEFAULT_VOICE\s*=\s*["\'])Puck(["\'])', r'\1Kore\2', voice_updated)
+        voice_updated = re.sub(r'(?i)(voiceName\s*[:=]\s*["\'])Puck(["\'])', r'\1Kore\2', voice_updated)
+    if voice_updated != voice_src:
+        const_path.write_text(voice_updated, encoding="utf-8")
+        print("Migrated masculine Puck voice default in " + str(const_path))
