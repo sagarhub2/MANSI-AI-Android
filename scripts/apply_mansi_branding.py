@@ -218,8 +218,8 @@ visible_brand_replacements = {
     "Jarvis · Gemini Live · Active": "MANSI AI · Gemini Live · Active",
     "Message Jarvis": "Message MANSI AI",
     "Message JARVIS": "Message MANSI AI",
-    "Jarvis Code": "MANSI AI Code",
-    "JARVIS CODE": "MANSI AI CODE",
+    "Jarvis Code": "MANSI Code",
+    "JARVIS CODE": "MANSI CODE",
 }
 for brand_path in root.rglob("*"):
     if not brand_path.is_file() or brand_path.suffix.lower() not in {".xml", ".kt", ".java", ".json", ".txt", ".properties"}:
@@ -258,7 +258,7 @@ def replace_jarvis_in_literal(match):
     quote, value = match.group(1), match.group(2)
     if value.startswith(("com.jarvis.", "com/Jarvis/", "@+id/", "@id/", "@string/", "@drawable/", "@mipmap/")):
         return match.group(0)
-    value = re.sub(r"(?i)jarvis(?:\\s+|[·•]\\s*)code", "MANSI AI Code", value)
+    value = re.sub(r"(?i)jarvis(?:\s+|[·•]\s*)code", "MANSI Code", value)
     value = re.sub(r"(?i)jarvis", "MANSI AI", value)
     return quote + value + quote
 
