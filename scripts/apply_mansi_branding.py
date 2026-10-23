@@ -401,7 +401,6 @@ adaptive = Image.new("RGBA", (432, 432), (0, 0, 0, 0))
 art = ImageOps.contain(logo, (264, 264), method=Image.Resampling.LANCZOS)
 adaptive.alpha_composite(art, ((432 - art.width) // 2, (432 - art.height) // 2))
 (res / "mipmap-anydpi-v26").mkdir(parents=True, exist_ok=True)
-adaptive.save(res / "mipmap-xxxhdpi/ic_launcher_foreground.png")
 for density, size in [("mdpi",108),("hdpi",162),("xhdpi",216),("xxhdpi",324),("xxxhdpi",432)]:
     folder = res / f"mipmap-{density}"
     folder.mkdir(parents=True, exist_ok=True)
@@ -413,6 +412,16 @@ for density, size in [("mdpi",108),("hdpi",162),("xhdpi",216),("xxhdpi",324),("x
     legacy.alpha_composite(legacy_art, ((size-legacy_art.width)//2, (size-legacy_art.height)//2))
     legacy.save(folder / "ic_launcher.png")
     legacy.save(folder / "ic_launcher_round.png")
+
+# Ensure the referenced adaptive background color resource exists.
+values_dir = res / "values"
+values_dir.mkdir(parents=True, exist_ok=True)
+colors_xml = values_dir / "ic_launcher_background.xml"
+colors_xml.write_text('''<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="ic_launcher_background">#100A28</color>
+</resources>
+''', encoding="utf-8")
 
 for filename in ["ic_launcher.xml", "ic_launcher_round.xml"]:
     xml_path = res / "mipmap-anydpi-v26" / filename
