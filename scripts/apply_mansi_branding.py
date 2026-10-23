@@ -220,6 +220,15 @@ visible_brand_replacements = {
     "Message JARVIS": "Message MANSI AI",
     "Jarvis Code": "MANSI Code",
     "JARVIS CODE": "MANSI CODE",
+    "Jarvis Pro": "MANSI AI",
+    "JARVIS PRO": "MANSI AI",
+    "JARVIS Pro": "MANSI AI",
+    "Jarvis Pro Voice": "MANSI AI Voice",
+    "JARVIS PRO VOICE": "MANSI AI VOICE",
+    "Jarvis AI": "MANSI AI",
+    "JARVIS AI": "MANSI AI",
+    "Jarvis Intelligence": "MANSI AI",
+    "JARVIS INTELLIGENCE": "MANSI AI",
 }
 for brand_path in root.rglob("*"):
     if not brand_path.is_file() or brand_path.suffix.lower() not in {".xml", ".kt", ".java", ".json", ".txt", ".properties"}:
@@ -256,6 +265,11 @@ for brand_path in root.rglob("*"):
         "JARVIS updates & announcements": "MANSI AI updates & announcements",
         "JARVIS OFF • TAP TO START": "MANSI AI OFF • TAP TO START",
         "JARVIS INTELLIGENCE OS": "MANSI AI",
+        "Jarvis Pro": "MANSI AI",
+        "JARVIS PRO": "MANSI AI",
+        "JARVIS Pro": "MANSI AI",
+        "Jarvis Code": "MANSI Code",
+        "JARVIS CODE": "MANSI CODE",
         "Official application ID: com.jarvis.assistant": "MANSI AI Android application",
     }
     for old_label, new_label in extra_visible_replacements.items():
