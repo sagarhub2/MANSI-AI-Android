@@ -348,3 +348,32 @@ for sweep_path in []:
     if swept != sweep_text:
         sweep_path.write_text(swept, encoding="utf-8")
         print("Removed remaining Jarvis wording from string literals in " + str(sweep_path))
+
+# Targeted cleanup of visible branding in source text. Preserve package names,
+# resource IDs, and all unquoted identifiers to avoid breaking Android builds.
+def clean_visible_string(match):
+    quote = match.group(1)
+    value = match.group(2)
+    low = value.lower()
+    if low.startswith(("com.jarvis.", "com/jarvis/", "com.jarvis", "@+id/", "@id/", "@string/", "@drawable/", "@mipmap/")):
+        return match.group(0)
+    value = re.sub(r"(?i)jarvis\\s*(?:[·•-]\\s*)?code", "MANSI Code", value)
+    value = re.sub(r"(?i)jarvis", "MANSI AI", value)
+    return quote + value + quote
+
+for final_path in root.rglob("*"):
+    if not final_path.is_file() or final_path.suffix.lower() not in {".kt", ".java", ".xml", ".html", ".js", ".json", ".txt", ".properties"}:
+        continue
+    if final_path.name == "AndroidManifest.xml":
+        continue
+    if "/res/values/" in final_path.as_posix() and final_path.suffix.lower() == ".xml" and final_path.name != "strings.xml":
+        continue
+    try:
+        final_text = final_path.read_text(encoding="utf-8")
+    except (UnicodeDecodeError, OSError):
+        continue
+    # Only single-line string literals; never rewrite Kotlin identifiers or multiline code.
+    final_clean = re.sub(r"""(["'])([^"'\\n]*)\\1""", clean_visible_string, final_text)
+    if final_clean != final_text:
+        final_path.write_text(final_clean, encoding="utf-8")
+        print("Final visible brand cleanup: " + str(final_path))
