@@ -33,6 +33,10 @@ jobs:
           import re
           p = Path("source/mansi/app/src/main/res/values/strings.xml")
           s = p.read_text(encoding="utf-8")
+          if '<string name="chat_label_jarvis">' not in s:
+              s = s.replace("</resources>", '    <string name="chat_label_jarvis">MANSI AI</string>\\n</resources>')
+              p.write_text(s, encoding="utf-8")
+              s = p.read_text(encoding="utf-8")
           def fix_name(m):
               name = m.group(1)
               safe = re.sub(r"[^A-Za-z0-9_.]", "_", name)
