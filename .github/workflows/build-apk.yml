@@ -51,8 +51,30 @@ jobs:
               ("Sagar · Neural Assistant", "Mansi AI sagar neural Assistant"),
               ("Jarvis can listen", "MANSI AI can listen"),
               ("Jarvis Logo", "MANSI AI Logo"),
+              ("MANSI AI OS · MANSI AI", "MANSI AI OS · SAGAR"),
+              ("MANSI AI OS . MANSI AI", "MANSI AI OS · SAGAR"),
+              ("MANSI AI OS . TECHGPT X", "MANSI AI OS · SAGAR"),
+              ("MANSI AI OS . TECHGPTX", "MANSI AI OS · SAGAR"),
+              ("MANSI AI . SAGAR", "MANSI AI OS · SAGAR"),
+              ("MANSI AI App Identity", "MANSI AI App Identity"),
+              ("Developer: Tech GPT X", "Developer: SAGAR"),
+              ("Developer: TECHGPTX", "Developer: SAGAR"),
+              ("Developer: MANSI AI", "Developer: SAGAR"),
+              ("Copyright: Tech GPT X", "Copyright: SAGAR"),
+              ("Copyright: TECHGPTX", "Copyright: SAGAR"),
+              ("Copyright: MANSI AI", "Copyright: SAGAR"),
+              ("@techgptx.ai", "@hyee__sagar"),
+              ("instagram.com/techgptx.ai", "instagram.com/hyee__sagar"),
+              ("https://t.me/JarvisAI", "https://t.me/H_sagarr"),
+              ("https://t.me/techgptx", "https://t.me/H_sagarr"),
+              ("https://t.me/MANSI_AI", "https://t.me/H_sagarr"),
+              ("JARVIS OPERATOR • PRIMARY USER", "MANSI AI Operator · Primary User"),
+              ("JARVIS OPERATOR · PRIMARY USER", "MANSI AI Operator · Primary User"),
+              ("Jarvis Operator • Primary User", "MANSI AI Operator · Primary User"),
+              ("JARVIS PRO VOICE", "MANSI PRO · Voice: Puck"),
+              ("Jarvis Pro Voice", "MANSI PRO · Voice: Puck"),
           ]
-          suffixes = {".xml", ".html", ".js", ".json", ".txt", ".properties"}
+          suffixes = {".xml", ".html", ".js", ".json", ".txt", ".properties", ".kt", ".java"}
           for path in root.rglob("*"):
               if not path.is_file() or path.suffix.lower() not in suffixes or path.name == "AndroidManifest.xml":
                   continue
