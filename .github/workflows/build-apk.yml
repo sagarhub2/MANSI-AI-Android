@@ -100,6 +100,10 @@ jobs:
               after = before
               for old, new in replacements:
                   after = after.replace(old, new)
+              # Force the exact visible developer/copyright labels, regardless of old brand spelling/case.
+              after = re.sub(r'(?i)(AP\\s+Developer\\s*:\\s*)[^\\r\\n<"]+', r'\\1SAGAR', after)
+              after = re.sub(r'(?i)(Developer\\s*:\\s*)[^\\r\\n<"]+', r'\\1SAGAR', after)
+              after = re.sub(r'(?i)(Copyright\\s*:\\s*)[^\\r\\n<"]+', r'\\1SAGAR', after)
               # Android IDs are implementation symbols, not visible branding.
               if path.suffix.lower() == ".xml":
                   after = re.sub(r'((?:android:)?id\s*=\s*["\']@\+?id/)([^"\']*)(["\'])',
