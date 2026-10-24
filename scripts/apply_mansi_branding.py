@@ -319,61 +319,67 @@ for final_path in root.rglob("*"):
 from PIL import Image, ImageOps, ImageDraw
 
 res = root / "res"
-# Generate the requested premium MANSI launcher icon: pink heart, blue-violet rings,
-# deep midnight background. Always use this artwork so old bundled logos cannot override it.
-from PIL import ImageFilter
+# Selected second concept: elegant AI companion profile, pink heart, neon frame.
+from PIL import ImageFilter, ImageFont
 import math
-
 logo_path = res / "drawable/mansi_launcher_source.png"
 logo_path.parent.mkdir(parents=True, exist_ok=True)
-S = 1024
-logo = Image.new("RGBA", (S, S), (7, 8, 26, 255))
-# Soft radial background glow.
-glow = Image.new("RGBA", (S, S), (0, 0, 0, 0))
-gd = ImageDraw.Draw(glow)
-for radius, color in [(390,(70,70,255,18)),(315,(139,54,255,24)),(235,(255,60,205,22))]:
-    gd.ellipse((S//2-radius,S//2-radius,S//2+radius,S//2+radius), fill=color)
-glow = glow.filter(ImageFilter.GaussianBlur(48))
-logo = Image.alpha_composite(logo, glow)
-draw = ImageDraw.Draw(logo)
-# Premium holographic concentric rings.
-for bbox, color, width in [
-    ((100,100,924,924),(56,218,255,180),10),
-    ((126,126,898,898),(139,83,255,205),9),
-    ((154,154,870,870),(255,101,224,155),5),
-    ((208,208,816,816),(67,125,255,100),4),
-]:
-    draw.ellipse(bbox, outline=color, width=width)
-# Parametric heart silhouette, with layered glow and a pink-to-magenta fill.
-points=[]
+S=1024
+logo=Image.new("RGBA",(S,S),(7,8,28,255))
+glow=Image.new("RGBA",(S,S),(0,0,0,0)); gd=ImageDraw.Draw(glow)
+gd.ellipse((120,90,904,874),fill=(74,42,210,90))
+logo=Image.alpha_composite(logo,glow.filter(ImageFilter.GaussianBlur(85)))
+d=ImageDraw.Draw(logo)
+d.rounded_rectangle((34,34,990,990),radius=190,outline=(53,201,255,240),width=14)
+d.rounded_rectangle((52,52,972,972),radius=174,outline=(180,78,255,240),width=7)
+d.rounded_rectangle((65,65,959,959),radius=160,outline=(255,79,218,190),width=4)
+# Glowing crescent around a stylized feminine AI companion profile.
+arc=Image.new("RGBA",(S,S),(0,0,0,0)); ad=ImageDraw.Draw(arc)
+ad.arc((175,130,790,745),start=48,end=315,fill=(255,105,235,255),width=38)
+ad.arc((185,140,780,735),start=52,end=310,fill=(64,191,255,255),width=14)
+logo=Image.alpha_composite(logo,arc)
+# Profile face facing right.
+face=[(470,270),(525,245),(583,260),(626,300),(649,350),(651,390),(680,414),(661,435),(666,455),(645,473),(639,501),(612,526),(575,537),(540,523),(521,494),(510,458),(488,427),(476,386)]
+mask=Image.new("L",(S,S),0); ImageDraw.Draw(mask).polygon(face,fill=255)
+fg=Image.new("RGBA",(S,S),(0,0,0,0)); pix=fg.load()
+for y in range(240,545):
+    for x in range(465,685):
+        if mask.getpixel((x,y)):
+            u=(x-465)/220
+            pix[x,y]=(int(255-35*u),int(196-45*u),255,255)
+logo=Image.alpha_composite(logo,fg)
+# Flowing blue-purple-pink hair silhouette.
+hair=Image.new("RGBA",(S,S),(0,0,0,0)); h=ImageDraw.Draw(hair)
+h.polygon([(485,276),(422,235),(353,264),(300,329),(278,413),(300,500),(350,565),(414,598),(390,548),(354,484),(350,420),(376,357),(429,315)],fill=(38,98,255,255))
+h.polygon([(500,278),(444,260),(380,292),(330,357),(316,426),(340,496),(383,550),(405,562),(374,497),(372,432),(395,367),(450,320)],fill=(151,61,255,255))
+h.polygon([(500,295),(450,290),(398,325),(365,380),(360,438),(381,488),(414,524),(431,527),(400,479),(399,427),(420,375),(464,341)],fill=(255,71,218,255))
+h.line([(468,280),(408,305),(357,369),(340,425)],fill=(255,194,255,255),width=7)
+logo=Image.alpha_composite(logo,hair)
+d=ImageDraw.Draw(logo)
+d.arc((596,397,644,430),start=195,end=345,fill=(61,28,92,255),width=7)
+# Small pink heart accent at the lower-right of the profile.
+pts=[]
 for i in range(361):
-    t=math.pi*2*i/360
-    x=16*math.sin(t)**3
-    y=13*math.cos(t)-5*math.cos(2*t)-2*math.cos(3*t)-math.cos(4*t)
-    points.append((512+x*16, 510-y*16))
-heart_mask=Image.new("L",(S,S),0)
-ImageDraw.Draw(heart_mask).polygon(points,fill=255)
-for radius, alpha in [(42,50),(24,75),(12,105)]:
-    blurred=heart_mask.filter(ImageFilter.GaussianBlur(radius))
-    tint=Image.new("RGBA",(S,S),(255,54,210,0))
-    tint.putalpha(blurred.point(lambda p,a=alpha: int(p*a/255)))
-    logo=Image.alpha_composite(logo,tint)
-heart=Image.new("RGBA",(S,S),(0,0,0,0))
-hd=ImageDraw.Draw(heart)
-# Vertical pink highlight gradient clipped to the heart mask.
-gradient=Image.new("RGBA",(S,S),(0,0,0,0))
-gp=gradient.load()
-for y in range(300,760):
-    u=max(0,min(1,(y-300)/460))
-    col=(int(255-32*u),int(160-80*u),int(250-8*u),255)
-    for x in range(260,765):
-        gp[x,y]=col
-gradient.putalpha(heart_mask)
-heart=Image.alpha_composite(heart,gradient)
-ImageDraw.Draw(heart).line(points+[points[0]],fill=(255,220,252,230),width=4,joint="curve")
+    t=2*math.pi*i/360
+    pts.append((745+10.5*16*math.sin(t)**3, 490-10.5*(13*math.cos(t)-5*math.cos(2*t)-2*math.cos(3*t)-math.cos(4*t))))
+hm=Image.new("L",(S,S),0); ImageDraw.Draw(hm).polygon(pts,fill=255)
+a=hm.filter(ImageFilter.GaussianBlur(22)).point(lambda p:int(p*.6))
+tint=Image.new("RGBA",(S,S),(255,45,216,0)); tint.putalpha(a)
+logo=Image.alpha_composite(logo,tint)
+heart=Image.new("RGBA",(S,S),(0,0,0,0)); ImageDraw.Draw(heart).polygon(pts,fill=(255,74,222,255),outline=(255,218,255,255))
 logo=Image.alpha_composite(logo,heart)
+try:
+    font=ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",78)
+    sub=ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",25)
+    d=ImageDraw.Draw(logo)
+    label="MANSI AI"; box=d.textbbox((0,0),label,font=font)
+    d.text(((S-(box[2]-box[0]))//2,795),label,font=font,fill=(250,244,255,255),stroke_width=1,stroke_fill=(128,75,255,255))
+    tagline="YOUR AI COMPANION"; box=d.textbbox((0,0),tagline,font=sub)
+    d.text(((S-(box[2]-box[0]))//2,892),tagline,font=sub,fill=(199,188,255,255))
+except OSError:
+    pass
 logo.save(logo_path)
-print("Generated premium pink-heart hologram launcher artwork:", logo_path)
+print("Generated selected MANSI AI companion-profile icon:",logo_path)
 # Crop to square, then place the full logo within Android's adaptive safe zone.
 side = min(logo.size)
 left = (logo.width - side) // 2
