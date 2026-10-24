@@ -940,3 +940,36 @@ for app_identity_path in root.rglob("*"):
             ET.fromstring(app_identity_after)
         app_identity_path.write_text(app_identity_after, encoding="utf-8")
         print("App Identity exact credits enforced:", app_identity_path)
+
+
+# Robust App Identity fix: normalize labels even when the owner name is stored
+# separately, uses a bullet/dash, or has a different legacy value.
+for identity_fix_path in root.rglob("*"):
+    if not identity_fix_path.is_file() or identity_fix_path.suffix.lower() not in {".xml", ".kt", ".java", ".html", ".js", ".json", ".txt", ".properties"}:
+        continue
+    if identity_fix_path.name == "AndroidManifest.xml":
+        continue
+    try:
+        identity_fix_before = identity_fix_path.read_text(encoding="utf-8")
+    except (OSError, UnicodeDecodeError):
+        continue
+    identity_fix_after = identity_fix_before
+    # Common literal full-line labels in Kotlin/Java and XML string resources.
+    identity_fix_after = re.sub(
+        r"(?i)(Developer\\s*[:：·•—-]\\s*)(?:Tech\\s*GPT\\s*X|TechGPTx|MANSI\\s*AI|Jarvis|[^\\r\\n<\\\"]{1,60})",
+        r"Developer: SAGAR",
+        identity_fix_after,
+    )
+    identity_fix_after = re.sub(
+        r"(?i)(Copyright\\s*[:：·•—-]\\s*)(?:Tech\\s*GPT\\s*X|TechGPTx|MANSI\\s*AI|Jarvis|[^\\r\\n<\\\"]{1,60})",
+        r"Copyright: SAGAR",
+        identity_fix_after,
+    )
+    # Handle UI text assembled as separate string literals, e.g. "Developer" and
+    # "TechGPTx" displayed in adjacent views.
+    identity_fix_after = re.sub(r'(?i)(name="(?:developer|copyright)[^"]*"\\s*>)[^<]*(</string>)', r'\\1SAGAR\\2', identity_fix_after)
+    if identity_fix_after != identity_fix_before:
+        if identity_fix_path.suffix.lower() == ".xml":
+            ET.fromstring(identity_fix_after)
+        identity_fix_path.write_text(identity_fix_after, encoding="utf-8")
+        print("Robust App Identity attribution fix:", identity_fix_path)
