@@ -1,4 +1,5 @@
 from pathlib import Path
+import xml.etree.ElementTree as ET
 
 root = Path("source/mansi/app/src/main")
 layout = root / "res/layout/fragment_home.xml"
@@ -186,9 +187,6 @@ for brand_path in root.rglob("*"):
         "JARVIS updates & announcements": "MANSI AI updates & announcements",
         "JARVIS OFF • TAP TO START": "MANSI AI OFF • TAP TO START",
         "JARVIS INTELLIGENCE OS": "MANSI AI",
-        "Jarvis Pro": "MANSI AI",
-        "JARVIS PRO": "MANSI AI",
-        "JARVIS Pro": "MANSI AI",
         "Jarvis Code": "MANSI Code",
         "JARVIS CODE": "MANSI CODE",
         "Official application ID: com.jarvis.assistant": "MANSI AI Android application",
