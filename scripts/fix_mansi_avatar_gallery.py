@@ -5,20 +5,20 @@ from pathlib import Path
 path = Path("source/mansi/app/src/main/java/com/jarvis/assistant/ui/settings/OverlayAvatarActivity.kt")
 if not path.is_file():
     raise SystemExit(f"Avatar picker source not found: {path}")
-text = path.read_text(encoding="utf-8")
+source = path.read_text(encoding="utf-8")
 marker = "MANSI_AVATAR_GALLERY_FALLBACK_V1"
-if marker in text:
+if marker in source:
     print("Avatar gallery fallback already installed.")
     raise SystemExit(0)
 
 needle = """                avatarGallery.evaluateJavascript(
-                    "window.setGalleryTheme && window.setGalleryTheme('#${themeColor(R.attr.themeTextPrimary)}', '#${themeColor(R.attr.themeAccent)}')",
+                    "window.setGalleryTheme && window.setGalleryTheme('#\${themeColor(R.attr.themeTextPrimary)}', '#\${themeColor(R.attr.themeAccent)}')",
                     null
                 )
 """
-replacement = needle + """
+replacement = needle + r'''
                 // MANSI_AVATAR_GALLERY_FALLBACK_V1: recover if the WebView page loaded
-                // but its inline gallery script failed, leaving the exact blank area in user reports.
+                // but its inline gallery script failed, leaving the blank area seen in reports.
                 avatarGallery.evaluateJavascript(
                     """
                     (function() {
@@ -39,7 +39,7 @@ replacement = needle + """
                         'style="min-height:104px;padding:8px;border-radius:16px;border:1px solid #c9b8c4;'+
                         'background:rgba(255,255,255,.65);display:flex;flex-direction:column;'+
                         'align-items:center;justify-content:center;gap:5px;color:#4b3042;font-size:12px" '+
-                        'onclick="window.JarvisAvatarPicker && window.JarvisAvatarPicker.selectAvatar(\\''+name+'\\')">'+
+                        'onclick="window.JarvisAvatarPicker && window.JarvisAvatarPicker.selectAvatar(&quot;'+name+'&quot;)">'+
                         '<span style="font-size:30px;line-height:42px">'+emoji+'</span>'+
                         '<span style="text-transform:capitalize">'+name+'</span></button>'
                       ).join('');
@@ -56,8 +56,8 @@ replacement = needle + """
                     """.trimIndent(),
                     null
                 )
-"""
-if needle not in text:
+'''
+if needle not in source:
     raise SystemExit("Could not find onPageFinished insertion point; source left unchanged.")
-path.write_text(text.replace(needle, replacement, 1), encoding="utf-8")
+path.write_text(source.replace(needle, replacement, 1), encoding="utf-8")
 print("Installed resilient avatar gallery fallback.")
