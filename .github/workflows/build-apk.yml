@@ -69,9 +69,6 @@ jobs:
                                  lambda m: m.group(1) + m.group(2).replace("MANSI AI", "Jarvis").replace(" ", "_") + m.group(3), after)
                   after = re.sub(r'((?:android:)?id\s*=\s*["\']@\+?id/)([^"\']*)(["\'])',
                                  lambda m: m.group(1) + re.sub(r"[^A-Za-z0-9_.]", "_", m.group(2)) + m.group(3), after)
-                  after = re.sub(r'(?i)(android:text=")[^"]*jarvis[^"]*(")', r'\1MANSI AI\2', after)
-                  after = re.sub(r'(?i)(android:contentDescription=")[^"]*jarvis[^"]*(")', r'\1MANSI AI\2', after)
-                  after = re.sub(r'(?i)(<string\b[^>]*>)[^<]*jarvis[^<]*(</string>)', r'\1MANSI AI\2', after)
               if after != before:
                   path.write_text(after, encoding="utf-8")
                   print("Updated branding safely:", path)
