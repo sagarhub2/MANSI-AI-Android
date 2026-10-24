@@ -803,3 +803,23 @@ for credit_path in root.rglob("*"):
         print("Applied exact owner credits in:", credit_path)
 
 print("Verified requested credits: Developer: SAGAR | Copyright: SAGAR")
+
+
+// FINAL EXACT BRAND: the visible footer/title must read exactly "MANSI AI OS · SAGAR".
+for exact_path in root.rglob("*"):
+    if not exact_path.is_file() or exact_path.suffix.lower() not in {".xml", ".kt", ".java", ".html", ".js", ".json", ".txt", ".properties"}:
+        continue
+    if exact_path.name == "AndroidManifest.xml":
+        continue
+    try:
+        exact_before = exact_path.read_text(encoding="utf-8")
+    except (OSError, UnicodeDecodeError):
+        continue
+    exact_after = exact_before.replace("MANSI AI . SAGAR", "MANSI AI OS · SAGAR")
+    exact_after = exact_after.replace("MANSI AI OS . SAGAR", "MANSI AI OS · SAGAR")
+    exact_after = exact_after.replace("MANSI AI · SAGAR", "MANSI AI OS · SAGAR")
+    if exact_after != exact_before:
+        if exact_path.suffix.lower() == ".xml":
+            ET.fromstring(exact_after)
+        exact_path.write_text(exact_after, encoding="utf-8")
+        print("Enforced exact footer brand MANSI AI OS · SAGAR:", exact_path)
