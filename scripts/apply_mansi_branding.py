@@ -920,3 +920,23 @@ for telegram_path in root.rglob("*"):
             ET.fromstring(telegram_after)
         telegram_path.write_text(telegram_after, encoding="utf-8")
         print("Screenshot Telegram account fixed:", telegram_path)
+
+
+# App Identity card: enforce exact developer and copyright attribution regardless
+# of the legacy owner string currently shown in the source.
+for app_identity_path in root.rglob("*"):
+    if not app_identity_path.is_file() or app_identity_path.suffix.lower() not in {".xml", ".kt", ".java", ".html", ".js", ".json", ".txt", ".properties"}:
+        continue
+    if app_identity_path.name == "AndroidManifest.xml":
+        continue
+    try:
+        app_identity_before = app_identity_path.read_text(encoding="utf-8")
+    except (OSError, UnicodeDecodeError):
+        continue
+    app_identity_after = re.sub(r"(?i)Developer\\s*:\\s*[^\\r\\n<\\\"]+", "Developer: SAGAR", app_identity_before)
+    app_identity_after = re.sub(r"(?i)Copyright\\s*:\\s*[^\\r\\n<\\\"]+", "Copyright: SAGAR", app_identity_after)
+    if app_identity_after != app_identity_before:
+        if app_identity_path.suffix.lower() == ".xml":
+            ET.fromstring(app_identity_after)
+        app_identity_path.write_text(app_identity_after, encoding="utf-8")
+        print("App Identity exact credits enforced:", app_identity_path)
