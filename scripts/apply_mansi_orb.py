@@ -7,15 +7,15 @@ asset = Path("source/mansi/app/src/main/assets/orb.html")
 if not asset.is_file():
     raise SystemExit(f"Required orb asset not found: {asset}")
 html = asset.read_text(encoding="utf-8")
-marker = "/* MANSI_FINAL_HOLOGRAM_ORB_V1 */"
+marker = "/* MANSI_FINAL_HOLOGRAM_ORB_V2 */"
 if marker in html:
     print("MANSI hologram orb patch already present.")
     raise SystemExit(0)
 
 patch = r"""
 <style>
-/* MANSI_FINAL_HOLOGRAM_ORB_V1 */
-#mansi-final-orb{position:relative!important;display:grid!important;place-items:center!important;width:min(76vw,330px)!important;aspect-ratio:1/1!important;margin:0 auto!important;border-radius:50%!important;isolation:isolate;cursor:pointer;touch-action:manipulation;outline:none;user-select:none;-webkit-tap-highlight-color:transparent}
+/* MANSI_FINAL_HOLOGRAM_ORB_V2 */
+#mansi-final-orb{position:fixed!important;left:50%!important;top:37%!important;transform:translate(-50%,-50%)!important;display:grid!important;place-items:center!important;width:min(68vw,300px)!important;height:min(68vw,300px)!important;aspect-ratio:1/1!important;margin:0!important;border-radius:50%!important;isolation:isolate;cursor:pointer;touch-action:manipulation;outline:none;user-select:none;-webkit-tap-highlight-color:transparent}
 #mansi-final-orb .mansi-core{position:absolute;inset:25%;border-radius:50%;background:radial-gradient(circle at 35% 28%,rgba(255,255,255,.35),transparent 20%),radial-gradient(circle at 50% 60%,#15114c 0%,#08091d 64%,#03040d 100%);border:1px solid rgba(161,126,255,.7);box-shadow:inset 0 0 28px rgba(68,102,255,.55),0 0 26px rgba(106,83,255,.6),0 0 65px rgba(222,71,255,.22);transition:box-shadow .25s ease,transform .25s ease}
 #mansi-final-orb .mansi-ring{position:absolute;inset:var(--inset);border-radius:50%;border:2px solid transparent;background:linear-gradient(#050616,#050616) padding-box,conic-gradient(from var(--angle,0deg),#3de8ff,#5268ff,#c34cff,#ff83e9,#3de8ff) border-box;box-shadow:0 0 12px rgba(91,111,255,.5),inset 0 0 12px rgba(190,77,255,.13);animation:mansi-orbit var(--speed) linear infinite}
 #mansi-final-orb .mansi-ring:after{content:"";position:absolute;inset:-5px;border-radius:50%;border:1px solid rgba(75,208,255,.18)}
@@ -39,17 +39,17 @@ patch = r"""
 <script>
 (function(){
  function install(){
-   if(document.getElementById('mansi-final-orb')) return;
+   var previous=document.getElementById('mansi-final-orb');if(previous)previous.remove();
    /* Hide legacy heart/logo glyphs without hiding the page's controls. */
    document.querySelectorAll('[id*="heart" i],[class*="heart" i],[aria-label*="heart" i]').forEach(function(el){
      if(el.matches('svg,img,i,span,div') && !el.closest('button,input,a')) el.style.display='none';
    });
    var orb=document.createElement('div');
    orb.id='mansi-final-orb';orb.className='idle';orb.setAttribute('role','button');orb.setAttribute('tabindex','0');orb.setAttribute('aria-label','Activate MANSI AI');
-   orb.innerHTML='<div class="mansi-ring r1"></div><div class="mansi-ring r2"></div><div class="mansi-ring r3"></div><div class="mansi-core"></div><div class="mansi-tapwave"></div><i class="mansi-spark" style="--a:0deg;--r:47%"></i><i class="mansi-spark" style="--a:120deg;--r:47%"></i><i class="mansi-spark" style="--a:240deg;--r:47%"></i>';
-   var host=document.querySelector('#orb, .orb, [class*="orb" i], main, body');
-   if(!host) host=document.body;
-   if(host===document.body){orb.style.position='fixed';orb.style.left='50%';orb.style.top='50%';orb.style.transform='translate(-50%,-50%)';orb.style.zIndex='99999';}
+   orb.innerHTML='<div class="mansi-ring r1"></div><div class="mansi-ring r2"></div><div class="mansi-ring r3"></div><div class="mansi-core"></div><div class="mansi-tapwave"></div>';
+   /* Viewport-level positioning avoids clipping by legacy orb containers. */
+   var host=document.body;
+   orb.style.position='fixed';orb.style.left='50%';orb.style.top='37%';orb.style.transform='translate(-50%,-50%)';orb.style.zIndex='99999';
    host.appendChild(orb);
    function activate(){orb.classList.remove('idle');orb.classList.add('active');setTimeout(function(){orb.classList.remove('active');orb.classList.add('idle')},1800);}
    orb.addEventListener('click',activate);orb.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();activate()}});
