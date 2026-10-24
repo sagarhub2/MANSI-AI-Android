@@ -805,7 +805,7 @@ for credit_path in root.rglob("*"):
 print("Verified requested credits: Developer: SAGAR | Copyright: SAGAR")
 
 
-// FINAL EXACT BRAND: the visible footer/title must read exactly "MANSI AI OS · SAGAR".
+# FINAL EXACT BRAND: the visible footer/title must read exactly "MANSI AI OS · SAGAR".
 for exact_path in root.rglob("*"):
     if not exact_path.is_file() or exact_path.suffix.lower() not in {".xml", ".kt", ".java", ".html", ".js", ".json", ".txt", ".properties"}:
         continue
