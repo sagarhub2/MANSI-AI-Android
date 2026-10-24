@@ -732,69 +732,8 @@ if home_layout.exists():
     print("Applied safe MANSI AI home status label.")
 
 
-# Real home-screen styling pass: apply drawable resources to matching view IDs
-# in the unpacked Android layout. This changes actual layout XML, not a mockup.
-ANDROID_NS = "{http://schemas.android.com/apk/res/android}"
-res_dir = root / "res"
-drawable_dir = res_dir / "drawable"
-drawable_dir.mkdir(parents=True, exist_ok=True)
-
-(drawable_dir / "mansi_home_glass_card.xml").write_text("""<?xml version="1.0" encoding="utf-8"?>
-<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
-    <corners android:radius="24dp"/>
-    <gradient android:angle="135" android:startColor="#30204F" android:centerColor="#19132F" android:endColor="#100D20"/>
-    <stroke android:width="1.5dp" android:color="#8C69FF"/>
-</shape>
-""", encoding="utf-8")
-(drawable_dir / "mansi_home_orb.xml").write_text("""<?xml version="1.0" encoding="utf-8"?>
-<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="oval">
-    <gradient android:type="radial" android:gradientRadius="150dp" android:centerX="50%" android:centerY="42%" android:startColor="#E5D7FF" android:centerColor="#805BFF" android:endColor="#17102E"/>
-    <stroke android:width="2dp" android:color="#C4A7FF"/>
-</shape>
-""", encoding="utf-8")
-
-home_candidates = list((res_dir / "layout").glob("*home*.xml"))
-styled_count = 0
-orb_count = 0
-for layout_path in home_candidates:
-    try:
-        tree = ET.parse(layout_path)
-        doc = tree.getroot()
-    except (ET.ParseError, OSError) as exc:
-        raise SystemExit("Could not safely parse home layout " + str(layout_path) + ": " + str(exc))
-    for node in doc.iter():
-        view_id = node.attrib.get(ANDROID_NS + "id", "").lower()
-        if not view_id:
-            continue
-        if any(key in view_id for key in ("orb", "circle", "core", "reactor")):
-            node.set(ANDROID_NS + "background", "@drawable/mansi_home_orb")
-            node.set(ANDROID_NS + "clipToOutline", "true")
-            orb_count += 1
-        elif any(key in view_id for key in ("weather", "scre enshare", "screenshare", "screen_share", "memories", "memory", "language")):
-            node.set(ANDROID_NS + "background", "@drawable/mansi_home_glass_card")
-            styled_count += 1
-    tree.write(layout_path, encoding="utf-8", xml_declaration=True)
-    print("Applied home visual styling:", layout_path)
-
-# Replace the old power-state copy wherever it is actually defined.
-copy_changes = 0
-for text_path in root.rglob("*"):
-    if not text_path.is_file() or text_path.suffix.lower() not in {".xml", ".kt", ".java", ".html", ".json"}:
-        continue
-    try:
-        before = text_path.read_text(encoding="utf-8")
-    except (OSError, UnicodeDecodeError):
-        continue
-    after = before.replace("JARVIS OFF • TAP TO START", "MANSI AI OFF · TAP TO START")
-    after = after.replace("JARVIS OFF · TAP TO START", "MANSI AI OFF · TAP TO START")
-    after = after.replace("Jarvis OFF • Tap to Start", "MANSI AI OFF · TAP TO START")
-    if after != before:
-        if text_path.suffix.lower() == ".xml":
-            ET.fromstring(after)
-        text_path.write_text(after, encoding="utf-8")
-        copy_changes += 1
-        print("Updated power status copy:", text_path)
-
-if not home_candidates:
-    raise SystemExit("Home redesign verification failed: no home layout XML found.")
-print("Home redesign pass complete. Orb views matched:", orb_count, "card views matched:", styled_count, "status copy files changed:", copy_changes)
+# Safe home-screen styling guard:
+# Do not parse and re-serialize Android data-binding layouts with ElementTree.
+# That can alter layout XML in ways that break generated binding classes.
+# Preserve the original layout hierarchy and IDs; apply only targeted text edits above.
+print("Skipped structural home layout rewrite to preserve Android data binding IDs.\n");
