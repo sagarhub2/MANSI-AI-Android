@@ -32,6 +32,23 @@ jobs:
           from pathlib import Path
           import re
           root = Path("source/mansi/app/src/main")
+          # Fix the actual BuildConfig values used by App Identity & Integrity.
+          gradle_root = Path("source/mansi")
+          for gradle_file in gradle_root.rglob("*.gradle*"):
+              try:
+                  gradle_before = gradle_file.read_text(encoding="utf-8")
+              except (OSError, UnicodeDecodeError):
+                  continue
+              gradle_after = gradle_before
+              gradle_after = re.sub(
+                  r'(buildConfigField\\s*\\(\\s*["\\']String["\\']\\s*,\\s*["\\']DEVELOPER_NAME["\\']\\s*,\\s*["\\'])[^"\\']*(["\\']\\s*\\))',
+                  r'\\1\\\\\\"SAGAR\\\\\\"\\2', gradle_after)
+              gradle_after = re.sub(
+                  r'(buildConfigField\\s*\\(\\s*["\\']String["\\']\\s*,\\s*["\\']COPYRIGHT_OWNER["\\']\\s*,\\s*["\\'])[^"\\']*(["\\']\\s*\\))',
+                  r'\\1\\\\\\"SAGAR\\\\\\"\\2', gradle_after)
+              if gradle_after != gradle_before:
+                  gradle_file.write_text(gradle_after, encoding="utf-8")
+                  print("Updated BuildConfig identity values:", gradle_file)
           replacements = [
               ("Jarvis system Authorized MANSI AI", "Mansi system Authorized MANSI AI"),
               ("Jarvis System Authorized MANSI AI", "Mansi system Authorized MANSI AI"),
