@@ -38,16 +38,19 @@ jobs:
           root = Path("source/mansi/app/src/main")
           replacements = [
               ("Jarvis system Authorized MANSI AI", "Mansi system Authorized MANSI AI"),
-              ("Jarvis Autonomous device control", "Mansi AI Autonomous device control"),
-              ("MANSI AI OS . TECHGPT X", "MANSI AI . SAGAR"),
-              ("Jarvis Autonomous Device Control", "Mansi AI Autonomous device control"),
+              ("Jarvis System Authorized MANSI AI", "Mansi system Authorized MANSI AI"),
               ("Jarvis System Authorized", "Mansi system Authorized MANSI AI"),
-              ("Jarvis OS . TECHGPT X", "MANSI AI . SAGAR"),
-              ("TechGPT X", "TECHGPT X"),
-              ("TechGPTX", "TECHGPT X"),
+              ("Mansi system Authorized", "Mansi system Authorized MANSI AI"),
+              ("Jarvis Autonomous device control", "Mansi AI Autonomous device control"),
+              ("Jarvis Autonomous Device Control", "Mansi AI Autonomous device control"),
+              ("Jarvis Autonomous Device control", "Mansi AI Autonomous device control"),
+              ("Jarvis OS . TECHGPT X", "MANSI AI OS . TECHGPT X"),
+              ("MANSI AI OS . TECHGPT X", "MANSI AI OS . TECHGPT X"),
               ("Jarvis sagar neural Assistant", "Mansi AI sagar neural Assistant"),
               ("Jarvis operator . Primary", "Mansi AI operator . Primary"),
               ("Jarvis pro . Puck", "Mansi AI pro . Puck"),
+              ("TechGPT X", "TECHGPT X"),
+              ("TechGPTX", "TECHGPT X"),
           ]
           suffixes = {".xml", ".kt", ".java", ".html", ".js", ".json", ".txt", ".properties"}
           for path in root.rglob("*"):
