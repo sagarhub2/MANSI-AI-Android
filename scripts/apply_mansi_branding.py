@@ -739,9 +739,9 @@ if home_layout.exists():
 print("Skipped structural home layout rewrite to preserve Android data binding IDs.\n");
 
 
-# FINAL OWNER SOCIAL LINKS PASS: replace any legacy Instagram/Telegram profile URLs
-# regardless of the old handle or whether the URL includes www / trailing slash.
-# Run after all branding passes so no earlier replacement can restore old links.
+# FINAL OWNER SOCIAL LINKS PASS: normalize every social profile URL to the owner's accounts.
+# Match the entire URL without a negative lookahead; the simpler pattern avoids
+# leaving legacy handles behind due to case or punctuation variations.
 social_link_files = []
 for social_path in root.rglob("*"):
     if not social_path.is_file() or social_path.suffix.lower() not in {".xml", ".kt", ".java", ".json", ".html", ".js", ".txt", ".properties"}:
@@ -751,13 +751,13 @@ for social_path in root.rglob("*"):
     except (OSError, UnicodeDecodeError):
         continue
     social_after = re.sub(
-        r"https?://(?:www\.)?instagram\.com/(?!hyee__sagar(?:[/?#]|$))[^\s\"'<>)]*",
+        r"https?://(?:www\.)?instagram\.com/[^\s\"'<>)]*",
         "https://instagram.com/hyee__sagar",
         social_before,
         flags=re.IGNORECASE,
     )
     social_after = re.sub(
-        r"https?://(?:www\.)?t\.me/(?!H_sagarr(?:[/?#]|$))[^\s\"'<>)]*",
+        r"https?://(?:www\.)?t\.me/[^\s\"'<>)]*",
         "https://t.me/H_sagarr",
         social_after,
         flags=re.IGNORECASE,
@@ -769,7 +769,7 @@ for social_path in root.rglob("*"):
         social_link_files.append(str(social_path))
 print("FINAL personal Instagram/Telegram URL enforcement:", ", ".join(social_link_files) if social_link_files else "No old profile URLs found.")
 
-# Build guard: do not ship any other Instagram or Telegram profile URL in source.
+# Build guard: no alternate Instagram or Telegram profile URLs may remain.
 for social_path in root.rglob("*"):
     if not social_path.is_file() or social_path.suffix.lower() not in {".xml", ".kt", ".java", ".json", ".html", ".js", ".txt", ".properties"}:
         continue
