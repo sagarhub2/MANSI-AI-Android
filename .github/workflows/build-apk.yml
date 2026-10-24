@@ -8,6 +8,7 @@ on:
       - "MANSI_AI_Android_GitHub_Upload.zip"
       - ".github/workflows/build-apk.yml"
       - "scripts/apply_mansi_branding.py"
+      - "scripts/apply_mansi_orb.py"
       - "branding/**"
 
 permissions:
@@ -55,6 +56,9 @@ jobs:
           PY
           python3 -m pip install --quiet Pillow
           python3 scripts/apply_mansi_branding.py
+          echo "---- APPLY FINAL BLUE-PURPLE HOLOGRAM ORB ----"
+          python3 scripts/apply_mansi_orb.py
+          grep -n "MANSI_FINAL_HOLOGRAM_ORB_V1" source/mansi/app/src/main/assets/orb.html
           echo "---- APPLY REQUESTED MANSI AI / SAGAR BRANDING ----"
           python3 - <<'PY'
           from pathlib import Path
