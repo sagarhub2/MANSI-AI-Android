@@ -662,3 +662,31 @@ for voice_path in root.rglob("*"):
 if remaining_puck:
     raise SystemExit("Female voice verification failed; standalone Puck value remains in: " + ", ".join(remaining_puck[:10]))
 print("Verified: standalone Puck voice values replaced with Aoede; Android identifiers preserved.")
+
+# Make every displayed Persona voice choice explicitly feminine. Keep Android
+# view IDs untouched; only change the human-readable option labels.
+female_label_replacements = {
+    "Fenrir (Deep, protective charismatic male voice)": "Kore (Soft, sweet feminine voice)",
+    "Aoede (Crisp, modern dynamic male voice)": "Aoede (Cute, warm expressive female voice)",
+    "Charon (Distinguished butler male voice)": "Kore (Gentle, calm female voice)",
+}
+female_label_count = 0
+for label_path in root.rglob("*"):
+    if not label_path.is_file() or label_path.suffix.lower() not in {".xml", ".kt", ".java", ".json", ".html", ".txt", ".properties"}:
+        continue
+    try:
+        label_before = label_path.read_text(encoding="utf-8")
+    except (OSError, UnicodeDecodeError):
+        continue
+    label_after = label_before
+    for old_label, new_label in female_label_replacements.items():
+        if old_label in label_after:
+            label_after = label_after.replace(old_label, new_label)
+    if label_after != label_before:
+        if label_path.suffix.lower() == ".xml":
+            ET.fromstring(label_after)
+        label_path.write_text(label_after, encoding="utf-8")
+        female_label_count += 1
+        print("FEMALE VOICE LABELS:", label_path)
+print("Applied feminine labels to all listed Persona voice choices.")
+
