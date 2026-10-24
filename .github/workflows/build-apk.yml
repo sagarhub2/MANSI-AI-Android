@@ -9,6 +9,7 @@ on:
       - ".github/workflows/build-apk.yml"
       - "scripts/apply_mansi_branding.py"
       - "scripts/apply_mansi_orb.py"
+      - "scripts/diagnose_mansi_avatars.py"
       - "branding/**"
 
 permissions:
@@ -249,6 +250,9 @@ jobs:
           test -s source/mansi/app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml
           test -s source/mansi/app/src/main/res/mipmap-mdpi/ic_launcher_foreground.png
           echo "Launcher resources exist; Gradle build will validate Android resource references."
+
+      - name: Diagnose overlay avatar rendering sources
+        run: python3 scripts/diagnose_mansi_avatars.py
 
       - name: Diagnose actual identity and assistant prompt sources
         run: |
