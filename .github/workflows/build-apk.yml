@@ -35,7 +35,9 @@ jobs:
           echo "---- APPLY REQUESTED MANSI AI / SAGAR BRANDING ----"
           python3 - <<'PY'
           from pathlib import Path
+          import re
           root = Path("source/mansi/app/src/main")
+          # Exact requested labels, including likely legacy capitalization variants.
           replacements = [
               ("Jarvis system Authorized MANSI AI", "Mansi system Authorized MANSI AI"),
               ("Jarvis System Authorized MANSI AI", "Mansi system Authorized MANSI AI"),
@@ -44,18 +46,25 @@ jobs:
               ("Jarvis Autonomous device control", "Mansi AI Autonomous device control"),
               ("Jarvis Autonomous Device Control", "Mansi AI Autonomous device control"),
               ("Jarvis Autonomous Device control", "Mansi AI Autonomous device control"),
-              ("Jarvis OS . TECHGPT X", "MANSI AI OS . SAGAR"),
               ("MANSI AI OS . TECHGPT X", "MANSI AI OS . SAGAR"),
-              ("MANSI AI OS . SAGAR", "MANSI AI OS . SAGAR"),
+              ("MANSI AI OS . TECHGPTX", "MANSI AI OS . SAGAR"),
+              ("Jarvis OS . TECHGPT X", "MANSI AI OS . SAGAR"),
+              ("Jarvis OS . TECHGPTX", "MANSI AI OS . SAGAR"),
+              ("MANSI AI . SAGAR", "MANSI AI OS . SAGAR"),
               ("Jarvis sagar neural Assistant", "Mansi AI sagar neural Assistant"),
+              ("Jarvis Sagar Neural Assistant", "Mansi AI sagar neural Assistant"),
               ("Jarvis operator . Primary", "Mansi AI operator . Primary"),
+              ("Jarvis Operator . Primary", "Mansi AI operator . Primary"),
               ("Jarvis pro . Puck", "Mansi AI pro . Puck"),
+              ("Jarvis Pro . Puck", "Mansi AI pro . Puck"),
               ("TechGPT X", "TECHGPT X"),
               ("TechGPTX", "TECHGPT X"),
           ]
           suffixes = {".xml", ".kt", ".java", ".html", ".js", ".json", ".txt", ".properties"}
           for path in root.rglob("*"):
               if not path.is_file() or path.suffix.lower() not in suffixes:
+                  continue
+              if path.name == "AndroidManifest.xml":
                   continue
               try:
                   before = path.read_text(encoding="utf-8")
@@ -64,6 +73,25 @@ jobs:
               after = before
               for old, new in replacements:
                   after = after.replace(old, new)
+              # In Kotlin/Java, change only quoted user-facing literals, not package names,
+              # class names, Android IDs, or binding references.
+              if path.suffix.lower() in {".kt", ".java"}:
+                  def clean_literal(match):
+                      quote, value = match.group(1), match.group(2)
+                      low = value.lower()
+                      if low.startswith(("com.jarvis.", "com/jarvis/", "@+id/", "@id/", "@string/", "@drawable/", "@mipmap/")):
+                          return match.group(0)
+                      for old, new in replacements:
+                          value = value.replace(old, new)
+                      value = re.sub(r"(?i)jarvis\\s*(?:[·•-]\\s*)?code", "MANSI Code", value)
+                      value = re.sub(r"(?i)jarvis", "MANSI AI", value)
+                      return quote + value + quote
+                  after = re.sub(r"""(["'])([^"'\\n]*)\\1""", clean_literal, after)
+              # Update visible XML labels/descriptions only; never touch resource IDs.
+              if path.suffix.lower() == ".xml":
+                  after = re.sub(r'(?i)(android:text\\s*=\\s*["\'])[^"\']*jarvis[^"\']*(["\'])', r'\\1MANSI AI\\2', after)
+                  after = re.sub(r'(?i)(android:contentDescription\\s*=\\s*["\'])[^"\']*jarvis[^"\']*(["\'])', r'\\1MANSI AI\\2', after)
+                  after = re.sub(r'(?i)(<string\\b[^>]*>)[^<]*jarvis[^<]*(</string>)', r'\\1MANSI AI\\2', after)
               if after != before:
                   path.write_text(after, encoding="utf-8")
                   print("Updated branding:", path)
