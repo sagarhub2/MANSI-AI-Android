@@ -38,6 +38,8 @@ jobs:
           else
             echo "orb.html not found in selected project ZIP"
           fi
+          echo "---- NATIVE HOME ORB IMPLEMENTATION ----"
+          grep -RniE 'heart|orb|naira_mic_center|bg_jarvis_orb|setOnClickListener|onTouch|ObjectAnimator|ValueAnimator' source/mansi/app/src/main/java/com/jarvis/assistant/ui/home source/mansi/app/src/main/res/layout source/mansi/app/src/main/res/drawable --include='*.kt' --include='*.xml' | head -300 || true
           echo "---- COLOR / ORB SOURCE INSPECTION ----"
           python3 - <<'PY'
           from pathlib import Path
