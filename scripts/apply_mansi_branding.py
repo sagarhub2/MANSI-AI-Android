@@ -823,3 +823,49 @@ for exact_path in root.rglob("*"):
             ET.fromstring(exact_after)
         exact_path.write_text(exact_after, encoding="utf-8")
         print("Enforced exact footer brand MANSI AI OS · SAGAR:", exact_path)
+
+
+# FINAL GUARANTEED OWNER BRAND PASS.
+# Include Kotlin/Java because several profile/footer labels are hard-coded in code,
+# not only XML strings. Preserve IDs, package names, and YouTube automation.
+owner_brand_map = {
+    "MANSI AI OS . SAGAR": "MANSI AI OS · SAGAR",
+    "MANSI AI . SAGAR": "MANSI AI OS · SAGAR",
+    "MANSI AI · SAGAR": "MANSI AI OS · SAGAR",
+    "MANSI AI OS • SAGAR": "MANSI AI OS · SAGAR",
+    "MANSI AI • SAGAR": "MANSI AI OS · SAGAR",
+    "MANSI AI OS . TECHGPT X": "MANSI AI OS · SAGAR",
+    "MANSI AI OS . TECHGPTX": "MANSI AI OS · SAGAR",
+    "MANSI AI OS · TECHGPT X": "MANSI AI OS · SAGAR",
+    "MANSI AI OS · TECHGPTX": "MANSI AI OS · SAGAR",
+    "Developer: Tech GPTx": "Developer: SAGAR",
+    "Developer: TechGPTx": "Developer: SAGAR",
+    "Copyright: Tech GPTx": "Copyright: SAGAR",
+    "Copyright: TechGPTx": "Copyright: SAGAR",
+    "instagram.com/techgptx.ai": "instagram.com/hyee__sagar",
+    "t.me/techgptx": "t.me/H_sagarr",
+}
+owner_brand_exts = {".xml", ".kt", ".java", ".html", ".js", ".json", ".txt", ".properties"}
+for owner_brand_path in root.rglob("*"):
+    if not owner_brand_path.is_file() or owner_brand_path.suffix.lower() not in owner_brand_exts:
+        continue
+    if owner_brand_path.name == "AndroidManifest.xml":
+        continue
+    try:
+        owner_brand_before = owner_brand_path.read_text(encoding="utf-8")
+    except (OSError, UnicodeDecodeError):
+        continue
+    owner_brand_after = owner_brand_before
+    for owner_old, owner_new in owner_brand_map.items():
+        owner_brand_after = owner_brand_after.replace(owner_old, owner_new)
+    # Exact footer variants, including the original TECHGPT owner tag.
+    owner_brand_after = re.sub(
+        r"(?i)MANSI\\s+AI(?:\\s+OS)?\\s*[.·•]\\s*(?:TECH\\s*GPT\\s*X|TECHGPTX|SAGAR)",
+        "MANSI AI OS · SAGAR",
+        owner_brand_after,
+    )
+    if owner_brand_after != owner_brand_before:
+        if owner_brand_path.suffix.lower() == ".xml":
+            ET.fromstring(owner_brand_after)
+        owner_brand_path.write_text(owner_brand_after, encoding="utf-8")
+        print("FINAL owner branding applied:", owner_brand_path)
