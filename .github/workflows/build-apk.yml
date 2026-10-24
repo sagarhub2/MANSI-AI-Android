@@ -115,6 +115,8 @@ jobs:
               after = before
               for old, new in replacements:
                   after = after.replace(old, new)
+              # Replace the Voice Biometrics wake phrase without changing other voice settings.
+              after = re.sub(r'(?i)hey\s+jarvis\s*,?\s*wake\s+up', 'Hey MANSI, wake up', after)
               # Force the exact visible developer/copyright labels, regardless of old brand spelling/case.
               after = re.sub(r'(?i)(AP\s+Developer\s*:\s*)[^\r\n<"]+', r'\1SAGAR', after)
               after = re.sub(r'(?i)(Developer\s*:\s*)[^\r\n<"]+', r'\1SAGAR', after)
