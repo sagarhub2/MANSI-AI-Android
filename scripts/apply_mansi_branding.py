@@ -571,3 +571,61 @@ for final_ui_path in root.rglob("*"):
             ET.fromstring(final_after)
         final_ui_path.write_text(final_after, encoding="utf-8")
         print("FINAL settings label enforcement:", final_ui_path)
+
+
+# FINAL CROSS-SOURCE PASS: Settings and App Identity labels may be hard-coded in Kotlin.
+# Replace only exact user-facing strings; never change package names or implementation identifiers.
+identity_labels = {
+    "TechGPT X": "MANSI AI",
+    "TECHGPT X": "MANSI AI",
+    "TECHGPTX": "MANSI AI",
+    "JARVIS App Identity": "MANSI AI App Identity",
+    "Jarvis App Identity": "MANSI AI App Identity",
+    "JARVIS APP IDENTITY": "MANSI AI App Identity",
+    "Developer: Tech GPTx": "Developer: MANSI AI",
+    "Developer: TechGPTx": "Developer: MANSI AI",
+    "Copyright: Tech GPTx": "Copyright: MANSI AI",
+    "Copyright: TechGPTx": "Copyright: MANSI AI",
+    "JARVIS PRO": "MANSI PRO",
+    "Jarvis Pro": "MANSI PRO",
+    "Jarvis Pro · Voice: Puck": "MANSI PRO · Voice: Puck",
+    "Jarvis Pro • Voice: Puck": "MANSI PRO · Voice: Puck",
+    "JARVIS OPERATOR · PRIMARY USER": "MANSI AI Operator · Primary User",
+    "JARVIS OPERATOR • PRIMARY USER": "MANSI AI Operator · Primary User",
+    "Jarvis Operator · Primary User": "MANSI AI Operator · Primary User",
+    "Jarvis Operator • Primary User": "MANSI AI Operator · Primary User",
+    "Enroll Voice": "ENROLL VOICE",
+}
+for identity_path in root.rglob("*"):
+    if not identity_path.is_file() or identity_path.suffix.lower() not in {".xml", ".kt", ".java", ".json", ".html", ".txt", ".properties"}:
+        continue
+    if identity_path.name == "AndroidManifest.xml":
+        continue
+    try:
+        identity_before = identity_path.read_text(encoding="utf-8")
+    except (OSError, UnicodeDecodeError):
+        continue
+    identity_after = identity_before
+    for identity_old, identity_new in identity_labels.items():
+        identity_after = identity_after.replace(identity_old, identity_new)
+    identity_after = re.sub(r"(?i)jarvis\s+operator\s*[·•]\s*primary user", "MANSI AI Operator · Primary User", identity_after)
+    identity_after = re.sub(r"(?i)jarvis\s+pro\s*[·•]\s*voice:\s*puck", "MANSI PRO · Voice: Puck", identity_after)
+    if identity_after != identity_before:
+        if identity_path.suffix.lower() == ".xml":
+            ET.fromstring(identity_after)
+        identity_path.write_text(identity_after, encoding="utf-8")
+        print("FINAL cross-source branding:", identity_path)
+
+# Fail the build if these specific visible legacy labels remain in source text.
+visible_sources = []
+for check_path in root.rglob("*"):
+    if check_path.is_file() and check_path.suffix.lower() in {".xml", ".kt", ".java", ".json", ".html", ".txt", ".properties"}:
+        try:
+            visible_sources.append(check_path.read_text(encoding="utf-8"))
+        except (OSError, UnicodeDecodeError):
+            pass
+visible_text = "\n".join(visible_sources)
+for stale in ("JARVIS App Identity", "Jarvis App Identity", "Developer: Tech GPTx", "Copyright: Tech GPTx", "Jarvis Pro · Voice: Puck", "JARVIS PRO", "JARVIS OPERATOR · PRIMARY USER"):
+    if stale in visible_text:
+        raise SystemExit("Branding verification failed: stale visible label remains: " + stale)
+print("Verified no targeted stale Settings/App Identity labels remain in source text.")
