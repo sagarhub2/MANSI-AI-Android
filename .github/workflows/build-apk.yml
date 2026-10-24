@@ -32,32 +32,21 @@ jobs:
           from pathlib import Path
           import re
           root = Path("source/mansi/app/src/main")
-          # Fix actual BuildConfig values used by App Identity & Integrity.
+          # Update only the two target calls; preserve any other BuildConfig calls on the same line.
           gradle_root = Path("source/mansi")
           for gradle_file in gradle_root.rglob("*.gradle*"):
               try:
                   gradle_before = gradle_file.read_text(encoding="utf-8")
               except (OSError, UnicodeDecodeError):
                   continue
-              gradle_lines = gradle_before.splitlines(keepends=True)
-              gradle_after_lines = []
-              changed = False
-              for line in gradle_lines:
-                  if "buildConfigField" in line and '"DEVELOPER_NAME"' in line:
-                      ending = "\\n" if line.endswith("\\n") else ""
-                      indent = line[:len(line) - len(line.lstrip())]
-                      line = indent + 'buildConfigField("String", "DEVELOPER_NAME", "\\\\"SAGAR\\\\"")' + ending
-                      changed = True
-                  elif "buildConfigField" in line and '"COPYRIGHT_OWNER"' in line:
-                      ending = "\\n" if line.endswith("\\n") else ""
-                      indent = line[:len(line) - len(line.lstrip())]
-                      line = indent + 'buildConfigField("String", "COPYRIGHT_OWNER", "\\\\"SAGAR\\\\"")' + ending
-                      changed = True
-                  gradle_after_lines.append(line)
-              gradle_after = "".join(gradle_after_lines)
-              if changed:
+              gradle_after = gradle_before
+              for field in ("DEVELOPER_NAME", "COPYRIGHT_OWNER"):
+                  pattern = re.compile(r'buildConfigField\("String", "' + field + r'", (?:[^()]|"[^"]*")*\)')
+                  gradle_after, count = pattern.subn('buildConfigField("String", "' + field + r'", "\\\"SAGAR\\\"")', gradle_after)
+                  if count:
+                      print("Updated BuildConfig identity value:", field, "in", gradle_file)
+              if gradle_after != gradle_before:
                   gradle_file.write_text(gradle_after, encoding="utf-8")
-                  print("Updated BuildConfig identity values:", gradle_file)
           replacements = [
               ("Jarvis system Authorized MANSI AI", "Mansi system Authorized MANSI AI"),
               ("Jarvis System Authorized MANSI AI", "Mansi system Authorized MANSI AI"),
