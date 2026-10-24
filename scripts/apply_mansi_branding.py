@@ -898,3 +898,25 @@ for screenshot_path in root.rglob("*"):
             ET.fromstring(screenshot_after)
         screenshot_path.write_text(screenshot_after, encoding="utf-8")
         print("Screenshot-specific Settings fix:", screenshot_path)
+
+
+# Screenshot-specific Telegram destination normalization. The Settings screenshot
+# shows both Telegram rows; make sure both point to the owner's requested account.
+for telegram_path in root.rglob("*"):
+    if not telegram_path.is_file() or telegram_path.suffix.lower() not in {".xml", ".kt", ".java", ".html", ".js", ".json", ".txt", ".properties"}:
+        continue
+    try:
+        telegram_before = telegram_path.read_text(encoding="utf-8")
+    except (OSError, UnicodeDecodeError):
+        continue
+    telegram_after = re.sub(
+        r"https?://(?:www\\.)?t\\.me/[^\\s\\\"'<>)]*",
+        "https://t.me/H_sagarr",
+        telegram_before,
+        flags=re.IGNORECASE,
+    )
+    if telegram_after != telegram_before:
+        if telegram_path.suffix.lower() == ".xml":
+            ET.fromstring(telegram_after)
+        telegram_path.write_text(telegram_after, encoding="utf-8")
+        print("Screenshot Telegram account fixed:", telegram_path)
