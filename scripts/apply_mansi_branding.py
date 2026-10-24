@@ -631,8 +631,8 @@ for stale in ("JARVIS App Identity", "Jarvis App Identity", "Developer: Tech GPT
 print("Verified no targeted stale Settings/App Identity labels remain in source text.")
 
 
-# Select Gemini Live's feminine-sounding Aoede voice instead of Puck.
-# This pass runs after branding so earlier label normalization cannot restore Puck.
+# Prefer Gemini Live's feminine-sounding Aoede voice while preserving existing
+# Android view IDs and Kotlin identifiers (e.g. rbVoicePuck) to avoid collisions.
 for voice_path in root.rglob("*"):
     if not voice_path.is_file() or voice_path.suffix.lower() not in {".xml", ".kt", ".java", ".json", ".html", ".txt", ".properties", ".gradle", ".kts"}:
         continue
@@ -642,22 +642,23 @@ for voice_path in root.rglob("*"):
         voice_before = voice_path.read_text(encoding="utf-8")
     except (OSError, UnicodeDecodeError):
         continue
-    voice_after = voice_before.replace("Puck", "Aoede").replace("PUCK", "AOEDE").replace("puck", "aoede")
+    # Replace standalone voice values only, never substrings inside IDs/identifiers.
+    voice_after = re.sub(r"(?i)(?<![A-Za-z0-9_])puck(?![A-Za-z0-9_])", lambda m: "Aoede" if m.group(0)[0].isupper() else "aoede", voice_before)
     if voice_after != voice_before:
         if voice_path.suffix.lower() == ".xml":
             ET.fromstring(voice_after)
         voice_path.write_text(voice_after, encoding="utf-8")
         print("FEMALE VOICE Aoede:", voice_path)
 
-# Assert that no Puck voice identifier remains in the extracted source.
+# Verify the old standalone voice value is gone without flagging preserved identifiers.
 remaining_puck = []
 for voice_path in root.rglob("*"):
     if voice_path.is_file() and voice_path.suffix.lower() in {".xml", ".kt", ".java", ".json", ".html", ".txt", ".properties", ".gradle", ".kts"}:
         try:
-            if re.search(r"(?i)\\bpuck\\b", voice_path.read_text(encoding="utf-8")):
+            if re.search(r"(?i)(?<![A-Za-z0-9_])puck(?![A-Za-z0-9_])", voice_path.read_text(encoding="utf-8")):
                 remaining_puck.append(str(voice_path))
         except (OSError, UnicodeDecodeError):
             pass
 if remaining_puck:
-    raise SystemExit("Female voice verification failed; Puck remains in: " + ", ".join(remaining_puck[:10]))
-print("Verified: Puck voice identifier replaced with Aoede.")
+    raise SystemExit("Female voice verification failed; standalone Puck value remains in: " + ", ".join(remaining_puck[:10]))
+print("Verified: standalone Puck voice values replaced with Aoede; Android identifiers preserved.")
