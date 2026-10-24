@@ -751,13 +751,13 @@ for social_path in root.rglob("*"):
     except (OSError, UnicodeDecodeError):
         continue
     social_after = re.sub(
-        r"https?://(?:www\.)?instagram\.com/(?!hyee__sagar(?:[/?#]|$))[^\\s\"'<>)]*",
+        r"https?://(?:www\.)?instagram\.com/(?!hyee__sagar(?:[/?#]|$))[^\s\"'<>)]*",
         "https://instagram.com/hyee__sagar",
         social_before,
         flags=re.IGNORECASE,
     )
     social_after = re.sub(
-        r"https?://(?:www\.)?t\.me/(?!H_sagarr(?:[/?#]|$))[^\\s\"'<>)]*",
+        r"https?://(?:www\.)?t\.me/(?!H_sagarr(?:[/?#]|$))[^\s\"'<>)]*",
         "https://t.me/H_sagarr",
         social_after,
         flags=re.IGNORECASE,
