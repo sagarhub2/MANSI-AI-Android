@@ -39,11 +39,23 @@ jobs:
                   gradle_before = gradle_file.read_text(encoding="utf-8")
               except (OSError, UnicodeDecodeError):
                   continue
-              gradle_after = gradle_before
-              for field in ("DEVELOPER_NAME", "COPYRIGHT_OWNER"):
-                  pattern = re.compile(r'(?m)^(\\s*buildConfigField\\(\\s*"String"\\s*,\\s*"' + field + r'"\\s*,\\s*).*$')
-                  gradle_after = pattern.sub(lambda m: m.group(1) + '"\\\\\\"SAGAR\\\\\\"' + '")', gradle_after)
-              if gradle_after != gradle_before:
+              gradle_lines = gradle_before.splitlines(keepends=True)
+              gradle_after_lines = []
+              changed = False
+              for line in gradle_lines:
+                  if "buildConfigField" in line and '"DEVELOPER_NAME"' in line:
+                      ending = "\\n" if line.endswith("\\n") else ""
+                      indent = line[:len(line) - len(line.lstrip())]
+                      line = indent + 'buildConfigField("String", "DEVELOPER_NAME", "\\\\"SAGAR\\\\"")' + ending
+                      changed = True
+                  elif "buildConfigField" in line and '"COPYRIGHT_OWNER"' in line:
+                      ending = "\\n" if line.endswith("\\n") else ""
+                      indent = line[:len(line) - len(line.lstrip())]
+                      line = indent + 'buildConfigField("String", "COPYRIGHT_OWNER", "\\\\"SAGAR\\\\"")' + ending
+                      changed = True
+                  gradle_after_lines.append(line)
+              gradle_after = "".join(gradle_after_lines)
+              if changed:
                   gradle_file.write_text(gradle_after, encoding="utf-8")
                   print("Updated BuildConfig identity values:", gradle_file)
           replacements = [
