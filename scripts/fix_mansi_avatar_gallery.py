@@ -12,7 +12,7 @@ if marker in source:
     raise SystemExit(0)
 
 needle = """                avatarGallery.evaluateJavascript(
-                    "window.setGalleryTheme && window.setGalleryTheme('#\${themeColor(R.attr.themeTextPrimary)}', '#\${themeColor(R.attr.themeAccent)}')",
+                    "window.setGalleryTheme && window.setGalleryTheme('#${themeColor(R.attr.themeTextPrimary)}', '#${themeColor(R.attr.themeAccent)}')",
                     null
                 )
 """
