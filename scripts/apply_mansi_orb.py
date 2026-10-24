@@ -40,6 +40,15 @@ patch = r"""
 @media(prefers-reduced-motion:reduce){#mansi-final-orb *,#mansi-final-orb{animation-duration:0.01ms!important;animation-iteration-count:1!important}}
 </style>
 <style>
+/* MANSI_CLEAN_BG_V5 — remove stray legacy orb lines and oversized halo */
+html,body{overflow-x:hidden!important}
+body::before,body::after,html::before,html::after{content:none!important;display:none!important;background:none!important;box-shadow:none!important;border:0!important}
+#mansi-final-orb{width:min(56vw,300px)!important;height:min(56vw,300px)!important;top:27.5%!important;left:50%!important;overflow:visible!important;filter:none!important;box-shadow:none!important;border:0!important;background:transparent!important;outline:0!important}
+#mansi-final-orb::before,#mansi-final-orb::after{content:none!important;display:none!important}
+#mansi-final-orb .mansi-core{inset:0!important;border-radius:50%!important;background:radial-gradient(circle at 38% 30%,#fffaff 0%,#fff0fb 48%,#f8dcfa 78%,#f4d4fa 100%)!important;box-shadow:0 0 14px rgba(255,87,218,.7),0 0 34px rgba(255,62,211,.55),0 0 58px rgba(210,94,255,.26)!important;border:1px solid rgba(255,255,255,.65)!important}
+#mansi-final-orb .mansi-heart{width:18%!important;height:18%!important;top:50%!important;left:50%!important;transform:translate(-50%,-50%)!important}
+#mansi-final-orb .mansi-tapwave{display:none!important}
+#mansi-final-orb.active .mansi-core{animation:mansi-soft-breathe .7s ease-in-out 2!important}
 /* MANSI_SOFT_PINK_ORB_V4 — match reference screenshot 2 */
 #mansi-final-orb{width:min(56vw,300px)!important;height:min(56vw,300px)!important;top:27.5%!important;filter:none!important}
 #mansi-final-orb .mansi-ring{display:none!important}
