@@ -751,13 +751,13 @@ for social_path in root.rglob("*"):
     except (OSError, UnicodeDecodeError):
         continue
     social_after = re.sub(
-        r"https?://(?:www\\.)?instagram\\.com/(?!hyee__sagar(?:[/?#]|$))[^\\s\"'<>)]*",
+        r"https?://(?:www\.)?instagram\.com/(?!hyee__sagar(?:[/?#]|$))[^\\s\"'<>)]*",
         "https://instagram.com/hyee__sagar",
         social_before,
         flags=re.IGNORECASE,
     )
     social_after = re.sub(
-        r"https?://(?:www\\.)?t\\.me/(?!H_sagarr(?:[/?#]|$))[^\\s\"'<>)]*",
+        r"https?://(?:www\.)?t\.me/(?!H_sagarr(?:[/?#]|$))[^\\s\"'<>)]*",
         "https://t.me/H_sagarr",
         social_after,
         flags=re.IGNORECASE,
@@ -777,9 +777,9 @@ for social_path in root.rglob("*"):
         social_text = social_path.read_text(encoding="utf-8")
     except (OSError, UnicodeDecodeError):
         continue
-    if re.search(r"https?://(?:www\\.)?instagram\\.com/(?!hyee__sagar(?:[/?#]|$))", social_text, re.IGNORECASE):
+    if re.search(r"https?://(?:www\.)?instagram\.com/(?!hyee__sagar(?:[/?#]|$))", social_text, re.IGNORECASE):
         raise SystemExit("Social-link verification failed: non-owner Instagram URL remains in " + str(social_path))
-    if re.search(r"https?://(?:www\\.)?t\\.me/(?!H_sagarr(?:[/?#]|$))", social_text, re.IGNORECASE):
+    if re.search(r"https?://(?:www\.)?t\.me/(?!H_sagarr(?:[/?#]|$))", social_text, re.IGNORECASE):
         raise SystemExit("Social-link verification failed: non-owner Telegram URL remains in " + str(social_path))
 print("Verified: Instagram uses @hyee__sagar and Telegram uses t.me/H_sagarr.")
 
@@ -794,8 +794,8 @@ for credit_path in root.rglob("*"):
         credit_before = credit_path.read_text(encoding="utf-8")
     except (OSError, UnicodeDecodeError):
         continue
-    credit_after = re.sub(r"(?i)Developer\\s*:\\s*(?:Tech\\s*GPTx|TechGPTx|MANSI AI|SAGAR)", "Developer: SAGAR", credit_before)
-    credit_after = re.sub(r"(?i)Copyright\\s*:\\s*(?:Tech\\s*GPTx|TechGPTx|MANSI AI|SAGAR)", "Copyright: SAGAR", credit_after)
+    credit_after = re.sub(r"(?i)Developer\s*:\s*(?:Tech\s*GPTx|TechGPTx|MANSI AI|SAGAR)", "Developer: SAGAR", credit_before)
+    credit_after = re.sub(r"(?i)Copyright\s*:\s*(?:Tech\s*GPTx|TechGPTx|MANSI AI|SAGAR)", "Copyright: SAGAR", credit_after)
     if credit_after != credit_before:
         if credit_path.suffix.lower() == ".xml":
             ET.fromstring(credit_after)
