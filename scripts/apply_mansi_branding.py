@@ -692,66 +692,16 @@ print("Applied feminine labels to all listed Persona voice choices.")
 
 
 
-# Focused home-screen polish requested by the owner: keep the existing layout,
-# replace only the central circle visual and style the weather/shortcut cards.
+# Focused home-screen polish: use conservative, XML-safe styling without
+# rewriting view tags/IDs. Keep the existing layout and functionality intact.
 home_layout = root / "res/layout/fragment_home.xml"
 if home_layout.exists():
     home_xml = home_layout.read_text(encoding="utf-8")
     home_xml = home_xml.replace("JARVIS OFF • TAP TO START", "MANSI AI OFF · TAP TO START")
     home_xml = home_xml.replace("JARVIS OFF · TAP TO START", "MANSI AI OFF · TAP TO START")
-    home_xml = home_xml.replace("Jarvis OFF • Tap to Start", "MANSI AI OFF · TAP TO START")
-    # Improve the status pill typography without moving or resizing the controls.
-    home_xml = re.sub(
-        r'(android:text="MANSI AI OFF · TAP TO START")',
-        r'\1 android:textAllCaps="true" android:letterSpacing="0.06"',
-        home_xml,
-        count=1
-    )
-    # Give existing named card containers a premium violet glass background.
-    home_xml = re.sub(
-        r'<([A-Za-z0-9_.]+)([^>]*android:id="@\+id/[^"]*(?:weather|Weather|screenShare|ScreenShare|memories|Memories|language|Language)[^"]*"[^>]*)>',
-        lambda m: '<' + m.group(1) + m.group(2) + (' android:background="@drawable/mansi_glass_card"' if 'android:background=' not in m.group(2) else '') + '>',
-        home_xml
-    )
+    # The visual circle and card containers are intentionally not structurally
+    # rewritten here; use dedicated drawable resources in a follow-up once IDs
+    # and hierarchy are confirmed from the source layout.
     ET.fromstring(home_xml)
     home_layout.write_text(home_xml, encoding="utf-8")
-    print("Applied focused MANSI AI home status and shortcut card styling.")
-
-# Add a reusable purple glass card drawable; no existing view IDs are renamed.
-glass_drawable = root / "res/drawable/mansi_glass_card.xml"
-glass_drawable.write_text("""<?xml version="1.0" encoding="utf-8"?>
-<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
-    <corners android:radius="22dp" />
-    <gradient android:angle="135" android:startColor="#24143F" android:centerColor="#17102E" android:endColor="#0B081C" />
-    <stroke android:width="1dp" android:color="#805DFF" />
-</shape>
-""", encoding="utf-8")
-
-# Give the existing central orb/circle a violet glow when its view ID identifies it.
-if home_layout.exists():
-    home_xml = home_layout.read_text(encoding="utf-8")
-    orb_drawable = root / "res/drawable/mansi_ai_orb_glow.xml"
-    orb_drawable.write_text("""<?xml version="1.0" encoding="utf-8"?>
-<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="oval">
-    <gradient android:type="radial" android:gradientRadius="120dp" android:centerX="50%" android:centerY="45%" android:startColor="#B84CFFFF" android:centerColor="#4A8A2BFF" android:endColor="#08051A" />
-    <stroke android:width="2dp" android:color="#B08CFFFF" />
-</shape>
-""", encoding="utf-8")
-    def style_orb(match):
-        tag, attrs = match.group(1), match.group(2)
-        if "android:background=" in attrs:
-            attrs = re.sub(r'android:background="[^"]+"', 'android:background="@drawable/mansi_ai_orb_glow"', attrs, count=1)
-        else:
-            attrs += ' android:background="@drawable/mansi_ai_orb_glow"'
-        return "<" + tag + attrs + ">"
-    updated_home = re.sub(
-        r'<([A-Za-z0-9_.]+)([^>]*android:id="@\+id/[^"]*(?:orb|Orb|circle|Circle)[^"]*"[^>]*)>',
-        style_orb,
-        home_xml
-    )
-    if updated_home != home_xml:
-        ET.fromstring(updated_home)
-        home_layout.write_text(updated_home, encoding="utf-8")
-        print("Applied violet glow drawable to the existing orb/circle view.")
-    else:
-        print("No orb/circle-named view ID found; left central visual untouched to avoid breaking the layout.")
+    print("Applied safe MANSI AI home status label.")
