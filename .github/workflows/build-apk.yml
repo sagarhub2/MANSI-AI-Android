@@ -10,6 +10,8 @@ on:
       - "scripts/apply_mansi_branding.py"
       - "scripts/apply_mansi_orb.py"
       - "scripts/diagnose_mansi_avatars.py"
+      - "scripts/fix_mansi_avatar_gallery.py"
+      - "scripts/diagnose_mansi_avatars.py"
       - "branding/**"
 
 permissions:
@@ -253,6 +255,12 @@ jobs:
 
       - name: Diagnose overlay avatar rendering sources
         run: python3 scripts/diagnose_mansi_avatars.py
+
+      - name: Diagnose overlay avatar rendering sources
+        run: python3 scripts/diagnose_mansi_avatars.py
+
+      - name: Repair blank avatar gallery fallback
+        run: python3 scripts/fix_mansi_avatar_gallery.py
 
       - name: Diagnose actual identity and assistant prompt sources
         run: |
