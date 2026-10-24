@@ -9,6 +9,7 @@ on:
       - ".github/workflows/build-apk.yml"
       - "scripts/apply_mansi_branding.py"
       - "scripts/apply_mansi_orb.py"
+      - "scripts/apply_mansi_pastel_orbit.py"
       - "scripts/diagnose_mansi_avatars.py"
       - "scripts/fix_mansi_avatar_gallery.py"
       - "scripts/diagnose_mansi_avatars.py"
@@ -61,6 +62,7 @@ jobs:
           python3 scripts/apply_mansi_branding.py
           echo "---- APPLY FINAL BLUE-PURPLE HOLOGRAM ORB ----"
           python3 scripts/apply_mansi_orb.py
+          python3 scripts/apply_mansi_pastel_orbit.py
           grep -n "MANSI_FINAL_HOLOGRAM_ORB_V3" source/mansi/app/src/main/assets/orb.html
           echo "---- APPLY REQUESTED MANSI AI / SAGAR BRANDING ----"
           python3 - <<'PY'
