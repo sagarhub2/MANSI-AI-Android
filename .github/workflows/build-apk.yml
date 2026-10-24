@@ -191,30 +191,35 @@ jobs:
           from pathlib import Path
           from zipfile import ZipFile
           from PIL import Image, ImageOps
-          import io, re, sys
-          archive = Path("MANSI-AI-Android-logo-final.zip")
-          if not archive.is_file():
-              raise SystemExit("Original logo archive missing; refusing to claim icon replacement.")
+          import io, re
+          archives = [Path("MANSI-AI-Android-logo-final.zip"), Path("MANSI-AI-Android-PREMIUM-ICON-PATCH.zip")]
           candidates = []
-          with ZipFile(archive) as z:
-              for info in z.infolist():
-                  if info.is_dir() or Path(info.filename).suffix.lower() not in {".png", ".jpg", ".jpeg", ".webp"}:
-                      continue
-                  try:
-                      im = Image.open(io.BytesIO(z.read(info))).convert("RGBA")
-                      w, h = im.size
-                      if min(w, h) < 256:
+          for archive in archives:
+              if not archive.is_file():
+                  print(f"Optional archive not present: {archive}")
+                  continue
+              with ZipFile(archive) as z:
+                  for info in z.infolist():
+                      if info.is_dir() or Path(info.filename).suffix.lower() not in {".png", ".jpg", ".jpeg", ".webp"}:
                           continue
-                      name_score = 2 if re.search(r"(mansi|logo|icon|launcher)", Path(info.filename).name, re.I) else 0
-                      square_score = 1 if abs(w-h) <= max(w,h)*0.03 else 0
-                      candidates.append((name_score, square_score, w*h, info.filename, im.copy()))
-                  except Exception:
-                      continue
+                      try:
+                          im = Image.open(io.BytesIO(z.read(info))).convert("RGBA")
+                          w, h = im.size
+                          if min(w, h) < 128:
+                              continue
+                          name_score = 3 if re.search(r"(mansi|logo|icon|launcher|final)", Path(info.filename).name, re.I) else 0
+                          square_score = 1 if abs(w-h) <= max(w,h)*0.03 else 0
+                          candidates.append((name_score, square_score, w*h, archive.name, info.filename, im.copy()))
+                      except Exception:
+                          continue
+          if not candidates:
+              raise SystemExit("No usable logo image found in either icon archive; refusing to generate a fake replacement.")
+          candidates.sort(key=lambda x: (x[0], x[1], x[2]), reverse=True)
+          _, _, _, archive_name, chosen, logo = candidates[0]
+          print(f"Using image from {archive_name}: {chosen} ({logo.width}x{logo.height})")
           if not candidates:
               raise SystemExit("No suitable high-resolution logo image found in logo archive.")
           candidates.sort(key=lambda x: (x[0], x[1], x[2]), reverse=True)
-          _, _, _, chosen, logo = candidates[0]
-          print(f"Using original archive image: {chosen} ({logo.width}x{logo.height})")
           res = Path("source/mansi/app/src/main/res")
           logo = ImageOps.fit(logo, (1024, 1024), method=Image.Resampling.LANCZOS, centering=(0.5,0.5))
           adaptive = Image.new("RGBA", (432,432), (0,0,0,0))
