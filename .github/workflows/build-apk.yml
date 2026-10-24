@@ -4,6 +4,7 @@ on:
   workflow_dispatch:
   push:
     paths:
+      - "MANSI-AI-neon-heart-modified.zip"
       - "MANSI_AI_Android_GitHub_Upload.zip"
       - ".github/workflows/build-apk.yml"
       - "scripts/apply_mansi_branding.py"
@@ -21,7 +22,11 @@ jobs:
 
       - name: Unpack Android project
         run: |
-          unzip -q MANSI_AI_Android_GitHub_Upload.zip -d source
+          # Prefer the prepared neon-heart project ZIP; retain the original as a fallback.
+          PROJECT_ZIP="MANSI-AI-neon-heart-modified.zip"
+          if [ ! -s "$PROJECT_ZIP" ]; then PROJECT_ZIP="MANSI_AI_Android_GitHub_Upload.zip"; fi
+          echo "Building Android source from: $PROJECT_ZIP"
+          unzip -q "$PROJECT_ZIP" -d source
           test -f source/mansi/gradlew
           test -f source/mansi/settings.gradle.kts
           chmod +x source/mansi/gradlew
