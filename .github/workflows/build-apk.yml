@@ -224,6 +224,8 @@ jobs:
               "with Jarvis ": "with MANSI AI ",
               "Jarvis can listen": "MANSI AI can listen",
               "Jarvis Logo": "MANSI AI Logo",
+              "Jarvis": "MANSI AI",
+              "JARVIS": "MANSI AI",
           }
           suffixes = {".xml", ".kt", ".java", ".html", ".js", ".json", ".txt", ".properties"}
           for path in root.rglob("*"):
