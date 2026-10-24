@@ -32,7 +32,7 @@ jobs:
           from pathlib import Path
           import re
           root = Path("source/mansi/app/src/main")
-          # Fix the actual BuildConfig values used by App Identity & Integrity.
+          # Fix actual BuildConfig values used by App Identity & Integrity.
           gradle_root = Path("source/mansi")
           for gradle_file in gradle_root.rglob("*.gradle*"):
               try:
@@ -40,12 +40,9 @@ jobs:
               except (OSError, UnicodeDecodeError):
                   continue
               gradle_after = gradle_before
-              gradle_after = re.sub(
-                  r'(buildConfigField\\s*\\(\\s*["\\']String["\\']\\s*,\\s*["\\']DEVELOPER_NAME["\\']\\s*,\\s*["\\'])[^"\\']*(["\\']\\s*\\))',
-                  r'\\1\\\\\\"SAGAR\\\\\\"\\2', gradle_after)
-              gradle_after = re.sub(
-                  r'(buildConfigField\\s*\\(\\s*["\\']String["\\']\\s*,\\s*["\\']COPYRIGHT_OWNER["\\']\\s*,\\s*["\\'])[^"\\']*(["\\']\\s*\\))',
-                  r'\\1\\\\\\"SAGAR\\\\\\"\\2', gradle_after)
+              for field in ("DEVELOPER_NAME", "COPYRIGHT_OWNER"):
+                  pattern = re.compile(r'(?m)^(\\s*buildConfigField\\(\\s*"String"\\s*,\\s*"' + field + r'"\\s*,\\s*).*$')
+                  gradle_after = pattern.sub(lambda m: m.group(1) + '"\\\\\\"SAGAR\\\\\\"' + '")', gradle_after)
               if gradle_after != gradle_before:
                   gradle_file.write_text(gradle_after, encoding="utf-8")
                   print("Updated BuildConfig identity values:", gradle_file)
