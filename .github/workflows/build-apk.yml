@@ -26,11 +26,7 @@ jobs:
           test -f source/mansi/settings.gradle.kts
           chmod +x source/mansi/gradlew
           python3 -m pip install --quiet Pillow
-          cp -a source/mansi/app/src/main/java /tmp/mansi-java-original
           python3 scripts/apply_mansi_branding.py
-          # Keep original Java/Kotlin symbols and references intact.
-          rm -rf source/mansi/app/src/main/java
-          cp -a /tmp/mansi-java-original source/mansi/app/src/main/java
           echo "---- APPLY REQUESTED MANSI AI / SAGAR BRANDING ----"
           python3 - <<'PY'
           from pathlib import Path
@@ -51,22 +47,12 @@ jobs:
               ("MANSI AI . SAGAR", "MANSI AI OS . SAGAR"),
               ("Jarvis sagar neural Assistant", "Mansi AI sagar neural Assistant"),
               ("Jarvis Sagar Neural Assistant", "Mansi AI sagar neural Assistant"),
-              ("Jarvis operator . Primary", "Mansi AI operator . Primary"),
-              ("Jarvis Operator . Primary", "Mansi AI operator . Primary"),
-              ("Jarvis pro . Puck", "Mansi AI pro . Puck"),
-              ("Jarvis Pro . Puck", "Mansi AI pro . Puck"),
               ("Sagar • Neural Assistant", "Mansi AI sagar neural Assistant"),
               ("Sagar · Neural Assistant", "Mansi AI sagar neural Assistant"),
               ("Jarvis can listen", "MANSI AI can listen"),
               ("Jarvis Logo", "MANSI AI Logo"),
               ("TechGPT X", "Sagar"),
               ("TechGPTX", "Sagar"),
-              ("JARVIS OPERATOR", "MANSI AI USER"),
-              ("Jarvis Operator", "MANSI AI User"),
-              ("PRIMARY USER", "MANSI AI USER"),
-              ("Primary User", "MANSI AI User"),
-              ("JARVIS PRO", "MANSI AI PRO"),
-              ("Jarvis Pro", "MANSI AI Pro"),
           ]
           suffixes = {".xml", ".html", ".js", ".json", ".txt", ".properties"}
           for path in root.rglob("*"):
