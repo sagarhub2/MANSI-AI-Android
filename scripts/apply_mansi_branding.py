@@ -540,28 +540,31 @@ for layout_path in (root / "res/layout").rglob("*.xml"):
 print("Created MANSI AI wordmark and updated logo references in: " + ", ".join(updated_layouts))
 
 
-# Add a subtle, professional entrance animation to the System Authorizations screen.
-# This is applied only to the layout containing that screen title; other screens stay unchanged.
+# Animate the actual layout that contains the MANSI AI logo.
+# The previous attempt searched for literal screen-title text, but this project uses string resources.
 import re as _mansi_re
 anim_dir = root / "res/anim"
 anim_dir.mkdir(parents=True, exist_ok=True)
 (anim_dir / "mansi_permission_item_enter.xml").write_text("""<?xml version="1.0" encoding="utf-8"?>
 <set xmlns:android="http://schemas.android.com/apk/res/android"
-    android:duration="360"
+    android:duration="520"
     android:interpolator="@android:interpolator/decelerate_cubic">
-    <alpha
-        android:fromAlpha="0.0"
-        android:toAlpha="1.0" />
-    <translate
-        android:fromYDelta="12%p"
-        android:toYDelta="0" />
+    <alpha android:fromAlpha="0.0" android:toAlpha="1.0" />
+    <translate android:fromYDelta="8%p" android:toYDelta="0" />
+    <scale
+        android:fromXScale="0.96"
+        android:toXScale="1.0"
+        android:fromYScale="0.96"
+        android:toYScale="1.0"
+        android:pivotX="50%"
+        android:pivotY="50%" />
 </set>
 """, encoding="utf-8")
 (anim_dir / "mansi_permission_list_enter.xml").write_text("""<?xml version="1.0" encoding="utf-8"?>
 <layoutAnimation xmlns:android="http://schemas.android.com/apk/res/android"
     android:animation="@anim/mansi_permission_item_enter"
     android:animationOrder="normal"
-    android:delay="10%" />
+    android:delay="12%" />
 """, encoding="utf-8")
 
 animated_layouts = []
@@ -570,18 +573,25 @@ for auth_layout in (root / "res/layout").rglob("*.xml"):
         auth_xml = auth_layout.read_text(encoding="utf-8")
     except (OSError, UnicodeDecodeError):
         continue
-    if "System Authorizations" not in auth_xml or "@anim/mansi_permission_list_enter" in auth_xml:
+    # Only target layouts that actually display the new MANSI AI logo.
+    if "@drawable/mansi_ai_wordmark" not in auth_xml:
         continue
-    # Apply to the outermost layout only; validate the XML before writing.
+    if "android:layoutAnimation=" in auth_xml:
+        continue
     opening = _mansi_re.search(r"<(?!\?|!)([A-Za-z0-9_.]+)(\s[^>]*?)?>", auth_xml)
     if not opening:
         continue
     tag, attrs = opening.group(1), opening.group(2) or ""
-    attrs = attrs.rstrip()
-    if "android:layoutAnimation=" not in attrs:
-        new_attrs = attrs + ' android:layoutAnimation="@anim/mansi_permission_list_enter"'
-        updated_xml = auth_xml[:opening.start()] + "<" + tag + new_attrs + ">" + auth_xml[opening.end():]
+    # layoutAnimation is supported by ViewGroup roots; skip single-view roots.
+    if tag in {"ImageView", "TextView", "Button", "androidx.appcompat.widget.AppCompatImageView"}:
+        continue
+    new_attrs = attrs.rstrip() + ' android:layoutAnimation="@anim/mansi_permission_list_enter"'
+    updated_xml = auth_xml[:opening.start()] + "<" + tag + new_attrs + ">" + auth_xml[opening.end():]
+    try:
         ET.fromstring(updated_xml)
-        auth_layout.write_text(updated_xml, encoding="utf-8")
-        animated_layouts.append(str(auth_layout))
-print("Added staggered entrance animation to authorization layouts: " + (", ".join(animated_layouts) if animated_layouts else "no matching layout title found; animation resources prepared."))
+    except ET.ParseError as exc:
+        print("Skipping animation for invalid XML", auth_layout, exc)
+        continue
+    auth_layout.write_text(updated_xml, encoding="utf-8")
+    animated_layouts.append(str(auth_layout))
+print("Attached entrance animation to logo-containing layouts: " + (", ".join(animated_layouts) if animated_layouts else "No layout references the generated logo; verify logo drawable mapping."))
