@@ -529,3 +529,45 @@ for auth_layout in (root / "res/layout").rglob("*.xml"):
     auth_layout.write_text(updated_xml, encoding="utf-8")
     animated_layouts.append(str(auth_layout))
 print("Attached entrance animation to logo-containing layouts: " + (", ".join(animated_layouts) if animated_layouts else "No layout references the generated logo; verify logo drawable mapping."))
+
+
+# LAST PASS: enforce the exact settings-screen labels after all generic cleanup.
+# This intentionally runs at EOF so earlier broad branding substitutions cannot undo it.
+final_labels = {
+    "TechGPT X": "MANSI AI",
+    "TECHGPT X": "MANSI AI",
+    "TECHGPTX": "MANSI AI",
+    "Jarvis Operator • Primary User": "MANSI AI Operator · Primary User",
+    "JARVIS OPERATOR • PRIMARY USER": "MANSI AI Operator · Primary User",
+    "JARVIS OPERATOR · PRIMARY USER": "MANSI AI Operator · Primary User",
+    "Jarvis Pro · Voice: Puck": "MANSI PRO · Voice: Puck",
+    "Jarvis Pro • Voice: Puck": "MANSI PRO · Voice: Puck",
+    "JARVIS PRO · VOICE: PUCK": "MANSI PRO · Voice: Puck",
+    "Jarvis Pro": "MANSI PRO",
+    "JARVIS PRO": "MANSI PRO",
+    "Enroll Voice": "ENROLL VOICE",
+    "ENROLL VOICE": "ENROLL VOICE",
+    "MANSI AI . SAGAR": "MANSI AI OS · SAGAR",
+    "MANSI AI OS . SAGAR": "MANSI AI OS · SAGAR",
+}
+for final_ui_path in root.rglob("*"):
+    if not final_ui_path.is_file() or final_ui_path.suffix.lower() not in {".xml", ".html", ".js", ".json", ".txt", ".properties"}:
+        continue
+    if final_ui_path.name == "AndroidManifest.xml":
+        continue
+    try:
+        final_before = final_ui_path.read_text(encoding="utf-8")
+    except (OSError, UnicodeDecodeError):
+        continue
+    final_after = final_before
+    for old_label, new_label in final_labels.items():
+        final_after = final_after.replace(old_label, new_label)
+    # Match capitalization/punctuation variations for the subtitle and voice row.
+    final_after = re.sub(r"(?i)jarvis\\s+operator\\s*[·•]\\s*primary user", "MANSI AI Operator · Primary User", final_after)
+    final_after = re.sub(r"(?i)jarvis\\s+pro\\s*[·•]\\s*voice:\\s*puck", "MANSI PRO · Voice: Puck", final_after)
+    final_after = re.sub(r"(?i)android:text=([\"'])enroll voice\\1", 'android:text="ENROLL VOICE"', final_after)
+    if final_after != final_before:
+        if final_ui_path.suffix.lower() == ".xml":
+            ET.fromstring(final_after)
+        final_ui_path.write_text(final_after, encoding="utf-8")
+        print("FINAL settings label enforcement:", final_ui_path)
