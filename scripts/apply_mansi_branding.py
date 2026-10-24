@@ -129,11 +129,11 @@ visible_brand_replacements = {
     "Message JARVIS": "Message MANSI AI",
     "Jarvis Code": "MANSI Code",
     "JARVIS CODE": "MANSI CODE",
-    "Jarvis Pro": "MANSI AI",
-    "JARVIS PRO": "MANSI AI",
-    "JARVIS Pro": "MANSI AI",
-    "Jarvis Pro Voice": "MANSI AI Voice",
-    "JARVIS PRO VOICE": "MANSI AI VOICE",
+    "Jarvis Pro": "MANSI PRO",
+    "JARVIS PRO": "MANSI PRO",
+    "JARVIS Pro": "MANSI PRO",
+    "Jarvis Pro Voice": "MANSI PRO · Voice: Puck",
+    "JARVIS PRO VOICE": "MANSI PRO · Voice: Puck",
     "Jarvis AI": "MANSI AI",
     "JARVIS AI": "MANSI AI",
     "Jarvis Intelligence": "MANSI AI",
@@ -249,6 +249,39 @@ for safe_path in root.rglob('*'):
     if cleaned != safe_text:
         safe_path.write_text(cleaned, encoding="utf-8")
         print("Cleaned remaining visible Jarvis text in " + str(safe_path))
+
+
+# Explicitly enforce the requested visible labels in XML/resource text only.
+# These targeted substitutions run after generic branding so specific labels
+# such as MANSI PRO are not overwritten by the broad MANSI AI replacement.
+requested_ui_labels = [
+    ("ENROLL VOICE", "ENROLL VOICE"),
+    ("Enroll Voice", "ENROLL VOICE"),
+    ("AI Persona & Voice", "MANSI PRO · Voice: Puck"),
+    ("AI Persona and Voice", "MANSI PRO · Voice: Puck"),
+    ("JARVIS OPERATOR • PRIMARY USER", "MANSI AI Operator · Primary User"),
+    ("JARVIS OPERATOR · PRIMARY USER", "MANSI AI Operator · Primary User"),
+    ("Jarvis Operator • Primary User", "MANSI AI Operator · Primary User"),
+    ("MANSI AI Operator • Primary User", "MANSI AI Operator · Primary User"),
+    ("MANSI AI PRO", "MANSI PRO"),
+]
+for ui_path in root.rglob("*"):
+    if not ui_path.is_file() or ui_path.suffix.lower() not in {".xml", ".html", ".js", ".json", ".txt", ".properties"}:
+        continue
+    if ui_path.name == "AndroidManifest.xml":
+        continue
+    try:
+        ui_before = ui_path.read_text(encoding="utf-8")
+    except (OSError, UnicodeDecodeError):
+        continue
+    ui_after = ui_before
+    for old_label, new_label in requested_ui_labels:
+        ui_after = ui_after.replace(old_label, new_label)
+    if ui_after != ui_before:
+        if ui_path.suffix.lower() == ".xml":
+            ET.fromstring(ui_after)
+        ui_path.write_text(ui_after, encoding="utf-8")
+        print("Enforced requested MANSI UI labels:", ui_path)
 
 # Cross-line literal rewriting is intentionally omitted because it corrupts Kotlin source.
 
