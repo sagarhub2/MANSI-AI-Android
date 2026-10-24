@@ -206,6 +206,35 @@ jobs:
               raise SystemExit("Invalid Android string resource names remain: " + repr(invalid))
           print("Android string resource names repaired and validated.")
           PY
+          echo "---- FINAL EXACT LABEL PATCH (INCLUDING RESTORED KOTLIN SOURCE) ----"
+          python3 - <<'PY'
+          from pathlib import Path
+          root = Path("source/mansi/app/src/main")
+          replacements = {
+              "Jarvis system Authorized MANSI AI": "Mansi system Authorized MANSI AI",
+              "Jarvis System Authorized MANSI AI": "Mansi system Authorized MANSI AI",
+              "Jarvis System Authorized": "Mansi system Authorized MANSI AI",
+          }
+          suffixes = {".xml", ".kt", ".java", ".html", ".js", ".json", ".txt", ".properties"}
+          changed = []
+          for path in root.rglob("*"):
+              if not path.is_file() or path.suffix.lower() not in suffixes or path.name == "AndroidManifest.xml":
+                  continue
+              try:
+                  before = path.read_text(encoding="utf-8")
+              except (OSError, UnicodeDecodeError):
+                  continue
+              after = before
+              for old, new in replacements.items():
+                  after = after.replace(old, new)
+              if after != before:
+                  path.write_text(after, encoding="utf-8")
+                  changed.append(str(path))
+          if changed:
+              print("Applied exact first requested label in:", ", ".join(changed))
+          else:
+              print("No matching legacy source label found; no files changed.")
+          PY
           echo "---- LAUNCHER ICON VERIFICATION ----"
           grep -nE 'android:(icon|roundIcon)=' source/mansi/app/src/main/AndroidManifest.xml
           test -s source/mansi/app/src/main/res/mipmap-mdpi/ic_launcher.png
