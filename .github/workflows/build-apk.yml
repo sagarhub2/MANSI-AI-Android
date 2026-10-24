@@ -30,6 +30,19 @@ jobs:
           test -f source/mansi/gradlew
           test -f source/mansi/settings.gradle.kts
           chmod +x source/mansi/gradlew
+          echo "---- COLOR / ORB SOURCE INSPECTION ----"
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          root = Path("source/mansi/app/src/main")
+          for p in root.rglob("*"):
+              if p.is_file() and p.suffix.lower() in {".kt", ".java", ".xml", ".json", ".css", ".html"}:
+                  try: s = p.read_text(encoding="utf-8")
+                  except (OSError, UnicodeDecodeError): continue
+                  hits = re.findall(r'#[0-9A-Fa-f]{6,8}|0x[0-9A-Fa-f]{6,8}', s)
+                  if hits:
+                      print(str(p), ":", ", ".join(sorted(set(hits))[:35]))
+          PY
           python3 -m pip install --quiet Pillow
           python3 scripts/apply_mansi_branding.py
           echo "---- APPLY REQUESTED MANSI AI / SAGAR BRANDING ----"
