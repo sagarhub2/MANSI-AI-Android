@@ -30,6 +30,14 @@ jobs:
           test -f source/mansi/gradlew
           test -f source/mansi/settings.gradle.kts
           chmod +x source/mansi/gradlew
+          echo "---- ACTUAL ORB HTML / HEART / TAP HANDLERS ----"
+          if [ -f source/mansi/app/src/main/assets/orb.html ]; then
+            grep -niE 'heart|<svg|<canvas|orb|click|pointer|touch|tap|listening|speaking' source/mansi/app/src/main/assets/orb.html | head -220 || true
+            echo "---- ORB HTML FIRST 240 LINES ----"
+            sed -n '1,240p' source/mansi/app/src/main/assets/orb.html
+          else
+            echo "orb.html not found in selected project ZIP"
+          fi
           echo "---- COLOR / ORB SOURCE INSPECTION ----"
           python3 - <<'PY'
           from pathlib import Path
