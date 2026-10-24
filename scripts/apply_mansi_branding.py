@@ -582,10 +582,10 @@ identity_labels = {
     "JARVIS App Identity": "MANSI AI App Identity",
     "Jarvis App Identity": "MANSI AI App Identity",
     "JARVIS APP IDENTITY": "MANSI AI App Identity",
-    "Developer: Tech GPTx": "Developer: MANSI AI",
-    "Developer: TechGPTx": "Developer: MANSI AI",
-    "Copyright: Tech GPTx": "Copyright: MANSI AI",
-    "Copyright: TechGPTx": "Copyright: MANSI AI",
+    "Developer: Tech GPTx": "Developer: SAGAR",
+    "Developer: TechGPTx": "Developer: SAGAR",
+    "Copyright: Tech GPTx": "Copyright: SAGAR",
+    "Copyright: TechGPTx": "Copyright: SAGAR",
     "JARVIS PRO": "MANSI PRO",
     "Jarvis Pro": "MANSI PRO",
     "Jarvis Pro · Voice: Puck": "MANSI PRO · Voice: Puck",
@@ -615,6 +615,31 @@ for identity_path in root.rglob("*"):
             ET.fromstring(identity_after)
         identity_path.write_text(identity_after, encoding="utf-8")
         print("FINAL cross-source branding:", identity_path)
+
+# App Identity owner label must show SAGAR, never the old Tech GPTx branding.
+owner_label_replacements = {
+    "Tech GPTx": "SAGAR", "TechGPTx": "SAGAR", "TECH GPTX": "SAGAR",
+    "TECHGPTX": "SAGAR", "Tech GPTX": "SAGAR", "tech gptx": "SAGAR",
+    "Developer: MANSI AI": "Developer: SAGAR",
+    "Copyright: MANSI AI": "Copyright: SAGAR",
+}
+for owner_path in root.rglob("*"):
+    if not owner_path.is_file() or owner_path.suffix.lower() not in {".xml", ".kt", ".java", ".html", ".js", ".json", ".txt", ".properties"}:
+        continue
+    if owner_path.name == "AndroidManifest.xml":
+        continue
+    try:
+        owner_before = owner_path.read_text(encoding="utf-8")
+    except (OSError, UnicodeDecodeError):
+        continue
+    owner_after = owner_before
+    for owner_old, owner_new in owner_label_replacements.items():
+        owner_after = owner_after.replace(owner_old, owner_new)
+    if owner_after != owner_before:
+        if owner_path.suffix.lower() == ".xml":
+            ET.fromstring(owner_after)
+        owner_path.write_text(owner_after, encoding="utf-8")
+        print("Corrected App Identity owner label to SAGAR:", owner_path)
 
 # Fail the build if these specific visible legacy labels remain in source text.
 visible_sources = []
