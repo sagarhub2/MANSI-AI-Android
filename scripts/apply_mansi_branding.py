@@ -250,25 +250,7 @@ for safe_path in root.rglob('*'):
         safe_path.write_text(cleaned, encoding="utf-8")
         print("Cleaned remaining visible Jarvis text in " + str(safe_path))
 
-# Disabled legacy cross-line regex sweep; it corrupts Kotlin source.
-for sweep_path in root.rglob('*'):
-    if not sweep_path.is_file() or sweep_path.suffix.lower() not in {".xml", ".kt", ".java", ".html", ".js", ".json", ".txt", ".properties"}:
-        continue
-    # Manifest class names are quoted strings but must never be rebranded.
-    if sweep_path.name == "AndroidManifest.xml":
-        continue
-    # Never rewrite Android theme resource identifiers; spaces make resource names invalid.
-    if "/res/values/" in sweep_path.as_posix() and sweep_path.suffix.lower() == ".xml":
-        continue
-    try:
-        sweep_text = sweep_path.read_text(encoding="utf-8")
-    except (UnicodeDecodeError, OSError):
-        continue
-    # Restrict changes to quoted literals; don't rename Kotlin/Java identifiers.
-    swept = re.sub(r"""(["\'])(.*?)(\1)""", replace_jarvis_in_literal, sweep_text, flags=re.S)
-    if swept != sweep_text:
-        sweep_path.write_text(swept, encoding="utf-8")
-        print("Removed remaining Jarvis wording from string literals in " + str(sweep_path))
+# Cross-line literal rewriting is intentionally omitted because it corrupts Kotlin source.
 
 # Targeted cleanup of visible branding in source text. Preserve package names,
 # resource IDs, and all unquoted identifiers to avoid breaking Android builds.
