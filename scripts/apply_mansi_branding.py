@@ -72,34 +72,7 @@ if '<string name="app_name">MANSI AI</string>' not in s:
 print("Applied MANSI AI home brand and Your Assistant subtitle.")
 
 
-# Rebrand profile labels and primary-user display text.
-profile_replacements = {
-    "TechGPT X": "Sagar",
-    "TechGPTX": "Sagar",
-    "Jarvis Operator": "MANSI AI User",
-    "JARVIS OPERATOR": "MANSI AI USER",
-    "Primary User": "MANSI AI User",
-    "PRIMARY USER": "MANSI AI USER",
-}
-text_suffixes = {".xml", ".kt", ".java", ".html", ".js", ".json", ".txt", ".properties"}
-changed = []
-for path in root.rglob("*"):
-    if path.is_file() and path.suffix.lower() in text_suffixes:
-        try:
-            original = path.read_text(encoding="utf-8")
-        except (UnicodeDecodeError, OSError):
-            continue
-        updated = original
-        for old_text, new_text in profile_replacements.items():
-            updated = updated.replace(old_text, new_text)
-        if updated != original:
-            path.write_text(updated, encoding="utf-8")
-            changed.append(str(path))
-if not changed:
-    print("NOTE: No matching profile labels were found in source text files.")
-else:
-    print("Updated profile branding in: " + ", ".join(changed))
-
+# Profile names are intentionally left unchanged by the logo/animation patch.
 
 # Set the owner's social profile links and remove old YouTube profile links.
 import re
