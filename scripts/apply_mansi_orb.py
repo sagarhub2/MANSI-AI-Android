@@ -15,7 +15,7 @@ if marker in html:
 patch = r"""
 <style>
 /* MANSI_FINAL_HOLOGRAM_ORB_V3 */
-#mansi-final-orb{position:fixed!important;left:50%!important;top:37%!important;transform:translate(-50%,-50%)!important;display:grid!important;place-items:center!important;width:min(68vw,300px)!important;height:min(68vw,300px)!important;aspect-ratio:1/1!important;margin:0!important;border-radius:50%!important;isolation:isolate;cursor:pointer;touch-action:manipulation;outline:none;user-select:none;-webkit-tap-highlight-color:transparent}
+#mansi-final-orb{position:fixed!important;left:50%!important;top:26.5%!important;transform:translate(-50%,-50%)!important;display:grid!important;place-items:center!important;width:min(56vw,380px)!important;height:min(56vw,380px)!important;aspect-ratio:1/1!important;margin:0!important;border-radius:50%!important;isolation:isolate;cursor:pointer;touch-action:manipulation;outline:none;user-select:none;-webkit-tap-highlight-color:transparent}
 #mansi-final-orb .mansi-core{position:absolute;inset:25%;border-radius:50%;background:radial-gradient(circle at 35% 28%,rgba(255,255,255,.35),transparent 20%),radial-gradient(circle at 50% 60%,#15114c 0%,#08091d 64%,#03040d 100%);border:1px solid rgba(161,126,255,.7);box-shadow:inset 0 0 28px rgba(68,102,255,.55),0 0 26px rgba(106,83,255,.6),0 0 65px rgba(222,71,255,.22);transition:box-shadow .25s ease,transform .25s ease}
 #mansi-final-orb .mansi-heart{position:absolute;z-index:4;width:19%;height:19%;left:50%;top:48%;transform:translate(-50%,-50%);filter:drop-shadow(0 0 7px #ff74e8) drop-shadow(0 0 18px #9d5cff);animation:mansi-heartbeat 2s ease-in-out infinite;pointer-events:none}
 #mansi-final-orb .mansi-heart path{fill:url(#mansiHeartGradient);stroke:#ffc5fb;stroke-width:1.5}
@@ -49,7 +49,7 @@ patch = r"""
    orb.innerHTML='<div class="mansi-ring r1"></div><div class="mansi-ring r2"></div><div class="mansi-ring r3"></div><div class="mansi-core"></div><svg class="mansi-heart" viewBox="0 0 100 90" aria-hidden="true"><defs><linearGradient id="mansiHeartGradient" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#ffb3f4"/><stop offset="48%" stop-color="#f05cff"/><stop offset="100%" stop-color="#6b8cff"/></linearGradient></defs><path d="M50 82 12 45C-7 23 9 2 29 5c10 1 17 8 21 16C58 9 67 4 78 6c20 4 27 26 10 43Z"/></svg><div class="mansi-tapwave"></div>';
    /* Viewport-level positioning avoids clipping by legacy orb containers. */
    var host=document.body;
-   orb.style.position='fixed';orb.style.left='50%';orb.style.top='37%';orb.style.transform='translate(-50%,-50%)';orb.style.zIndex='99999';
+   orb.style.position='fixed';orb.style.left='50%';orb.style.top='26.5%';orb.style.transform='translate(-50%,-50%)';orb.style.zIndex='99999';
    host.appendChild(orb);
    function activate(){orb.classList.remove('idle');orb.classList.add('active');setTimeout(function(){orb.classList.remove('active');orb.classList.add('idle')},1800);}
    orb.addEventListener('click',activate);orb.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();activate()}});
