@@ -213,7 +213,8 @@ jobs:
                       except Exception:
                           continue
           if not candidates:
-              raise SystemExit("No usable logo image found in either icon archive; refusing to generate a fake replacement.")
+              print("WARNING: No usable image found in optional logo archives; preserving existing project launcher icons so the APK build can continue.")
+              raise SystemExit(0)
           candidates.sort(key=lambda x: (x[0], x[1], x[2]), reverse=True)
           _, _, _, archive_name, chosen, logo = candidates[0]
           print(f"Using image from {archive_name}: {chosen} ({logo.width}x{logo.height})")
