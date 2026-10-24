@@ -215,7 +215,7 @@ def replace_jarvis_in_literal(match):
 # Disabled: broad source-literal rewriting was corrupting Kotlin syntax.
 # Explicit resource/UI replacements above are safer; keep package/class identifiers intact.
 for safe_path in root.rglob('*'):
-    if not safe_path.is_file() or safe_path.suffix.lower() not in {".kt", ".java", ".xml", ".html", ".js", ".json", ".txt", ".properties"}:
+    if not safe_path.is_file() or safe_path.suffix.lower() not in {".xml", ".html", ".js", ".json", ".txt", ".properties"}:
         continue
     if safe_path.name == "AndroidManifest.xml":
         continue
@@ -265,7 +265,7 @@ def clean_visible_string(match):
     return quote + value + quote
 
 for final_path in root.rglob("*"):
-    if not final_path.is_file() or final_path.suffix.lower() not in {".kt", ".java", ".xml", ".html", ".js", ".json", ".txt", ".properties"}:
+    if not final_path.is_file() or final_path.suffix.lower() not in {".xml", ".html", ".js", ".json", ".txt", ".properties"}:
         continue
     if final_path.name == "AndroidManifest.xml":
         continue
