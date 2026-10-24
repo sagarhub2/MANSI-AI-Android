@@ -629,3 +629,35 @@ for stale in ("JARVIS App Identity", "Jarvis App Identity", "Developer: Tech GPT
     if stale in visible_text:
         raise SystemExit("Branding verification failed: stale visible label remains: " + stale)
 print("Verified no targeted stale Settings/App Identity labels remain in source text.")
+
+
+# Select Gemini Live's feminine-sounding Aoede voice instead of Puck.
+# This pass runs after branding so earlier label normalization cannot restore Puck.
+for voice_path in root.rglob("*"):
+    if not voice_path.is_file() or voice_path.suffix.lower() not in {".xml", ".kt", ".java", ".json", ".html", ".txt", ".properties", ".gradle", ".kts"}:
+        continue
+    if voice_path.name == "AndroidManifest.xml":
+        continue
+    try:
+        voice_before = voice_path.read_text(encoding="utf-8")
+    except (OSError, UnicodeDecodeError):
+        continue
+    voice_after = voice_before.replace("Puck", "Aoede").replace("PUCK", "AOEDE").replace("puck", "aoede")
+    if voice_after != voice_before:
+        if voice_path.suffix.lower() == ".xml":
+            ET.fromstring(voice_after)
+        voice_path.write_text(voice_after, encoding="utf-8")
+        print("FEMALE VOICE Aoede:", voice_path)
+
+# Assert that no Puck voice identifier remains in the extracted source.
+remaining_puck = []
+for voice_path in root.rglob("*"):
+    if voice_path.is_file() and voice_path.suffix.lower() in {".xml", ".kt", ".java", ".json", ".html", ".txt", ".properties", ".gradle", ".kts"}:
+        try:
+            if re.search(r"(?i)\\bpuck\\b", voice_path.read_text(encoding="utf-8")):
+                remaining_puck.append(str(voice_path))
+        except (OSError, UnicodeDecodeError):
+            pass
+if remaining_puck:
+    raise SystemExit("Female voice verification failed; Puck remains in: " + ", ".join(remaining_puck[:10]))
+print("Verified: Puck voice identifier replaced with Aoede.")
