@@ -777,9 +777,9 @@ for social_path in root.rglob("*"):
         social_text = social_path.read_text(encoding="utf-8")
     except (OSError, UnicodeDecodeError):
         continue
-    if re.search(r"https?://(?:www\.)?instagram\.com/(?!hyee__sagar(?:[/?#]|$))", social_text, re.IGNORECASE):
+    if re.search(r"https?://(?:www\.)?instagram\.com/(?!hyee__sagar(?:[/?#\s"'<>)]|$))", social_text, re.IGNORECASE):
         raise SystemExit("Social-link verification failed: non-owner Instagram URL remains in " + str(social_path))
-    if re.search(r"https?://(?:www\.)?t\.me/(?!H_sagarr(?:[/?#]|$))", social_text, re.IGNORECASE):
+    if re.search(r"https?://(?:www\.)?t\.me/(?!H_sagarr(?:[/?#\s"'<>)]|$))", social_text, re.IGNORECASE):
         raise SystemExit("Social-link verification failed: non-owner Telegram URL remains in " + str(social_path))
 print("Verified: Instagram uses @hyee__sagar and Telegram uses t.me/H_sagarr.")
 
