@@ -28,8 +28,7 @@ jobs:
           python3 -m pip install --quiet Pillow
           cp -a source/mansi/app/src/main/java /tmp/mansi-java-original
           python3 scripts/apply_mansi_branding.py
-          # The legacy branding sweep rewrites Kotlin source literals and corrupts syntax across multiple files.
-          # Restore all Java/Kotlin source; user-facing branding is handled in Android resources and assets.
+          # Keep original Java/Kotlin symbols and references intact.
           rm -rf source/mansi/app/src/main/java
           cp -a /tmp/mansi-java-original source/mansi/app/src/main/java
           echo "---- APPLY REQUESTED MANSI AI / SAGAR BRANDING ----"
@@ -37,7 +36,6 @@ jobs:
           from pathlib import Path
           import re
           root = Path("source/mansi/app/src/main")
-          # Exact requested labels, including likely legacy capitalization variants.
           replacements = [
               ("Jarvis system Authorized MANSI AI", "Mansi system Authorized MANSI AI"),
               ("Jarvis System Authorized MANSI AI", "Mansi system Authorized MANSI AI"),
@@ -57,6 +55,10 @@ jobs:
               ("Jarvis Operator . Primary", "Mansi AI operator . Primary"),
               ("Jarvis pro . Puck", "Mansi AI pro . Puck"),
               ("Jarvis Pro . Puck", "Mansi AI pro . Puck"),
+              ("Sagar • Neural Assistant", "Mansi AI sagar neural Assistant"),
+              ("Sagar · Neural Assistant", "Mansi AI sagar neural Assistant"),
+              ("Jarvis can listen", "MANSI AI can listen"),
+              ("Jarvis Logo", "MANSI AI Logo"),
               ("TechGPT X", "Sagar"),
               ("TechGPTX", "Sagar"),
               ("JARVIS OPERATOR", "MANSI AI USER"),
@@ -66,11 +68,9 @@ jobs:
               ("JARVIS PRO", "MANSI AI PRO"),
               ("Jarvis Pro", "MANSI AI Pro"),
           ]
-          suffixes = {".xml", ".kt", ".java", ".html", ".js", ".json", ".txt", ".properties"}
+          suffixes = {".xml", ".html", ".js", ".json", ".txt", ".properties"}
           for path in root.rglob("*"):
-              if not path.is_file() or path.suffix.lower() not in suffixes:
-                  continue
-              if path.name == "AndroidManifest.xml":
+              if not path.is_file() or path.suffix.lower() not in suffixes or path.name == "AndroidManifest.xml":
                   continue
               try:
                   before = path.read_text(encoding="utf-8")
@@ -79,199 +79,20 @@ jobs:
               after = before
               for old, new in replacements:
                   after = after.replace(old, new)
-              # In Kotlin/Java, change only quoted user-facing literals, not package names,
-              # class names, Android IDs, or binding references.
-              if path.suffix.lower() in {".kt", ".java"}:
-                  def clean_literal(match):
-                      quote, value = match.group(1), match.group(2)
-                      low = value.lower()
-                      if low.startswith(("com.jarvis.", "com/jarvis/", "@+id/", "@id/", "@string/", "@drawable/", "@mipmap/")):
-                          return match.group(0)
-                      for old, new in replacements:
-                          value = value.replace(old, new)
-                      value = re.sub(r"(?i)jarvis\\s*(?:[·•-]\\s*)?code", "MANSI Code", value)
-                      value = re.sub(r"(?i)jarvis", "MANSI AI", value)
-                      return quote + value + quote
-                  after = re.sub(r"""(["'])([^"'\\n]*)\\1""", clean_literal, after)
-              # Update visible XML labels/descriptions only; never touch resource IDs.
+              # Android IDs are implementation symbols, not visible branding.
               if path.suffix.lower() == ".xml":
-                  after = re.sub(r'(?i)(android:text\\s*=\\s*["\'])[^"\']*jarvis[^"\']*(["\'])', r'\\1MANSI AI\\2', after)
-                  after = re.sub(r'(?i)(android:contentDescription\\s*=\\s*["\'])[^"\']*jarvis[^"\']*(["\'])', r'\\1MANSI AI\\2', after)
-                  after = re.sub(r'(?i)(<string\\b[^>]*>)[^<]*jarvis[^<]*(</string>)', r'\\1MANSI AI\\2', after)
+                  after = re.sub(r'((?:android:)?id\s*=\s*["\']@\+?id/)([^"\']*)(["\'])',
+                                 lambda m: m.group(1) + m.group(2).replace("MANSI AI", "Jarvis").replace(" ", "_") + m.group(3), after)
+                  after = re.sub(r'((?:android:)?id\s*=\s*["\']@\+?id/)([^"\']*)(["\'])',
+                                 lambda m: m.group(1) + re.sub(r"[^A-Za-z0-9_.]", "_", m.group(2)) + m.group(3), after)
+                  after = re.sub(r'(?i)(android:text=")[^"]*jarvis[^"]*(")', r'\1MANSI AI\2', after)
+                  after = re.sub(r'(?i)(android:contentDescription=")[^"]*jarvis[^"]*(")', r'\1MANSI AI\2', after)
+                  after = re.sub(r'(?i)(<string\b[^>]*>)[^<]*jarvis[^<]*(</string>)', r'\1MANSI AI\2', after)
               if after != before:
                   path.write_text(after, encoding="utf-8")
-                  print("Updated branding:", path)
+                  print("Updated branding safely:", path)
           PY
-          echo "---- APPLY PROFILE LINK CHANGES AND REMOVE YOUTUBE PROFILE LINKS ----"
-          python3 - <<'PY'
-          from pathlib import Path
-          import re
-          root = Path("source/mansi/app/src/main/java/com/jarvis/assistant/ui/settings")
-          instagram = "https://instagram.com/hyee__sagar"
-          telegram = "https://t.me/H_sagarr"
-          targets = {
-              "SettingsFragment.kt": [
-                  ("https://www.instagram.com/techgptx.ai", instagram),
-                  ("https://instagram.com/techgptx.ai", instagram),
-              ],
-              "PrivacyShieldActivity.kt": [
-                  ("https://www.instagram.com/techgptx.ai", instagram),
-                  ("https://instagram.com/techgptx.ai", instagram),
-              ],
-          }
-          for filename, replacements in targets.items():
-              path = root / filename
-              if not path.exists():
-                  print("Profile screen not found; skipping:", path)
-                  continue
-              source = path.read_text(encoding="utf-8")
-              before = source
-              for old, new in replacements:
-                  source = source.replace(old, new)
-              if filename == "SettingsFragment.kt":
-                  source = re.sub(
-                      r'binding\.btnSocialTelegram\.setOnClickListener \{.*?\n        \}',
-                      'binding.btnSocialTelegram.setOnClickListener {\n            openUrl("' + telegram + '")\n        }',
-                      source, count=1, flags=re.S
-                  )
-                  if "binding.btnSocialYoutube.visibility = android.view.View.GONE" not in source:
-                      source = source.replace(
-                          "binding.btnSocialYoutube.setOnClickListener {",
-                          "binding.btnSocialYoutube.visibility = android.view.View.GONE\n        binding.btnSocialYoutube.setOnClickListener {",
-                          1
-                      )
-              else:
-                  source = re.sub(
-                      r'binding\.btnJoinOfficialTelegram\.setOnClickListener \{.*?\n        \}',
-                      'binding.btnJoinOfficialTelegram.setOnClickListener {\n            openUrl("' + telegram + '")\n        }',
-                      source, count=1, flags=re.S
-                  )
-                  source = re.sub(
-                      r'binding\.btnJoinTelegram\.setOnClickListener \{.*?\n        \}',
-                      'binding.btnJoinTelegram.setOnClickListener {\n            openUrl("' + telegram + '")\n        }',
-                      source, count=1, flags=re.S
-                  )
-                  if "binding.btnJoinYoutube.visibility = android.view.View.GONE" not in source:
-                      source = source.replace(
-                          "binding.btnJoinYoutube.setOnClickListener {",
-                          "binding.btnJoinYoutube.visibility = android.view.View.GONE\n        binding.btnJoinYoutube.setOnClickListener {",
-                          1
-                      )
-              if source != before:
-                  path.write_text(source, encoding="utf-8")
-                  print("Updated profile links / removed YouTube shortcut:", path)
-          PY
-          echo "---- APPLY SAFE VISIBLE BRANDING TO SOURCE RESOURCES ----"
-          python3 - <<'PY'
-          from pathlib import Path
-          import re
-          root = Path("source/mansi/app/src/main")
-          # Only update visible text attributes and string resource values;
-          # leave Kotlin source, package names, IDs and drawable references alone.
-          patterns = [
-              (re.compile(r'(?i)(android:text=")[^"]*jarvis[^"]*(")'), r'\1MANSI AI\2'),
-              (re.compile(r'(?i)(android:contentDescription=")[^"]*jarvis[^"]*(")'), r'\1MANSI AI\2'),
-              (re.compile(r'(?i)(<string\b[^>]*>)[^<]*jarvis[^<]*(</string>)'), r'\1MANSI AI\2'),
-          ]
-          for path in root.rglob("*.xml"):
-              if path.name == "AndroidManifest.xml":
-                  continue
-              try:
-                  before = path.read_text(encoding="utf-8")
-              except (OSError, UnicodeDecodeError):
-                  continue
-              after = before
-              for pattern, replacement in patterns:
-                  after = pattern.sub(replacement, after)
-              if after != before:
-                  path.write_text(after, encoding="utf-8")
-                  print("Updated visible branding:", path)
-          PY
-          echo "---- REPAIR ANDROID STRING RESOURCE NAMES ----"
-          python3 - <<'PY'
-          from pathlib import Path
-          import re
-          p = Path("source/mansi/app/src/main/res/values/strings.xml")
-          s = p.read_text(encoding="utf-8")
-          if '<string name="chat_label_jarvis">' not in s:
-              s = s.replace("</resources>", '    <string name="chat_label_jarvis">MANSI AI</string>\\n</resources>')
-              p.write_text(s, encoding="utf-8")
-              s = p.read_text(encoding="utf-8")
-          def fix_name(m):
-              name = m.group(1)
-              safe = re.sub(r"[^A-Za-z0-9_.]", "_", name)
-              safe = re.sub(r"_+", "_", safe).strip("_")
-              if not safe or not re.match(r"[A-Za-z_]", safe):
-                  safe = "mansi_string_" + safe
-              return 'name="' + safe + '"'
-          fixed = re.sub(r'name="([^"]*)"', fix_name, s)
-          p.write_text(fixed, encoding="utf-8")
-          names = re.findall(r'<string\s+name="([^"]*)"', fixed)
-          invalid = [name for name in names if not re.fullmatch(r"[A-Za-z0-9_.]+", name)]
-          if invalid:
-              raise SystemExit("Invalid Android string resource names remain: " + repr(invalid))
-          print("Android string resource names repaired and validated.")
-          PY
-          echo "---- FIX AUTHORIZATION SCREEN BRANDING ----"
-          python3 - <<'PY'
-          from pathlib import Path
-          root = Path("source/mansi/app/src/main")
-          replacements = {
-              "Sagar • Neural Assistant": "Mansi AI sagar neural Assistant",
-              "Sagar · Neural Assistant": "Mansi AI sagar neural Assistant",
-              "Grant necessary authorizations so Jarvis can listen,": "Grant necessary authorizations so MANSI AI can listen,",
-              "with Jarvis.": "with MANSI AI.",
-              "with Jarvis ": "with MANSI AI ",
-              "Jarvis can listen": "MANSI AI can listen",
-              "Jarvis Logo": "MANSI AI Logo",
-              "Jarvis": "MANSI AI",
-              "JARVIS": "MANSI AI",
-          }
-          suffixes = {".xml", ".kt", ".java", ".html", ".js", ".json", ".txt", ".properties"}
-          for path in root.rglob("*"):
-              if not path.is_file() or path.suffix.lower() not in suffixes or path.name == "AndroidManifest.xml":
-                  continue
-              try:
-                  before = path.read_text(encoding="utf-8")
-              except (OSError, UnicodeDecodeError):
-                  continue
-              after = before
-              for old, new in replacements.items():
-                  after = after.replace(old, new)
-              if after != before:
-                  path.write_text(after, encoding="utf-8")
-                  print("Authorization branding updated:", path)
-          PY
-          echo "---- FINAL EXACT LABEL PATCH (INCLUDING RESTORED KOTLIN SOURCE) ----"
-          python3 - <<'PY'
-          from pathlib import Path
-          root = Path("source/mansi/app/src/main")
-          replacements = {
-              "Jarvis system Authorized MANSI AI": "Mansi system Authorized MANSI AI",
-              "Jarvis System Authorized MANSI AI": "Mansi system Authorized MANSI AI",
-              "Jarvis System Authorized": "Mansi system Authorized MANSI AI",
-          }
-          suffixes = {".xml", ".kt", ".java", ".html", ".js", ".json", ".txt", ".properties"}
-          changed = []
-          for path in root.rglob("*"):
-              if not path.is_file() or path.suffix.lower() not in suffixes or path.name == "AndroidManifest.xml":
-                  continue
-              try:
-                  before = path.read_text(encoding="utf-8")
-              except (OSError, UnicodeDecodeError):
-                  continue
-              after = before
-              for old, new in replacements.items():
-                  after = after.replace(old, new)
-              if after != before:
-                  path.write_text(after, encoding="utf-8")
-                  changed.append(str(path))
-          if changed:
-              print("Applied exact first requested label in:", ", ".join(changed))
-          else:
-              print("No matching legacy source label found; no files changed.")
-          PY
-          echo "---- REPAIR INVALID ANDROID RESOURCE NAMES ----"
+          echo "---- REPAIR RESOURCE NAMES WITHOUT CHANGING VISIBLE TEXT ----"
           python3 - <<'PY'
           from pathlib import Path
           import re
@@ -281,11 +102,14 @@ jobs:
                   before = path.read_text(encoding="utf-8")
               except (OSError, UnicodeDecodeError):
                   continue
-              after = re.sub(r'(name=")([^"]* [^"]*)(")', lambda m: m.group(1) + re.sub(r"[^A-Za-z0-9_.]", "_", m.group(2)) + m.group(3), before)
+              after = re.sub(r'(name=")([^"]* [^"]*)(")',
+                             lambda m: m.group(1) + re.sub(r"[^A-Za-z0-9_.]", "_", m.group(2)) + m.group(3), before)
               after = re.sub(r'(@(?:style|string|drawable|color|anim|font|xml|menu|mipmap)/[A-Za-z0-9_.]*) +([A-Za-z0-9_.]+)', r'\1_\2', after)
+              after = re.sub(r'((?:android:)?id\s*=\s*["\']@\+?id/)([^"\']*)(["\'])',
+                             lambda m: m.group(1) + re.sub(r"[^A-Za-z0-9_.]", "_", m.group(2)) + m.group(3), after)
               if after != before:
                   path.write_text(after, encoding="utf-8")
-                  print("Repaired resource names:", path)
+                  print("Repaired Android resource names:", path)
           PY
           echo "---- LAUNCHER ICON VERIFICATION ----"
           grep -nE 'android:(icon|roundIcon)=' source/mansi/app/src/main/AndroidManifest.xml
@@ -298,12 +122,6 @@ jobs:
           test -s source/mansi/app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml
           test -s source/mansi/app/src/main/res/mipmap-mdpi/ic_launcher_foreground.png
           echo "Launcher resources exist; Gradle build will validate Android resource references."
-
-      - name: Inspect profile and battery-prompt strings
-        run: |
-          grep -RniE "YouTube|Primary User|TechGPT X|Jarvis Operator|Unrestricted Battery Required|Instagram|Telegram|battery" source/mansi/app/src/main --include="*.xml" --include="*.kt" --include="*.java" --include="*.html" --include="*.js" --include="*.json" --include="*.txt" || true
-          echo "---- VOICE CONFIG DIAGNOSTICS ----"
-          grep -RniE "voiceName|voice_name|voice name|SpeechSynthesis|TextToSpeech|setVoice|GeminiLive|LiveConfig|prebuilt_voice|Kore|Aoede|Puck|female|feminine" source/mansi/app/src/main --include="*.kt" --include="*.java" --include="*.xml" --include="*.json" --include="*.html" --include="*.js" | head -200 || true
 
       - name: Set up Java
         uses: actions/setup-java@v4
