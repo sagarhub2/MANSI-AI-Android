@@ -39,6 +39,18 @@ patch = r"""
 @keyframes mansi-breathe{0%,100%{box-shadow:inset 0 0 20px rgba(68,102,255,.4),0 0 22px rgba(106,83,255,.4)}50%{box-shadow:inset 0 0 32px rgba(68,102,255,.7),0 0 42px rgba(222,71,255,.5)}}
 @media(prefers-reduced-motion:reduce){#mansi-final-orb *,#mansi-final-orb{animation-duration:0.01ms!important;animation-iteration-count:1!important}}
 </style>
+<style>
+/* MANSI_SOFT_PINK_ORB_V4 — match reference screenshot 2 */
+#mansi-final-orb{width:min(56vw,300px)!important;height:min(56vw,300px)!important;top:27.5%!important;filter:none!important}
+#mansi-final-orb .mansi-ring{display:none!important}
+#mansi-final-orb .mansi-core{inset:19%!important;background:radial-gradient(circle at 35% 28%,#fffaff 0%,#fff0fb 42%,#f8dcfa 75%,#f4d4fa 100%)!important;border:0!important;box-shadow:0 0 12px rgba(255,87,218,.75),0 0 32px rgba(255,62,211,.7),0 0 68px rgba(210,94,255,.45),0 0 115px rgba(148,107,255,.2)!important}
+#mansi-final-orb .mansi-heart{width:18%!important;height:18%!important;top:50%!important;filter:drop-shadow(0 0 5px #ff65d9) drop-shadow(0 0 12px rgba(255,72,216,.8))!important}
+#mansi-final-orb .mansi-heart path{fill:#f45acb!important;stroke:#ff8be4!important;stroke-width:1!important}
+#mansi-final-orb .mansi-tapwave{inset:19%!important;border-color:#f34dcc!important;box-shadow:0 0 18px #fa66df!important}
+#mansi-final-orb.active .mansi-core{transform:scale(1.055)!important;box-shadow:0 0 20px #ff5edc,0 0 55px rgba(255,65,214,.95),0 0 100px rgba(177,92,255,.65)!important}
+#mansi-final-orb.idle .mansi-core{animation:mansi-soft-breathe 2.8s ease-in-out infinite!important}
+@keyframes mansi-soft-breathe{0%,100%{transform:scale(1);box-shadow:0 0 12px rgba(255,87,218,.65),0 0 32px rgba(255,62,211,.55),0 0 68px rgba(210,94,255,.35)}50%{transform:scale(1.035);box-shadow:0 0 20px rgba(255,87,218,.9),0 0 48px rgba(255,62,211,.75),0 0 88px rgba(210,94,255,.5)}}
+</style>
 <script>
 (function(){
  function install(){
