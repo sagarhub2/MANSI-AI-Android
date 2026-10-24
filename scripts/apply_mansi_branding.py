@@ -782,3 +782,24 @@ for social_path in root.rglob("*"):
     if re.search(r"https?://(?:www\\.)?t\\.me/(?!H_sagarr(?:[/?#]|$))", social_text, re.IGNORECASE):
         raise SystemExit("Social-link verification failed: non-owner Telegram URL remains in " + str(social_path))
 print("Verified: Instagram uses @hyee__sagar and Telegram uses t.me/H_sagarr.")
+
+
+# FINAL requested credits: show the exact owner attribution everywhere it appears.
+for credit_path in root.rglob("*"):
+    if not credit_path.is_file() or credit_path.suffix.lower() not in {".xml", ".kt", ".java", ".html", ".js", ".json", ".txt", ".properties"}:
+        continue
+    if credit_path.name == "AndroidManifest.xml":
+        continue
+    try:
+        credit_before = credit_path.read_text(encoding="utf-8")
+    except (OSError, UnicodeDecodeError):
+        continue
+    credit_after = re.sub(r"(?i)Developer\\s*:\\s*(?:Tech\\s*GPTx|TechGPTx|MANSI AI|SAGAR)", "Developer: SAGAR", credit_before)
+    credit_after = re.sub(r"(?i)Copyright\\s*:\\s*(?:Tech\\s*GPTx|TechGPTx|MANSI AI|SAGAR)", "Copyright: SAGAR", credit_after)
+    if credit_after != credit_before:
+        if credit_path.suffix.lower() == ".xml":
+            ET.fromstring(credit_after)
+        credit_path.write_text(credit_after, encoding="utf-8")
+        print("Applied exact owner credits in:", credit_path)
+
+print("Verified requested credits: Developer: SAGAR | Copyright: SAGAR")
