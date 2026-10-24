@@ -51,9 +51,7 @@ jobs:
               ("Sagar · Neural Assistant", "Mansi AI sagar neural Assistant"),
               ("Jarvis can listen", "MANSI AI can listen"),
               ("Jarvis Logo", "MANSI AI Logo"),
-              ("TechGPT X", "Sagar"),
-              ("TechGPTX", "Sagar"),
-          ]
+undefined          ]
           suffixes = {".xml", ".html", ".js", ".json", ".txt", ".properties"}
           for path in root.rglob("*"):
               if not path.is_file() or path.suffix.lower() not in suffixes or path.name == "AndroidManifest.xml":
