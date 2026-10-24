@@ -92,58 +92,6 @@ jobs:
                   path.write_text(after, encoding="utf-8")
                   print("Updated branding safely:", path)
           PY
-          echo "---- APPLY BRANDING INSIDE JAVA/KOTLIN UI STRING LITERALS ----"
-          python3 - <<'PY'
-          from pathlib import Path
-          import re
-          root = Path("source/mansi/app/src/main/java")
-          replacements = [
-              ("Sagar • Neural Assistant", "Mansi AI sagar neural Assistant"),
-              ("Sagar · Neural Assistant", "Mansi AI sagar neural Assistant"),
-              ("Jarvis sagar neural Assistant", "Mansi AI sagar neural Assistant"),
-              ("Jarvis Sagar Neural Assistant", "Mansi AI sagar neural Assistant"),
-              ("Jarvis can listen", "MANSI AI can listen"),
-              ("Jarvis System Authorized", "Mansi system Authorized MANSI AI"),
-              ("Jarvis system Authorized", "Mansi system Authorized MANSI AI"),
-              ("Jarvis Autonomous device control", "Mansi AI Autonomous device control"),
-              ("Jarvis Autonomous Device Control", "Mansi AI Autonomous device control"),
-              ("Jarvis OS . TECHGPT X", "MANSI AI OS . SAGAR"),
-              ("Jarvis OS . TECHGPTX", "MANSI AI OS . SAGAR"),
-              ("MANSI AI OS . TECHGPT X", "MANSI AI OS . SAGAR"),
-              ("MANSI AI OS . TECHGPTX", "MANSI AI OS . SAGAR"),
-              ("Jarvis operator . Primary", "Mansi AI operator . Primary"),
-              ("Jarvis Operator . Primary", "Mansi AI operator . Primary"),
-              ("Jarvis pro . Puck", "Mansi AI pro . Puck"),
-              ("Jarvis Pro . Puck", "Mansi AI pro . Puck"),
-              ("Jarvis Logo", "MANSI AI Logo"),
-              ("JARVIS OPERATOR", "MANSI AI USER"),
-              ("Jarvis Operator", "MANSI AI User"),
-              ("JARVIS PRO", "MANSI AI PRO"),
-              ("Jarvis Pro", "MANSI AI Pro"),
-              ("TechGPT X", "Sagar"),
-              ("TechGPTX", "Sagar"),
-              ("Jarvis", "MANSI AI"),
-          ]
-          # Only edit quoted string literals; leave class names, IDs and code symbols unchanged.
-          literal = re.compile(r'"(?:\\\\.|[^"\\\\])*"|\'(?:\\\\.|[^\'\\\\])*\'')
-          for path in root.rglob("*"):
-              if not path.is_file() or path.suffix.lower() not in {".kt", ".java"}:
-                  continue
-              try:
-                  before = path.read_text(encoding="utf-8")
-              except (OSError, UnicodeDecodeError):
-                  continue
-              def patch(match):
-                  value = match.group(0)
-                  quote, body = value[0], value[1:-1]
-                  for old, new in replacements:
-                      body = body.replace(old, new)
-                  return quote + body + quote
-              after = literal.sub(patch, before)
-              if after != before:
-                  path.write_text(after, encoding="utf-8")
-                  print("Updated UI string literals:", path)
-          PY
           echo "---- REPAIR RESOURCE NAMES WITHOUT CHANGING VISIBLE TEXT ----"
           python3 - <<'PY'
           from pathlib import Path
