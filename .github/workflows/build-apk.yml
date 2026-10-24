@@ -28,6 +28,37 @@ jobs:
           python3 -m pip install --quiet Pillow
           cp -a source/mansi/app/src/main/java /tmp/mansi-java-original
           python3 scripts/apply_mansi_branding.py
+          # Replace the old Jarvis wordmark artwork used on the System Authorizations screen.
+          python3 - <<'PY'
+          from pathlib import Path
+          from PIL import Image, ImageDraw, ImageFont
+          root = Path("source/mansi/app/src/main/res/drawable")
+          root.mkdir(parents=True, exist_ok=True)
+          target = root / "ic_jarvis_logo.png"
+          im = Image.new("RGBA", (900, 220), (0, 0, 0, 0))
+          draw = ImageDraw.Draw(im)
+          font_candidates = [
+              "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
+              "/usr/share/fonts/truetype/liberation2/LiberationSans-Bold.ttf",
+          ]
+          font = None
+          for candidate in font_candidates:
+              try:
+                  font = ImageFont.truetype(candidate, 118)
+                  break
+              except OSError:
+                  pass
+          if font is None:
+              font = ImageFont.load_default()
+          text = "MANSI AI"
+          bounds = draw.textbbox((0, 0), text, font=font, stroke_width=1)
+          w, h = bounds[2] - bounds[0], bounds[3] - bounds[1]
+          x, y = (900 - w) // 2, (220 - h) // 2 - bounds[1]
+          draw.text((x + 2, y + 3), text, font=font, fill=(90, 55, 100, 90), stroke_width=1)
+          draw.text((x, y), text, font=font, fill=(35, 15, 42, 255), stroke_width=1, stroke_fill=(35, 15, 42, 255))
+          im.save(target)
+          print("Replaced legacy Jarvis wordmark artwork with MANSI AI:", target)
+          PY
           # Keep original Java/Kotlin symbols and references intact.
           rm -rf source/mansi/app/src/main/java
           cp -a /tmp/mansi-java-original source/mansi/app/src/main/java
