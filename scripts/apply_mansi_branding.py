@@ -869,3 +869,32 @@ for owner_brand_path in root.rglob("*"):
             ET.fromstring(owner_brand_after)
         owner_brand_path.write_text(owner_brand_after, encoding="utf-8")
         print("FINAL owner branding applied:", owner_brand_path)
+
+
+# Screenshot-specific Settings screen corrections (visible text, not just URLs).
+# These exact strings were present in the user's screenshot.
+screenshot_brand_replacements = {
+    "MANSI AI OS · MANSI AI": "MANSI AI OS · SAGAR",
+    "MANSI AI OS . MANSI AI": "MANSI AI OS · SAGAR",
+    "MANSI AI OS • MANSI AI": "MANSI AI OS · SAGAR",
+    "@techgptx.ai": "@hyee__sagar",
+    "Official Telegram Channel": "Official Telegram Channel",
+    "Telegram Discussion Group": "Telegram Discussion Group",
+}
+for screenshot_path in root.rglob("*"):
+    if not screenshot_path.is_file() or screenshot_path.suffix.lower() not in {".xml", ".kt", ".java", ".html", ".js", ".json", ".txt", ".properties"}:
+        continue
+    if screenshot_path.name == "AndroidManifest.xml":
+        continue
+    try:
+        screenshot_before = screenshot_path.read_text(encoding="utf-8")
+    except (OSError, UnicodeDecodeError):
+        continue
+    screenshot_after = screenshot_before
+    for screenshot_old, screenshot_new in screenshot_brand_replacements.items():
+        screenshot_after = screenshot_after.replace(screenshot_old, screenshot_new)
+    if screenshot_after != screenshot_before:
+        if screenshot_path.suffix.lower() == ".xml":
+            ET.fromstring(screenshot_after)
+        screenshot_path.write_text(screenshot_after, encoding="utf-8")
+        print("Screenshot-specific Settings fix:", screenshot_path)
