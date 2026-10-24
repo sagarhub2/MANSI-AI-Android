@@ -497,3 +497,44 @@ for xml_path in root.rglob("*.xml"):
         ET.fromstring(updated_xml)
         xml_path.write_text(updated_xml, encoding="utf-8")
         print("Enforced MANSI AI visible branding in " + str(xml_path))
+
+
+# Replace only the visible legacy logo artwork with a dedicated MANSI AI wordmark.
+# Use a new drawable resource name so an existing vector ic_jarvis_logo.xml cannot win.
+from PIL import Image, ImageDraw, ImageFont
+logo_out = root / "res/drawable/mansi_ai_wordmark.png"
+logo_out.parent.mkdir(parents=True, exist_ok=True)
+canvas = Image.new("RGBA", (900, 220), (0, 0, 0, 0))
+draw = ImageDraw.Draw(canvas)
+font = None
+for font_file in (
+    "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
+    "/usr/share/fonts/truetype/liberation2/LiberationSans-Bold.ttf",
+):
+    try:
+        font = ImageFont.truetype(font_file, 118)
+        break
+    except OSError:
+        pass
+if font is None:
+    font = ImageFont.load_default()
+wordmark = "MANSI AI"
+bbox = draw.textbbox((0, 0), wordmark, font=font, stroke_width=1)
+tw, th = bbox[2] - bbox[0], bbox[3] - bbox[1]
+px, py = (900 - tw) // 2, (220 - th) // 2 - bbox[1]
+draw.text((px, py), wordmark, font=font, fill=(25, 10, 35, 255))
+canvas.save(logo_out)
+
+# Redirect layouts using the old wordmark to the newly generated drawable.
+updated_layouts = []
+for layout_path in (root / "res/layout").rglob("*.xml"):
+    try:
+        layout_text = layout_path.read_text(encoding="utf-8")
+    except (OSError, UnicodeDecodeError):
+        continue
+    updated = layout_text.replace("@drawable/ic_jarvis_logo", "@drawable/mansi_ai_wordmark")
+    if updated != layout_text:
+        ET.fromstring(updated)
+        layout_path.write_text(updated, encoding="utf-8")
+        updated_layouts.append(str(layout_path))
+print("Created MANSI AI wordmark and updated logo references in: " + ", ".join(updated_layouts))
