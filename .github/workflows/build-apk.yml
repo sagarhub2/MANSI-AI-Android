@@ -212,6 +212,34 @@ jobs:
               raise SystemExit("Invalid Android string resource names remain: " + repr(invalid))
           print("Android string resource names repaired and validated.")
           PY
+          echo "---- FIX AUTHORIZATION SCREEN BRANDING ----"
+          python3 - <<'PY'
+          from pathlib import Path
+          root = Path("source/mansi/app/src/main")
+          replacements = {
+              "Sagar • Neural Assistant": "Mansi AI sagar neural Assistant",
+              "Sagar · Neural Assistant": "Mansi AI sagar neural Assistant",
+              "Grant necessary authorizations so Jarvis can listen,": "Grant necessary authorizations so MANSI AI can listen,",
+              "with Jarvis.": "with MANSI AI.",
+              "with Jarvis ": "with MANSI AI ",
+              "Jarvis can listen": "MANSI AI can listen",
+              "Jarvis Logo": "MANSI AI Logo",
+          }
+          suffixes = {".xml", ".kt", ".java", ".html", ".js", ".json", ".txt", ".properties"}
+          for path in root.rglob("*"):
+              if not path.is_file() or path.suffix.lower() not in suffixes or path.name == "AndroidManifest.xml":
+                  continue
+              try:
+                  before = path.read_text(encoding="utf-8")
+              except (OSError, UnicodeDecodeError):
+                  continue
+              after = before
+              for old, new in replacements.items():
+                  after = after.replace(old, new)
+              if after != before:
+                  path.write_text(after, encoding="utf-8")
+                  print("Authorization branding updated:", path)
+          PY
           echo "---- FINAL EXACT LABEL PATCH (INCLUDING RESTORED KOTLIN SOURCE) ----"
           python3 - <<'PY'
           from pathlib import Path
