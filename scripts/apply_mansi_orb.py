@@ -7,16 +7,18 @@ asset = Path("source/mansi/app/src/main/assets/orb.html")
 if not asset.is_file():
     raise SystemExit(f"Required orb asset not found: {asset}")
 html = asset.read_text(encoding="utf-8")
-marker = "/* MANSI_FINAL_HOLOGRAM_ORB_V2 */"
+marker = "/* MANSI_FINAL_HOLOGRAM_ORB_V3 */"
 if marker in html:
     print("MANSI hologram orb patch already present.")
     raise SystemExit(0)
 
 patch = r"""
 <style>
-/* MANSI_FINAL_HOLOGRAM_ORB_V2 */
+/* MANSI_FINAL_HOLOGRAM_ORB_V3 */
 #mansi-final-orb{position:fixed!important;left:50%!important;top:37%!important;transform:translate(-50%,-50%)!important;display:grid!important;place-items:center!important;width:min(68vw,300px)!important;height:min(68vw,300px)!important;aspect-ratio:1/1!important;margin:0!important;border-radius:50%!important;isolation:isolate;cursor:pointer;touch-action:manipulation;outline:none;user-select:none;-webkit-tap-highlight-color:transparent}
 #mansi-final-orb .mansi-core{position:absolute;inset:25%;border-radius:50%;background:radial-gradient(circle at 35% 28%,rgba(255,255,255,.35),transparent 20%),radial-gradient(circle at 50% 60%,#15114c 0%,#08091d 64%,#03040d 100%);border:1px solid rgba(161,126,255,.7);box-shadow:inset 0 0 28px rgba(68,102,255,.55),0 0 26px rgba(106,83,255,.6),0 0 65px rgba(222,71,255,.22);transition:box-shadow .25s ease,transform .25s ease}
+#mansi-final-orb .mansi-heart{position:absolute;z-index:4;width:19%;height:19%;left:50%;top:48%;transform:translate(-50%,-50%);filter:drop-shadow(0 0 7px #ff74e8) drop-shadow(0 0 18px #9d5cff);animation:mansi-heartbeat 2s ease-in-out infinite;pointer-events:none}
+#mansi-final-orb .mansi-heart path{fill:url(#mansiHeartGradient);stroke:#ffc5fb;stroke-width:1.5}
 #mansi-final-orb .mansi-ring{position:absolute;inset:var(--inset);border-radius:50%;border:2px solid transparent;background:linear-gradient(#050616,#050616) padding-box,conic-gradient(from var(--angle,0deg),#3de8ff,#5268ff,#c34cff,#ff83e9,#3de8ff) border-box;box-shadow:0 0 12px rgba(91,111,255,.5),inset 0 0 12px rgba(190,77,255,.13);animation:mansi-orbit var(--speed) linear infinite}
 #mansi-final-orb .mansi-ring:after{content:"";position:absolute;inset:-5px;border-radius:50%;border:1px solid rgba(75,208,255,.18)}
 #mansi-final-orb .mansi-ring.r1{--inset:5%;--speed:12s}
@@ -30,6 +32,7 @@ patch = r"""
 #mansi-final-orb.listening .mansi-ring{animation-duration:3s;box-shadow:0 0 18px #3de8ff,inset 0 0 15px rgba(61,232,255,.3)}
 #mansi-final-orb.speaking .mansi-ring{animation:mansi-speaking 1.1s ease-in-out infinite alternate}
 #mansi-final-orb.idle .mansi-core{animation:mansi-breathe 3s ease-in-out infinite}
+@keyframes mansi-heartbeat{0%,100%{transform:translate(-50%,-50%) scale(1)}50%{transform:translate(-50%,-50%) scale(1.13)}}
 @keyframes mansi-orbit{to{transform:rotate(360deg)}}
 @keyframes mansi-tapwave{0%{transform:scale(.7);opacity:.95}100%{transform:scale(1.65);opacity:0}}
 @keyframes mansi-speaking{from{transform:scale(.97);filter:brightness(1)}to{transform:scale(1.035);filter:brightness(1.5)}}
@@ -40,13 +43,10 @@ patch = r"""
 (function(){
  function install(){
    var previous=document.getElementById('mansi-final-orb');if(previous)previous.remove();
-   /* Hide legacy heart/logo glyphs without hiding the page's controls. */
-   document.querySelectorAll('[id*="heart" i],[class*="heart" i],[aria-label*="heart" i]').forEach(function(el){
-     if(el.matches('svg,img,i,span,div') && !el.closest('button,input,a')) el.style.display='none';
-   });
+   /* Preserve the heart identity inside the new hologram; hide only the old standalone orb container if safe. */
    var orb=document.createElement('div');
    orb.id='mansi-final-orb';orb.className='idle';orb.setAttribute('role','button');orb.setAttribute('tabindex','0');orb.setAttribute('aria-label','Activate MANSI AI');
-   orb.innerHTML='<div class="mansi-ring r1"></div><div class="mansi-ring r2"></div><div class="mansi-ring r3"></div><div class="mansi-core"></div><div class="mansi-tapwave"></div>';
+   orb.innerHTML='<div class="mansi-ring r1"></div><div class="mansi-ring r2"></div><div class="mansi-ring r3"></div><div class="mansi-core"></div><svg class="mansi-heart" viewBox="0 0 100 90" aria-hidden="true"><defs><linearGradient id="mansiHeartGradient" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#ffb3f4"/><stop offset="48%" stop-color="#f05cff"/><stop offset="100%" stop-color="#6b8cff"/></linearGradient></defs><path d="M50 82 12 45C-7 23 9 2 29 5c10 1 17 8 21 16C58 9 67 4 78 6c20 4 27 26 10 43Z"/></svg><div class="mansi-tapwave"></div>';
    /* Viewport-level positioning avoids clipping by legacy orb containers. */
    var host=document.body;
    orb.style.position='fixed';orb.style.left='50%';orb.style.top='37%';orb.style.transform='translate(-50%,-50%)';orb.style.zIndex='99999';
