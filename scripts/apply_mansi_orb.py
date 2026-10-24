@@ -63,6 +63,13 @@ patch = r"""
    var host=document.body;
    orb.style.position='fixed';orb.style.left='50%';orb.style.top='26.5%';orb.style.transform='translate(-50%,-50%)';orb.style.zIndex='99999';
    host.appendChild(orb);
+   /* Remove the legacy orb/heart layer that caused two glowing circles to overlap. */
+   Array.prototype.forEach.call(document.querySelectorAll('[id*="orb" i],[class*="orb" i],[id*="heart" i],[class*="heart" i]'),function(el){
+     if(el===orb || orb.contains(el) || el.contains(orb)) return;
+     if(el.closest && el.closest('#mansi-final-orb')) return;
+     el.style.setProperty('display','none','important');
+     el.setAttribute('aria-hidden','true');
+   });
    function activate(){orb.classList.remove('idle');orb.classList.add('active');setTimeout(function(){orb.classList.remove('active');orb.classList.add('idle')},1800);}
    orb.addEventListener('click',activate);orb.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();activate()}});
    window.MANSIOrbState=function(state){orb.classList.remove('idle','listening','speaking');orb.classList.add(['idle','listening','speaking'].indexOf(state)>=0?state:'idle')};
