@@ -57,8 +57,14 @@ jobs:
               ("Jarvis Operator . Primary", "Mansi AI operator . Primary"),
               ("Jarvis pro . Puck", "Mansi AI pro . Puck"),
               ("Jarvis Pro . Puck", "Mansi AI pro . Puck"),
-              ("TechGPT X", "TECHGPT X"),
-              ("TechGPTX", "TECHGPT X"),
+              ("TechGPT X", "Sagar"),
+              ("TechGPTX", "Sagar"),
+              ("JARVIS OPERATOR", "MANSI AI USER"),
+              ("Jarvis Operator", "MANSI AI User"),
+              ("PRIMARY USER", "MANSI AI USER"),
+              ("Primary User", "MANSI AI User"),
+              ("JARVIS PRO", "MANSI AI PRO"),
+              ("Jarvis Pro", "MANSI AI Pro"),
           ]
           suffixes = {".xml", ".kt", ".java", ".html", ".js", ".json", ".txt", ".properties"}
           for path in root.rglob("*"):
