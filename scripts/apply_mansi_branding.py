@@ -120,71 +120,7 @@ if privacy_kt.exists():
     privacy_kt.write_text(src, encoding="utf-8")
 print("Applied personal Instagram/Telegram links and hid old YouTube profile shortcuts.")
 
-# Prefer a feminine voice in Gemini Live configuration where the project exposes
-# a voiceName setting. Gemini Live supports voice names such as Aoede and Kore;
-# use Kore as the default feminine-sounding voice without changing model/API flow.
-models_kt = root / "java/com/jarvis/assistant/data/model/GeminiLiveModels.kt"
-if models_kt.exists():
-    src = models_kt.read_text(encoding="utf-8")
-    import re
-    # Patch only explicit voiceName assignments/defaults; avoid guessing at unrelated code.
-    # The actual project default is DEFAULT_VOICE = "Puck" (a masculine-sounding voice).
-    # Force the app's default Live voice to Kore, and keep any explicit voiceName
-    # defaults aligned with it. The live socket sends preferences.voice as voice_name.
-    updated = re.sub(
-        r'(?m)(const\s+val\s+DEFAULT_VOICE\s*=\s*["\'])([^"\']+)(["\'])',
-        r'\g<1>Kore\3',
-        src
-    )
-    updated = re.sub(
-        r"""(voiceName\s*[:=]\s*["'])(?:Aoede|Puck|Charon|Fenrir|Leda|Orus|Zephyr|Kore)(["'])""",
-        r"\g<1>Kore\2",
-        updated
-    )
-    if updated != src:
-        models_kt.write_text(updated, encoding="utf-8")
-        print("Set Gemini Live DEFAULT_VOICE/voiceName to Kore (female voice).")
-    else:
-        print("WARNING: GeminiLiveModels voice defaults were not changed; inspect source.")
-
-
-# Enforce a cute, feminine voice for Gemini Live voice defaults.
-# Migrate the old masculine Puck default where a source file clearly refers to voice.
-for const_path in root.rglob("*"):
-    if not const_path.is_file() or const_path.suffix.lower() not in {".kt", ".java", ".xml", ".json", ".txt"}:
-        continue
-    try:
-        voice_src = const_path.read_text(encoding="utf-8")
-    except (UnicodeDecodeError, OSError):
-        continue
-    voice_updated = voice_src
-    if "voice" in voice_src.lower() or "voice_name" in voice_src.lower() or "DEFAULT_VOICE" in voice_src:
-        voice_updated = re.sub(r'(?i)(DEFAULT_VOICE\s*=\s*["\'])Puck(["\'])', r'\1Kore\2', voice_updated)
-        voice_updated = re.sub(r'(?i)(voiceName\s*[:=]\s*["\'])Puck(["\'])', r'\1Kore\2', voice_updated)
-    if voice_updated != voice_src:
-        const_path.write_text(voice_updated, encoding="utf-8")
-        print("Migrated masculine Puck voice default in " + str(const_path))
-
-# Make every voice selector entry use a supported feminine voice.
-for voice_path in root.rglob("*"):
-    if not voice_path.is_file() or voice_path.suffix.lower() not in {".kt", ".java", ".xml", ".json", ".txt"}:
-        continue
-    try:
-        voice_text = voice_path.read_text(encoding="utf-8")
-    except (UnicodeDecodeError, OSError):
-        continue
-    revised = voice_text
-    revised = revised.replace("Fenrir (Deep, protective charismatic male voice)", "Kore (Cute, gentle female voice)")
-    revised = revised.replace("Puck (Crisp, modern dynamic male voice)", "Aoede (Cute, playful female voice)")
-    revised = revised.replace("Charon (Distinguished butler male voice)", "Kore (Soft, sweet female voice)")
-    revised = revised.replace("Deep, protective charismatic male voice", "Cute, gentle female voice")
-    revised = revised.replace("Crisp, modern dynamic male voice", "Cute, playful female voice")
-    revised = revised.replace("Distinguished butler male voice", "Soft, sweet female voice")
-    if revised != voice_text:
-        voice_path.write_text(revised, encoding="utf-8")
-        print("Updated female-only voice labels in " + str(voice_path))
-
-
+# Keep the requested Puck voice unchanged; branding must not alter voice defaults.
 # Replace visible Jarvis chat branding while keeping Java/Kotlin package names intact.
 visible_brand_replacements = {
     "Jarvis • Gemini Live • Active": "MANSI AI • Gemini Live • Active",
@@ -234,6 +170,18 @@ for brand_path in root.rglob("*"):
     extra_visible_replacements = {
         "JARVIS App Identity": "MANSI AI App Identity",
         "Jarvis App Identity": "MANSI AI App Identity",
+        "JARVIS OPERATOR • PRIMARY USER": "MANSI AI Operator · Primary User",
+        "JARVIS OPERATOR · PRIMARY USER": "MANSI AI Operator · Primary User",
+        "Jarvis Operator • Primary User": "MANSI AI Operator · Primary User",
+        "JARVIS PRO": "MANSI PRO",
+        "Jarvis Pro": "MANSI PRO",
+        "JARVIS PRO VOICE": "MANSI PRO · Voice: Puck",
+        "JARVIS PRO · VOICE: PUCK": "MANSI PRO · Voice: Puck",
+        "TECHGPT X": "MANSI AI",
+        "TECHGPTX": "MANSI AI",
+        "MANSI AI . SAGAR": "MANSI AI OS · SAGAR",
+        "MANSI AI OS . SAGAR": "MANSI AI OS · SAGAR",
+        "MANSI AI App identity": "MANSI AI App identity",
         "Jarvis updates & announcements": "MANSI AI updates & announcements",
         "JARVIS updates & announcements": "MANSI AI updates & announcements",
         "JARVIS OFF • TAP TO START": "MANSI AI OFF • TAP TO START",
