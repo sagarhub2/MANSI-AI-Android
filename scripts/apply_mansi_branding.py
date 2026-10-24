@@ -319,31 +319,61 @@ for final_path in root.rglob("*"):
 from PIL import Image, ImageOps, ImageDraw
 
 res = root / "res"
-# Prefer the new MANSI artwork when the bundled project includes it.
-# Older project ZIPs may not contain that added asset, so fall back safely
-# to the existing in-project logo instead of failing the entire APK build.
-preferred_logo = res / "drawable/mansi_launcher_source.png"
-repo_logo = Path("branding/mansi_launcher_source.png")
-if repo_logo.is_file():
-    preferred_logo.parent.mkdir(parents=True, exist_ok=True)
-    preferred_logo.write_bytes(repo_logo.read_bytes())
-legacy_logo = res / "drawable/ic_jarvis_logo.png"
-logo_path = preferred_logo if preferred_logo.is_file() else legacy_logo
-if not logo_path.is_file():
-    # Last-resort generated premium MANSI monogram so builds never fail only
-    # because the ZIP omitted the optional image asset.
-    logo = Image.new("RGBA", (512, 512), (16, 10, 40, 255))
-    draw = ImageDraw.Draw(logo)
-    draw.ellipse((42, 42, 470, 470), outline=(0, 225, 255, 255), width=14)
-    draw.ellipse((62, 62, 450, 450), outline=(180, 70, 255, 255), width=8)
-    draw.text((120, 160), "M", fill=(255, 255, 255, 255), stroke_width=3, stroke_fill=(0, 225, 255, 255))
-    draw.text((95, 285), "AI", fill=(0, 225, 255, 255), stroke_width=1, stroke_fill=(180, 70, 255, 255))
-    logo_path.parent.mkdir(parents=True, exist_ok=True)
-    logo.save(logo_path)
-    print("Generated fallback MANSI AI monogram because no bundled logo asset was present.")
-else:
-    print("Using launcher artwork: " + str(logo_path))
-    logo = Image.open(logo_path).convert("RGBA")
+# Generate the requested premium MANSI launcher icon: pink heart, blue-violet rings,
+# deep midnight background. Always use this artwork so old bundled logos cannot override it.
+from PIL import ImageFilter
+import math
+
+logo_path = res / "drawable/mansi_launcher_source.png"
+logo_path.parent.mkdir(parents=True, exist_ok=True)
+S = 1024
+logo = Image.new("RGBA", (S, S), (7, 8, 26, 255))
+# Soft radial background glow.
+glow = Image.new("RGBA", (S, S), (0, 0, 0, 0))
+gd = ImageDraw.Draw(glow)
+for radius, color in [(390,(70,70,255,18)),(315,(139,54,255,24)),(235,(255,60,205,22))]:
+    gd.ellipse((S//2-radius,S//2-radius,S//2+radius,S//2+radius), fill=color)
+glow = glow.filter(ImageFilter.GaussianBlur(48))
+logo = Image.alpha_composite(logo, glow)
+draw = ImageDraw.Draw(logo)
+# Premium holographic concentric rings.
+for bbox, color, width in [
+    ((100,100,924,924),(56,218,255,180),10),
+    ((126,126,898,898),(139,83,255,205),9),
+    ((154,154,870,870),(255,101,224,155),5),
+    ((208,208,816,816),(67,125,255,100),4),
+]:
+    draw.ellipse(bbox, outline=color, width=width)
+# Parametric heart silhouette, with layered glow and a pink-to-magenta fill.
+points=[]
+for i in range(361):
+    t=math.pi*2*i/360
+    x=16*math.sin(t)**3
+    y=13*math.cos(t)-5*math.cos(2*t)-2*math.cos(3*t)-math.cos(4*t)
+    points.append((512+x*16, 510-y*16))
+heart_mask=Image.new("L",(S,S),0)
+ImageDraw.Draw(heart_mask).polygon(points,fill=255)
+for radius, alpha in [(42,50),(24,75),(12,105)]:
+    blurred=heart_mask.filter(ImageFilter.GaussianBlur(radius))
+    tint=Image.new("RGBA",(S,S),(255,54,210,0))
+    tint.putalpha(blurred.point(lambda p,a=alpha: int(p*a/255)))
+    logo=Image.alpha_composite(logo,tint)
+heart=Image.new("RGBA",(S,S),(0,0,0,0))
+hd=ImageDraw.Draw(heart)
+# Vertical pink highlight gradient clipped to the heart mask.
+gradient=Image.new("RGBA",(S,S),(0,0,0,0))
+gp=gradient.load()
+for y in range(300,760):
+    u=max(0,min(1,(y-300)/460))
+    col=(int(255-32*u),int(160-80*u),int(250-8*u),255)
+    for x in range(260,765):
+        gp[x,y]=col
+gradient.putalpha(heart_mask)
+heart=Image.alpha_composite(heart,gradient)
+ImageDraw.Draw(heart).line(points+[points[0]],fill=(255,220,252,230),width=4,joint="curve")
+logo=Image.alpha_composite(logo,heart)
+logo.save(logo_path)
+print("Generated premium pink-heart hologram launcher artwork:", logo_path)
 # Crop to square, then place the full logo within Android's adaptive safe zone.
 side = min(logo.size)
 left = (logo.width - side) // 2
