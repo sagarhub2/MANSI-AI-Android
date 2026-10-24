@@ -141,6 +141,13 @@ jobs:
           test -s source/mansi/app/src/main/res/mipmap-mdpi/ic_launcher_foreground.png
           echo "Launcher resources exist; Gradle build will validate Android resource references."
 
+      - name: Diagnose actual identity and assistant prompt sources
+        run: |
+          echo "---- APP IDENTITY / DEVELOPER LABEL SOURCE HITS ----"
+          grep -RniE 'AP Developer|Developer:|Copyright:|Tech GPTx|TECHGPTX|App Identity' source/mansi/app/src/main --include='*.kt' --include='*.java' --include='*.xml' --include='*.json' --include='*.txt' | head -160 || true
+          echo "---- ASSISTANT PROMPT / VOICE SOURCE HITS ----"
+          grep -RniE 'systemInstruction|system instruction|You are |Puck|Aoede|voiceName|voice_name|Gemini' source/mansi/app/src/main --include='*.kt' --include='*.java' --include='*.xml' --include='*.json' --include='*.txt' | head -240 || true
+
       - name: Set up Java
         uses: actions/setup-java@v4
         with:
