@@ -8,19 +8,19 @@ asset = root / "assets/orb.html"
 if not asset.is_file():
     raise SystemExit(f"Required orb asset not found: {asset}")
 html = asset.read_text(encoding="utf-8")
-marker = "/* MANSI_CENTERED_HEART_ORBIT_V3 */"
+marker = "/* MANSI_CENTERED_HEART_ORBIT_V4 */"
 if marker not in html:
     patch = r"""
 <style>
-/* MANSI_CENTERED_HEART_ORBIT_V3 — center the halo on the orb, not the screen */
+/* MANSI_CENTERED_HEART_ORBIT_V4 — center the halo on the orb, not the screen */
 #mansi-final-orb{
   position:relative!important;isolation:isolate!important;overflow:visible!important;
   background:transparent!important;border:0!important;box-shadow:none!important;filter:none!important
 }
 #mansi-final-orb::before{
-  content:"";position:absolute!important;z-index:0!important;left:50%!important;top:50%!important;
-  width:172%!important;aspect-ratio:1/1!important;height:auto!important;
-  transform:translate(-50%,-50%)!important;border-radius:50%!important;
+  content:"";position:absolute!important;z-index:0!important;left:50%!important;top:50%!important;margin:0!important;
+  width:172%!important;height:172%!important;
+  transform:translate(-50%,-50%)!important;transform-origin:center center!important;border-radius:50%!important;
   background:radial-gradient(circle,rgba(255,94,218,.30) 0%,rgba(218,124,255,.22) 36%,rgba(185,145,255,.13) 57%,rgba(255,224,246,.055) 70%,transparent 74%)!important;
   pointer-events:none!important;filter:blur(1px)!important
 }
