@@ -102,6 +102,8 @@ jobs:
               ("Sagar • Neural Assistant", "Mansi AI sagar neural Assistant"),
               ("Sagar · Neural Assistant", "Mansi AI sagar neural Assistant"),
               ("Jarvis is in the background", "MANSI AI is running in the background"),
+              ("Jarvis is thinking", "MANSI AI is thinking"),
+              ("Jarvis is listening", "MANSI AI is listening"),
               ("Say " + chr(34) + "Hey Jarvis" + chr(34) + " to wake me up", "Say " + chr(34) + "Hey MANSI" + chr(34) + " to wake me up"),
               ("Hey Jarvis", "Hey MANSI"),
               ("Jarvis off", "MANSI AI OFF"),
