@@ -8,14 +8,18 @@ asset = root / "assets/orb.html"
 if not asset.is_file():
     raise SystemExit(f"Required orb asset not found: {asset}")
 html = asset.read_text(encoding="utf-8")
-marker = "/* MANSI_CENTERED_HEART_ORBIT_V4 */"
+marker = "/* MANSI_CENTERED_HEART_ORBIT_V5 */"
 if marker not in html:
     patch = r"""
 <style>
-/* MANSI_CENTERED_HEART_ORBIT_V4 — center the halo on the orb, not the screen */
+/* MANSI_CENTERED_HEART_ORBIT_V5 — lock the complete orb to the screen center */
 #mansi-final-orb{
-  position:relative!important;isolation:isolate!important;overflow:visible!important;
-  background:transparent!important;border:0!important;box-shadow:none!important;filter:none!important
+  position:fixed!important;left:50vw!important;top:41vh!important;
+  transform:translate(-50%,-50%)!important;transform-origin:center center!important;
+  width:min(56vw,300px)!important;height:min(56vw,300px)!important;aspect-ratio:1/1!important;
+  margin:0!important;isolation:isolate!important;overflow:visible!important;
+  background:transparent!important;border:0!important;box-shadow:none!important;filter:none!important;
+  right:auto!important;bottom:auto!important
 }
 #mansi-final-orb::before{
   content:"";position:absolute!important;z-index:0!important;left:50%!important;top:50%!important;margin:0!important;
