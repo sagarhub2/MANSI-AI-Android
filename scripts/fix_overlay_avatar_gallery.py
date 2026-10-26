@@ -8,25 +8,30 @@ target.write_text(r"""<!doctype html>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <style>
-:root{--fg:#f5f3ff;--accent:#b78cff;--panel:rgba(22,20,48,.82)}
+:root{--fg:#f4fbff;--accent:#53f3ff;--panel:rgba(7,17,39,.76)}
 *{box-sizing:border-box}
 html,body{margin:0;width:100%;min-height:100%;background:transparent;color:var(--fg);font-family:system-ui,-apple-system,sans-serif}
-body{padding:10px 8px 18px}
-.heading{text-align:center;font-size:15px;font-weight:800;letter-spacing:1.4px;margin:2px 0 4px}
-.sub{text-align:center;font-size:11px;opacity:.72;margin:0 0 12px}
-#gallery{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;width:100%;max-width:520px;margin:0 auto}
-.card{min-width:0;border:1px solid rgba(190,160,255,.25);border-radius:16px;background:var(--panel);padding:10px 3px 8px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;color:var(--fg);font:inherit;cursor:pointer;min-height:98px;box-shadow:0 5px 18px rgba(0,0,0,.16);-webkit-tap-highlight-color:transparent}
-.card:active{transform:scale(.97)}
-.card.selected{border:2px solid var(--accent);background:rgba(112,65,190,.34);box-shadow:0 0 16px rgba(183,140,255,.38)}
-.avatar{width:48px;height:48px;border-radius:50%;display:grid;place-items:center;font-size:27px;background:radial-gradient(circle at 35% 25%,#5b70ff,#38205e 70%);border:1px solid rgba(255,255,255,.38);box-shadow:0 0 13px rgba(123,91,255,.3)}
-.label{font-size:11px;font-weight:700;text-align:center;line-height:1.2}
-.tick{font-size:9px;opacity:.8;min-height:10px}
-@media(min-width:420px){#gallery{grid-template-columns:repeat(4,minmax(0,1fr))}.card{min-height:105px}}
+body{padding:12px 8px 20px;background:radial-gradient(ellipse at 50% 0%,rgba(36,83,190,.22),transparent 68%)}
+.heading{text-align:center;font-size:16px;font-weight:900;letter-spacing:2.6px;margin:3px 0 5px;text-shadow:0 0 16px rgba(83,243,255,.52)}
+.sub{text-align:center;font-size:10px;letter-spacing:1.3px;text-transform:uppercase;color:#9ec8ff;margin:0 0 14px}
+#gallery{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;width:100%;max-width:540px;margin:0 auto}
+.card{position:relative;overflow:hidden;min-width:0;border:1px solid rgba(91,194,255,.24);border-radius:19px;background:linear-gradient(145deg,rgba(23,43,83,.86),rgba(7,12,30,.88));padding:12px 3px 9px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;color:var(--fg);font:inherit;cursor:pointer;min-height:105px;box-shadow:inset 0 1px rgba(255,255,255,.07),0 7px 18px rgba(0,0,0,.2);-webkit-tap-highlight-color:transparent;transition:transform .18s,border-color .18s,box-shadow .18s}
+.card:before{content:"";position:absolute;inset:0;background:linear-gradient(115deg,transparent 20%,rgba(83,243,255,.08),transparent 65%);transform:translateX(-100%);transition:transform .4s}
+.card:active{transform:scale(.96)}
+.card.selected{border:1.5px solid var(--accent);background:linear-gradient(145deg,rgba(15,87,124,.85),rgba(30,24,83,.94));box-shadow:0 0 0 1px rgba(83,243,255,.16),0 0 23px rgba(83,243,255,.22),inset 0 0 18px rgba(83,243,255,.08)}
+.card.selected:before{transform:translateX(100%)}
+.avatar{position:relative;width:54px;height:54px;border-radius:18px;display:grid;place-items:center;font-size:29px;background:radial-gradient(circle at 32% 22%,#4eeaff,#3b4fe0 47%,#19163e 80%);border:1px solid rgba(147,240,255,.58);box-shadow:0 0 18px rgba(48,194,255,.28),inset 0 0 13px rgba(255,255,255,.15);animation:floaty 3s ease-in-out infinite}
+.card:nth-child(3n+2) .avatar{background:radial-gradient(circle at 32% 22%,#ffb8f5,#a43fd2 48%,#251044 82%);border-color:rgba(255,174,245,.6);box-shadow:0 0 18px rgba(232,80,255,.24)}
+.card:nth-child(3n) .avatar{background:radial-gradient(circle at 32% 22%,#b5ffdf,#14a994 48%,#102d48 82%);border-color:rgba(149,255,219,.6);box-shadow:0 0 18px rgba(32,255,194,.2)}
+.label{font-size:11px;font-weight:800;letter-spacing:.35px;text-align:center;line-height:1.2}
+.tick{font-size:9px;letter-spacing:.7px;color:var(--accent);font-weight:800;min-height:10px}
+@keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+@media(min-width:420px){#gallery{grid-template-columns:repeat(4,minmax(0,1fr))}.card{min-height:112px}}
 </style>
 </head>
 <body>
-<div class="heading">CHOOSE YOUR AVATAR</div>
-<div class="sub">Tap a character to select it</div>
+<div class="heading">MANSI · AVATAR LAB</div>
+<div class="sub">✦ Choose your hologram companion ✦</div>
 <div id="gallery" role="list">
 <button class="card" data-name="droid" onclick="choose(this)"><span class="avatar">🤖</span><span class="label">Droid</span><span class="tick"></span></button>
 <button class="card" data-name="mech" onclick="choose(this)"><span class="avatar">🦾</span><span class="label">Mech</span><span class="tick"></span></button>
