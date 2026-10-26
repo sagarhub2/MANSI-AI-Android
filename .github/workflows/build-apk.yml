@@ -32,6 +32,12 @@ jobs:
           test -f source/mansi/gradlew
           test -f source/mansi/settings.gradle.kts
           chmod +x source/mansi/gradlew
+          echo "---- OVERLAY AVATAR ACTIVITY SOURCE ----"
+          sed -n '1,300p' source/mansi/app/src/main/java/com/jarvis/assistant/ui/settings/OverlayAvatarActivity.kt
+          echo "---- OVERLAY AVATAR LAYOUT SOURCE ----"
+          sed -n '1,300p' source/mansi/app/src/main/res/layout/activity_overlay_avatar.xml
+          echo "---- OVERLAY AVATAR DRAWABLES / ASSETS ----"
+          find source/mansi/app/src/main/res/drawable source/mansi/app/src/main/assets -maxdepth 3 -type f 2>/dev/null | grep -iE 'avatar|overlay|companion|toy|character' | head -160 || true
           echo "---- ACTUAL ORB HTML / HEART / TAP HANDLERS ----"
           if [ -f source/mansi/app/src/main/assets/orb.html ]; then
             grep -niE 'heart|<svg|<canvas|orb|click|pointer|touch|tap|listening|speaking' source/mansi/app/src/main/assets/orb.html | head -220 || true
