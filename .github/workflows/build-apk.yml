@@ -188,65 +188,58 @@ jobs:
                   path.write_text(after, encoding="utf-8")
                   print("Repaired Android resource names:", path)
           PY
-          echo "---- APPLY ORIGINAL LOGO ZIP ICON TO LAUNCHER RESOURCES ----"
-python3 - <<'PY'
-from pathlib import Path
-from zipfile import ZipFile
-from PIL import Image, ImageOps
-import io, re
-
-archives = [
-    Path("MANSI-AI-Android-logo-final.zip"),
-    Path("MANSI-AI-Android-PREMIUM-ICON-PATCH.zip"),
-]
-candidates = []
-for archive in archives:
-    if not archive.is_file():
-        print("Optional archive not present:", archive)
-        continue
-    try:
-        with ZipFile(archive) as z:
-            for info in z.infolist():
-                if info.is_dir() or Path(info.filename).suffix.lower() not in {".png", ".jpg", ".jpeg", ".webp"}:
-                    continue
-                try:
-                    im = Image.open(io.BytesIO(z.read(info))).convert("RGBA")
-                    w, h = im.size
-                    if min(w, h) < 128:
-                        continue
-                    name_score = 3 if re.search(r"(mansi|logo|icon|launcher|final)", Path(info.filename).name, re.I) else 0
-                    square_score = 1 if abs(w - h) <= max(w, h) * 0.03 else 0
-                    candidates.append((name_score, square_score, w * h, archive.name, info.filename, im.copy()))
-                except Exception as exc:
-                    print("Skipping unreadable image:", info.filename, exc)
-    except Exception as exc:
-        print("Skipping unreadable archive:", archive, exc)
-
-if not candidates:
-    print("No usable logo image in optional archives; keeping existing launcher icons.")
-    raise SystemExit(0)
-
-candidates.sort(key=lambda x: (x[0], x[1], x[2]), reverse=True)
-_, _, _, archive_name, chosen, logo = candidates[0]
-print("Using image from", archive_name + ":", chosen, "(" + str(logo.width) + "x" + str(logo.height) + ")")
-
-res = Path("source/mansi/app/src/main/res")
-logo = ImageOps.fit(logo, (1024, 1024), method=Image.Resampling.LANCZOS, centering=(0.5, 0.5))
-adaptive = Image.new("RGBA", (432, 432), (0, 0, 0, 0))
-art = ImageOps.contain(logo, (264, 264), method=Image.Resampling.LANCZOS)
-adaptive.alpha_composite(art, ((432 - art.width) // 2, (432 - art.height) // 2))
-for density, size in [("mdpi", 108), ("hdpi", 162), ("xhdpi", 216), ("xxhdpi", 324), ("xxxhdpi", 432)]:
-    folder = res / ("mipmap-" + density)
-    folder.mkdir(parents=True, exist_ok=True)
-    adaptive.resize((size, size), Image.Resampling.LANCZOS).save(folder / "ic_launcher_foreground.png")
-    legacy = Image.new("RGBA", (size, size), (16, 10, 40, 255))
-    legacy_art = ImageOps.contain(logo, (int(size * 0.78), int(size * 0.78)), method=Image.Resampling.LANCZOS)
-    legacy.alpha_composite(legacy_art, ((size - legacy_art.width) // 2, (size - legacy_art.height) // 2))
-    legacy.save(folder / "ic_launcher.png")
-    legacy.save(folder / "ic_launcher_round.png")
-print("Launcher icon resources updated.")
-PY
-echo "---- LAUNCHER ICON VERIFICATION ----"
+                    echo "---- APPLY ORIGINAL LOGO ZIP ICON TO LAUNCHER RESOURCES ----"
+          python3 - <<'PY'
+          from pathlib import Path
+          from zipfile import ZipFile
+          from PIL import Image, ImageOps
+          import io, re
+          archives = [Path("MANSI-AI-Android-logo-final.zip"), Path("MANSI-AI-Android-PREMIUM-ICON-PATCH.zip")]
+          candidates = []
+          for archive in archives:
+              if not archive.is_file():
+                  print("Optional archive not present:", archive)
+                  continue
+              try:
+                  with ZipFile(archive) as z:
+                      for info in z.infolist():
+                          if info.is_dir() or Path(info.filename).suffix.lower() not in {".png", ".jpg", ".jpeg", ".webp"}:
+                              continue
+                          try:
+                              im = Image.open(io.BytesIO(z.read(info))).convert("RGBA")
+                              w, h = im.size
+                              if min(w, h) < 128:
+                                  continue
+                              name_score = 3 if re.search(r"(mansi|logo|icon|launcher|final)", Path(info.filename).name, re.I) else 0
+                              square_score = 1 if abs(w-h) <= max(w,h)*0.03 else 0
+                              candidates.append((name_score, square_score, w*h, archive.name, info.filename, im.copy()))
+                          except Exception as exc:
+                              print("Skipping unreadable image:", info.filename, exc)
+              except Exception as exc:
+                  print("Skipping unreadable archive:", archive, exc)
+          if not candidates:
+              print("No usable logo image in optional archives; keeping existing launcher icons.")
+              raise SystemExit(0)
+          candidates.sort(key=lambda x: (x[0], x[1], x[2]), reverse=True)
+          _, _, _, archive_name, chosen, logo = candidates[0]
+          print("Using image from", archive_name + ":", chosen, "(" + str(logo.width) + "x" + str(logo.height) + ")")
+          res = Path("source/mansi/app/src/main/res")
+          logo = ImageOps.fit(logo, (1024,1024), method=Image.Resampling.LANCZOS, centering=(0.5,0.5))
+          adaptive = Image.new("RGBA", (432,432), (0,0,0,0))
+          art = ImageOps.contain(logo, (264,264), method=Image.Resampling.LANCZOS)
+          adaptive.alpha_composite(art, ((432-art.width)//2, (432-art.height)//2))
+          for density, size in [("mdpi",108),("hdpi",162),("xhdpi",216),("xxhdpi",324),("xxxhdpi",432)]:
+              folder = res / ("mipmap-" + density)
+              folder.mkdir(parents=True, exist_ok=True)
+              adaptive.resize((size,size), Image.Resampling.LANCZOS).save(folder / "ic_launcher_foreground.png")
+              legacy = Image.new("RGBA", (size,size), (16,10,40,255))
+              legacy_art = ImageOps.contain(logo, (int(size*.78),int(size*.78)), method=Image.Resampling.LANCZOS)
+              legacy.alpha_composite(legacy_art, ((size-legacy_art.width)//2,(size-legacy_art.height)//2))
+              legacy.save(folder / "ic_launcher.png")
+              legacy.save(folder / "ic_launcher_round.png")
+          print("Launcher icon resources updated.")
+          PY
+          echo "---- LAUNCHER ICON VERIFICATION ----"
           grep -nE 'android:(icon|roundIcon)=' source/mansi/app/src/main/AndroidManifest.xml
           test -s source/mansi/app/src/main/res/mipmap-mdpi/ic_launcher.png
           test -s source/mansi/app/src/main/res/mipmap-hdpi/ic_launcher.png
