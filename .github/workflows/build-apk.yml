@@ -268,18 +268,13 @@ jobs:
           test -s source/mansi/app/src/main/res/mipmap-mdpi/ic_launcher_foreground.png
           echo "Launcher resources exist; Gradle build will validate Android resource references."
 
-      - name: Normalize MANSI active persona toast
+      - name: Normalize MANSI active persona and speaking labels
         run: |
           python3 - <<'PY'
           from pathlib import Path
+          import re
           root = Path("source/mansi/app/src/main")
           suffixes = {".kt", ".java", ".xml", ".json", ".html", ".js", ".txt", ".properties"}
-          replacements = (
-              ("Persona: Jarvis Active", "Persona: Mansi Active"),
-              ("Persona: JARVIS Active", "Persona: Mansi Active"),
-              ("Persona: JARVIS ACTIVE", "Persona: Mansi Active"),
-              ("Persona: Jarvis", "Persona: Mansi"),
-          )
           changed = []
           for path in root.rglob("*"):
               if not path.is_file() or path.suffix.lower() not in suffixes:
@@ -289,14 +284,31 @@ jobs:
               except (OSError, UnicodeDecodeError):
                   continue
               after = before
-              for old, new in replacements:
+              # Visible UI labels.
+              for old, new in (
+                  ("Persona: Jarvis Active", "Persona: Mansi Active"),
+                  ("Persona: JARVIS Active", "Persona: Mansi Active"),
+                  ("Persona: JARVIS ACTIVE", "Persona: Mansi Active"),
+                  ("JARVIS SPEAKING...", "MANSI SPEAKING..."),
+                  ("JARVIS SPEAKING…", "MANSI SPEAKING…"),
+                  ("Jarvis Speaking...", "Mansi Speaking..."),
+                  ("Jarvis speaking…", "Mansi speaking…"),
+              ):
                   after = after.replace(old, new)
+              # Known incorrect self-introduction seen in the app screenshot.
+              after = re.sub(
+                  r"(?i)Main\\s+JARVIS\\s+hoon,?\\s*jise\\s+Rehaan\\s+Sir\\s+ne\\s+banaya\\s+hai!?\\s*Main\\s+aapka\\s+personal\\s+assistant\\s+hoon\\.\\s*Kya\\s+madad\\s+karoon\\s+main\\s+aapki\\?",
+                  "Main Mansi AI hoon, aapki personal assistant. Bataiye, main aapki kya madad kar sakti hoon?",
+                  after,
+              )
+              # Ensure assistant identity instructions explicitly reject the legacy name.
+              if path.suffix.lower() in {".kt", ".java", ".json", ".html", ".js", ".txt", ".properties", ".xml"}:
+                  after = re.sub(r"(?i)(You are )Jarvis\\b", r"\\1MANSI AI", after)
+                  after = re.sub(r"(?i)(My name is )Jarvis\\b", r"\\1Mansi", after)
               if after != before:
                   path.write_text(after, encoding="utf-8")
                   changed.append(str(path))
-          print("Persona toast branding fix; source files changed:", changed)
-          if not changed:
-              print("No literal persona toast string found; build logs above contain the persona-source inspection.")
+          print("MANSI persona/speaking labels: changed files:", changed)
           PY
 
       - name: Diagnose actual identity and assistant prompt sources
