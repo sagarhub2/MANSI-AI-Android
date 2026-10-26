@@ -61,6 +61,16 @@ body::before,body::after,html::before,html::after{content:none!important;display
 @keyframes mansi-soft-breathe{0%,100%{transform:scale(1);box-shadow:0 0 12px rgba(255,87,218,.65),0 0 32px rgba(255,62,211,.55),0 0 68px rgba(210,94,255,.35)}50%{transform:scale(1.035);box-shadow:0 0 20px rgba(255,87,218,.9),0 0 48px rgba(255,62,211,.75),0 0 88px rgba(210,94,255,.5)}}
 </style>
 <style>
+/* MANSI_HEART_BACKGROUND_CLEAN_V2 — remove stray circle outlines, streaks and background layers */
+html,body{background:#070714!important;background-image:none!important;overflow:hidden!important}
+body{isolation:isolate!important}
+body::before,body::after,html::before,html::after{display:none!important;content:none!important;background:none!important;border:0!important;outline:0!important;box-shadow:none!important}
+#mansi-final-orb{background:transparent!important;border:0!important;outline:0!important;box-shadow:none!important;filter:none!important}
+#mansi-final-orb .mansi-core{border:0!important;outline:0!important;border-radius:50%!important;box-shadow:0 0 18px rgba(255,87,218,.48),0 0 38px rgba(255,62,211,.22)!important}
+#mansi-final-orb .mansi-heart{border:0!important;outline:0!important;box-shadow:none!important}
+#mansi-final-orb .mansi-ring,#mansi-final-orb .mansi-tapwave{display:none!important;visibility:hidden!important}
+body canvas,body svg:not(#mansi-final-orb svg){display:none!important;visibility:hidden!important}
+body *{outline:none!important;-webkit-tap-highlight-color:transparent}
 /* MANSI_REMOVE_ORB_LINES_V1 — keep the heart orb clean, without visible rings/contour bands */
 #mansi-final-orb .mansi-ring,
 #mansi-final-orb .mansi-ring::before,
