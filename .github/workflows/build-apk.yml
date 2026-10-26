@@ -10,6 +10,7 @@ on:
       - "scripts/apply_mansi_branding.py"
       - "scripts/fix_mansi_identity.py"
       - "scripts/apply_mansi_orb.py"
+      - "scripts/fix_overlay_avatar_gallery.py"
       - "branding/**"
 
 permissions:
@@ -32,6 +33,8 @@ jobs:
           test -f source/mansi/gradlew
           test -f source/mansi/settings.gradle.kts
           chmod +x source/mansi/gradlew
+          echo "---- FIX MISSING OVERLAY AVATAR GALLERY ----"
+          python3 scripts/fix_overlay_avatar_gallery.py
           echo "---- OVERLAY AVATAR ACTIVITY SOURCE ----"
           sed -n '1,300p' source/mansi/app/src/main/java/com/jarvis/assistant/ui/settings/OverlayAvatarActivity.kt
           echo "---- OVERLAY AVATAR GALLERY HTML ----"
