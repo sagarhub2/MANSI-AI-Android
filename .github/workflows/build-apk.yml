@@ -198,7 +198,8 @@ jobs:
           candidates = []
           for archive in archives:
               if not archive.is_file():
-                  print(f"Optional archive not present: {archive}")                  continue
+                  print(f"Optional archive not present: {archive}")
+            continue
               with ZipFile(archive) as z:
                   for info in z.infolist():
                       if info.is_dir() or Path(info.filename).suffix.lower() not in {".png", ".jpg", ".jpeg", ".webp"}:
