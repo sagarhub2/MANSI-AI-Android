@@ -34,6 +34,8 @@ jobs:
           chmod +x source/mansi/gradlew
           echo "---- OVERLAY AVATAR ACTIVITY SOURCE ----"
           sed -n '1,300p' source/mansi/app/src/main/java/com/jarvis/assistant/ui/settings/OverlayAvatarActivity.kt
+          echo "---- OVERLAY AVATAR GALLERY HTML ----"
+          sed -n '1,320p' source/mansi/app/src/main/assets/overlay-toys/gallery.html
           echo "---- OVERLAY AVATAR LAYOUT SOURCE ----"
           sed -n '1,300p' source/mansi/app/src/main/res/layout/activity_overlay_avatar.xml
           echo "---- OVERLAY AVATAR DRAWABLES / ASSETS ----"
