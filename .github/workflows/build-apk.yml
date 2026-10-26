@@ -8,6 +8,7 @@ on:
       - "MANSI_AI_Android_GitHub_Upload.zip"
       - ".github/workflows/build-apk.yml"
       - "scripts/apply_mansi_branding.py"
+      - "scripts/fix_mansi_identity.py"
       - "scripts/apply_mansi_orb.py"
       - "branding/**"
 
@@ -56,6 +57,8 @@ jobs:
           PY
           python3 -m pip install --quiet Pillow
           python3 scripts/apply_mansi_branding.py
+          echo "---- APPLY MANSI ASSISTANT IDENTITY FIX ----"
+          python3 scripts/fix_mansi_identity.py
           echo "---- APPLY FINAL BLUE-PURPLE HOLOGRAM ORB ----"
           python3 scripts/apply_mansi_orb.py
           grep -n "MANSI_FINAL_HOLOGRAM_ORB_V3" source/mansi/app/src/main/assets/orb.html
@@ -96,8 +99,7 @@ jobs:
               ("Jarvis Sagar Neural Assistant", "Mansi AI sagar neural Assistant"),
               ("Sagar • Neural Assistant", "Mansi AI sagar neural Assistant"),
               ("Sagar · Neural Assistant", "Mansi AI sagar neural Assistant"),
-              ("Jarvis off", "MANSI AI OFF"),
-              ("JARVIS OFF", "MANSI AI OFF"),
+              ("Jarvis off", "MANSI AI OFF"),              ("JARVIS OFF", "MANSI AI OFF"),
               ("Tap to start", "Tap to start MANSI AI"),
               ("TAP TO START", "TAP TO START MANSI AI"),
               ("Jarvis can listen", "MANSI AI can listen"),
@@ -196,8 +198,7 @@ jobs:
           candidates = []
           for archive in archives:
               if not archive.is_file():
-                  print(f"Optional archive not present: {archive}")
-                  continue
+                  print(f"Optional archive not present: {archive}")                  continue
               with ZipFile(archive) as z:
                   for info in z.infolist():
                       if info.is_dir() or Path(info.filename).suffix.lower() not in {".png", ".jpg", ".jpeg", ".webp"}:
