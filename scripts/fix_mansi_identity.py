@@ -5,68 +5,44 @@ ROOT = Path("source/mansi/app/src/main")
 if not ROOT.exists():
     raise SystemExit("Android source directory not found; refusing to continue.")
 
-# Fix identity text only inside quoted literals in source code. Android package/class
-# identifiers such as com.jarvis.assistant are deliberately preserved.
-literal = re.compile(r'(["\'])(.*?)(?<!\\)\1', re.DOTALL)
-changed_files = []
-identity_hits = 0
-
-def fix_literal(match):
-    global identity_hits
-    quote, value = match.group(1), match.group(2)
-    lower = value.lower()
-    is_identity_text = any(term in lower for term in (
-        "jarvis", "assistant name", "your name", "who are you",
-        "systeminstruction", "system instruction", "persona", "identity"
-    ))
-    if not is_identity_text:
-        return match.group(0)
-
-    original = value
-    # Replace the legacy assistant name only in user-facing/prompt literals.
-    value = re.sub(r'(?i)\bjarvis\b', 'Mansi', value)
-    value = re.sub(r'(?i)\bJARVIS\b', 'MANSI', value)
-    # Normalize common prompt variants so the model has one unambiguous identity.
-    value = re.sub(r'(?i)you are\s+(?:an?\s+)?(?:ai\s+)?assistant\s+named\s+mansi',
-                   'You are Mansi, Sagar\'s personal AI assistant', value)
-    if value != original:
-        identity_hits += 1
-    return quote + value + quote
-
+# Never rewrite Kotlin/Java source wholesale: string templates and identifiers can
+# contain $Jarvis/$Mansi references. Apply only narrow, exact prompt phrase fixes.
+exact_replacements = [
+    ("You are Jarvis, a helpful AI assistant.", "You are MANSI AI, Sagar's personal AI assistant. Your name is Mansi, never Jarvis. If asked your name or called Mansi, confirm warmly that you are Mansi AI. Speak naturally in casual Hinglish when the user does."),
+    ("You are Jarvis.", "You are MANSI AI, Sagar's personal AI assistant. Your name is Mansi, never Jarvis."),
+    ("I am Jarvis", "I am Mansi AI"),
+    ("I'm Jarvis", "I'm Mansi AI"),
+    ("My name is Jarvis", "My name is Mansi"),
+    ("Mansi nahi Jarvis hu mein", "Main Mansi hoon, Jarvis nahi."),
+    ("Mansi nahi, Jarvis hu mein", "Main Mansi hoon, Jarvis nahi."),
+]
+suffixes = {".kt", ".java", ".xml", ".json", ".txt", ".html", ".js", ".properties"}
+changed = []
 for path in ROOT.rglob("*"):
-    if not path.is_file() or path.suffix.lower() not in {
-        ".kt", ".java", ".xml", ".json", ".txt", ".html", ".js", ".properties"
-    }:
-        continue
-    if path.name == "AndroidManifest.xml":
+    if not path.is_file() or path.suffix.lower() not in suffixes or path.name == "AndroidManifest.xml":
         continue
     try:
         before = path.read_text(encoding="utf-8")
     except (OSError, UnicodeDecodeError):
         continue
-    after = literal.sub(fix_literal, before)
+    after = before
+    # Restrict Kotlin/Java edits to lines that clearly define a prompt/identity.
+    if path.suffix.lower() in {".kt", ".java"}:
+        lines = after.splitlines(keepends=True)
+        out = []
+        for line in lines:
+            low = line.lower()
+            if any(marker in low for marker in ("prompt", "systeminstruction", "system instruction", "persona", "identity", "you are jarvis", "my name is jarvis")):
+                for old, new in exact_replacements:
+                    line = line.replace(old, new)
+            out.append(line)
+        after = "".join(out)
+    else:
+        for old, new in exact_replacements:
+            after = after.replace(old, new)
     if after != before:
         path.write_text(after, encoding="utf-8")
-        changed_files.append(str(path))
+        changed.append(str(path))
 
-print("Identity literal replacements:", identity_hits)
-print("Files changed:", *changed_files, sep="\n  ")
-# Fail the build if source still contains a Jarvis reference inside an assistant
-# prompt/name line, rather than silently shipping the same identity bug.
-remaining = []
-for path in ROOT.rglob("*"):
-    if not path.is_file() or path.suffix.lower() not in {".kt", ".java", ".xml", ".json", ".txt", ".html", ".js"}:
-        continue
-    try:
-        lines = path.read_text(encoding="utf-8").splitlines()
-    except (OSError, UnicodeDecodeError):
-        continue
-    for number, line in enumerate(lines, 1):
-        low = line.lower()
-        if "jarvis" in low and any(term in low for term in ("systeminstruction", "you are", "assistant", "your name", "who are you", "persona", "identity")):
-            remaining.append(f"{path}:{number}:{line.strip()[:180]}")
-if remaining:
-    print("WARNING: possible remaining assistant identity references:")
-    print("\n".join(remaining))
-else:
-    print("No obvious Jarvis assistant-identity prompt lines remain.")
+print("Applied narrow MANSI identity phrase fixes without renaming Kotlin/Java identifiers.")
+print("Files changed:", *changed, sep="\n  ")
