@@ -292,7 +292,7 @@ jobs:
                   ("JARVIS SPEAKING...", "MANSI SPEAKING..."),
                   ("JARVIS SPEAKING…", "MANSI SPEAKING…"),
                   ("Jarvis Speaking...", "Mansi Speaking..."),
-                  ("Rehaan Sir", "Mansi AI"),
+                  ("Rehaan Sir", "Sagar"),
                   ("Jarvis speaking…", "Mansi speaking…"),
               ):
                   after = after.replace(old, new)
