@@ -268,6 +268,37 @@ jobs:
           test -s source/mansi/app/src/main/res/mipmap-mdpi/ic_launcher_foreground.png
           echo "Launcher resources exist; Gradle build will validate Android resource references."
 
+      - name: Normalize MANSI active persona toast
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          root = Path("source/mansi/app/src/main")
+          suffixes = {".kt", ".java", ".xml", ".json", ".html", ".js", ".txt", ".properties"}
+          replacements = (
+              ("Persona: Jarvis Active", "Persona: Mansi Active"),
+              ("Persona: JARVIS Active", "Persona: Mansi Active"),
+              ("Persona: JARVIS ACTIVE", "Persona: Mansi Active"),
+              ("Persona: Jarvis", "Persona: Mansi"),
+          )
+          changed = []
+          for path in root.rglob("*"):
+              if not path.is_file() or path.suffix.lower() not in suffixes:
+                  continue
+              try:
+                  before = path.read_text(encoding="utf-8")
+              except (OSError, UnicodeDecodeError):
+                  continue
+              after = before
+              for old, new in replacements:
+                  after = after.replace(old, new)
+              if after != before:
+                  path.write_text(after, encoding="utf-8")
+                  changed.append(str(path))
+          print("Persona toast branding fix; source files changed:", changed)
+          if not changed:
+              print("No literal persona toast string found; build logs above contain the persona-source inspection.")
+          PY
+
       - name: Diagnose actual identity and assistant prompt sources
         run: |
           echo "---- APP IDENTITY / DEVELOPER LABEL SOURCE HITS ----"
