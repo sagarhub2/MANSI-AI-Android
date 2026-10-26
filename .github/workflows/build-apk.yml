@@ -312,6 +312,33 @@ jobs:
           print("MANSI persona/speaking labels: changed files:", changed)
           PY
 
+      - name: Set feminine MANSI voice and speaking style
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          root = Path("source/mansi/app/src/main")
+          suffixes = {".kt", ".java", ".xml", ".json", ".html", ".js", ".txt", ".properties"}
+          changed = []
+          for path in root.rglob("*"):
+              if not path.is_file() or path.suffix.lower() not in suffixes:
+                  continue
+              try:
+                  before = path.read_text(encoding="utf-8")
+              except (OSError, UnicodeDecodeError):
+                  continue
+              after = before
+              # Select a feminine-sounding voice only in explicit voice configuration.
+              after = re.sub(r'(?i)(voiceName\s*[:=]\s*["\']?)Puck\b', r'\1Aoede', after)
+              after = re.sub(r'(?i)(voice_name\s*[:=]\s*["\']?)Puck\b', r'\1Aoede', after)
+              after = re.sub(r'(?i)("voiceName"\s*:\s*")Puck(")', r'\1Aoede\2', after)
+              after = after.replace("MANSI PRO · Voice: Puck", "MANSI PRO · Voice: Aoede")
+              if after != before:
+                  path.write_text(after, encoding="utf-8")
+                  changed.append(str(path))
+          print("Feminine MANSI voice configuration updated:", changed)
+          PY
+
       - name: Diagnose actual identity and assistant prompt sources
         run: |
           echo "---- APP IDENTITY / DEVELOPER LABEL SOURCE HITS ----"
