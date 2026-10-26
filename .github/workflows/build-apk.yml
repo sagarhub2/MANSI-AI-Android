@@ -292,19 +292,20 @@ jobs:
                   ("JARVIS SPEAKING...", "MANSI SPEAKING..."),
                   ("JARVIS SPEAKING…", "MANSI SPEAKING…"),
                   ("Jarvis Speaking...", "Mansi Speaking..."),
+                  ("Rehaan Sir", "Mansi AI"),
                   ("Jarvis speaking…", "Mansi speaking…"),
               ):
                   after = after.replace(old, new)
               # Known incorrect self-introduction seen in the app screenshot.
               after = re.sub(
-                  r"(?i)Main\\s+JARVIS\\s+hoon,?\\s*jise\\s+Rehaan\\s+Sir\\s+ne\\s+banaya\\s+hai!?\\s*Main\\s+aapka\\s+personal\\s+assistant\\s+hoon\\.\\s*Kya\\s+madad\\s+karoon\\s+main\\s+aapki\\?",
+                  r"(?i)Main\s+JARVIS\s+hoon,?\s*jise\s+Rehaan\s+Sir\s+ne\s+banaya\s+hai!?\s*Main\s+aapka\s+personal\s+assistant\s+hoon\.\s*Kya\s+madad\s+karoon\s+main\s+aapki\?",
                   "Main Mansi AI hoon, aapki personal assistant. Bataiye, main aapki kya madad kar sakti hoon?",
                   after,
               )
               # Ensure assistant identity instructions explicitly reject the legacy name.
               if path.suffix.lower() in {".kt", ".java", ".json", ".html", ".js", ".txt", ".properties", ".xml"}:
-                  after = re.sub(r"(?i)(You are )Jarvis\\b", r"\\1MANSI AI", after)
-                  after = re.sub(r"(?i)(My name is )Jarvis\\b", r"\\1Mansi", after)
+                  after = re.sub(r"(?i)(You are )Jarvis\b", r"\\1MANSI AI", after)
+                  after = re.sub(r"(?i)(My name is )Jarvis\b", r"\\1Mansi", after)
               if after != before:
                   path.write_text(after, encoding="utf-8")
                   changed.append(str(path))
