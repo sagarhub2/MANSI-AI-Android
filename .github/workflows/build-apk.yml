@@ -34,6 +34,9 @@ jobs:
           test -f source/mansi/gradlew
           test -f source/mansi/settings.gradle.kts
           chmod +x source/mansi/gradlew
+          echo "---- INSPECT PERSONA SELECTOR / ACTIVE PERSONA MAPPING ----"
+          grep -RniE 'Persona:|Jarvis.*Active|Mansi.*Active|activePersona|active_persona|personaId|persona_id|selectedPersona|selected_persona|persona.*Jarvis|Jarvis.*persona|Mansi.*persona' source/mansi/app/src/main --include='*.kt' --include='*.java' --include='*.xml' --include='*.json' --include='*.html' --include='*.js' --include='*.txt' --include='*.properties' | head -300 || true
+          echo "---- END PERSONA MAPPING INSPECTION ----"
           echo "---- FIX MISSING OVERLAY AVATAR GALLERY ----"
           python3 scripts/fix_overlay_avatar_gallery.py
           echo "---- OVERLAY AVATAR ACTIVITY SOURCE ----"
