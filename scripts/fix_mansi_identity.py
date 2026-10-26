@@ -5,18 +5,21 @@ ROOT = Path("source/mansi/app/src/main")
 if not ROOT.exists():
     raise SystemExit("Android source directory not found; refusing to continue.")
 
-# Never rewrite Kotlin/Java source wholesale: string templates and identifiers can
-# contain $Jarvis/$Mansi references. Apply only narrow, exact prompt phrase fixes.
-exact_replacements = [
-    ("You are Jarvis, a helpful AI assistant.", "You are MANSI AI, Sagar's personal AI assistant. Your name is Mansi, never Jarvis. If asked your name or called Mansi, confirm warmly that you are Mansi AI. Speak naturally in casual Hinglish when the user does."),
-    ("You are Jarvis.", "You are MANSI AI, Sagar's personal AI assistant. Your name is Mansi, never Jarvis."),
-    ("I am Jarvis", "I am Mansi AI"),
-    ("I'm Jarvis", "I'm Mansi AI"),
-    ("My name is Jarvis", "My name is Mansi"),
-    ("Mansi nahi Jarvis hu mein", "Main Mansi hoon, Jarvis nahi."),
-    ("Mansi nahi, Jarvis hu mein", "Main Mansi hoon, Jarvis nahi."),
-]
 suffixes = {".kt", ".java", ".xml", ".json", ".txt", ".html", ".js", ".properties"}
+# These are actual assistant identity/prompt contexts, not package/class identifiers.
+identity_markers = (
+    "prompt", "systeminstruction", "system instruction", "persona", "identity",
+    "you are jarvis", "you are an ai", "my name is jarvis", "assistant instruction",
+    "chat persona", "active persona", "persona prompt", "system prompt",
+)
+exact_replacements = [
+    (re.compile(r"(?i)\\bYou are Jarvis, a helpful AI assistant\\."), "You are MANSI AI, Sagar's personal AI assistant. Your name is Mansi, never Jarvis. If asked your name or called Mansi, confirm warmly that you are Mansi AI. Speak naturally in casual Hinglish when the user does."),
+    (re.compile(r"(?i)\\bYou are Jarvis\\."), "You are MANSI AI, Sagar's personal AI assistant. Your name is Mansi, never Jarvis."),
+    (re.compile(r"(?i)\\bI am Jarvis\\b"), "I am Mansi AI"),
+    (re.compile(r"(?i)\\bI'm Jarvis\\b"), "I'm Mansi AI"),
+    (re.compile(r"(?i)\\bMy name is Jarvis\\b"), "My name is Mansi"),
+    (re.compile(r"(?i)\\bMansi nahi,? Jarvis hu mein\\b"), "Main Mansi hoon, Jarvis nahi."),
+]
 changed = []
 for path in ROOT.rglob("*"):
     if not path.is_file() or path.suffix.lower() not in suffixes or path.name == "AndroidManifest.xml":
@@ -25,24 +28,33 @@ for path in ROOT.rglob("*"):
         before = path.read_text(encoding="utf-8")
     except (OSError, UnicodeDecodeError):
         continue
+
     after = before
-    # Restrict Kotlin/Java edits to lines that clearly define a prompt/identity.
     if path.suffix.lower() in {".kt", ".java"}:
-        lines = after.splitlines(keepends=True)
-        out = []
-        for line in lines:
+        output = []
+        for line in after.splitlines(keepends=True):
             low = line.lower()
-            if any(marker in low for marker in ("prompt", "systeminstruction", "system instruction", "persona", "identity", "you are jarvis", "my name is jarvis")):
-                for old, new in exact_replacements:
-                    line = line.replace(old, new)
-            out.append(line)
-        after = "".join(out)
+            compact = low.replace("_", "").replace("-", "").replace(" ", "")
+            # Apply phrase fixes in any line, then normalize remaining Jarvis text
+            # only when the line is clearly a prompt/persona definition.
+            for pattern, replacement in exact_replacements:
+                line = pattern.sub(replacement, line)
+            if any(marker.replace(" ", "") in compact for marker in identity_markers):
+                line = re.sub(r"(?i)\\bJarvis\\b", "MANSI AI", line)
+            output.append(line)
+        after = "".join(output)
     else:
-        for old, new in exact_replacements:
-            after = after.replace(old, new)
+        for pattern, replacement in exact_replacements:
+            after = pattern.sub(replacement, after)
+        # Text/resource files can contain persona templates without naming them
+        # "prompt", so replace explicit identity declarations anywhere in them.
+        after = re.sub(r"(?i)(You are )Jarvis\\b", r"\\1MANSI AI", after)
+        after = re.sub(r"(?i)(My name is )Jarvis\\b", r"\\1Mansi", after)
+        after = re.sub(r"(?i)(I am |I'm )Jarvis\\b", r"\\1Mansi AI", after)
+
     if after != before:
         path.write_text(after, encoding="utf-8")
         changed.append(str(path))
 
-print("Applied narrow MANSI identity phrase fixes without renaming Kotlin/Java identifiers.")
-print("Files changed:", *changed, sep="\n  ")
+print("Applied MANSI identity/persona fixes to assistant prompt text.")
+print("Files changed:", *changed, sep="\\n  ")
