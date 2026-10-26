@@ -62,7 +62,7 @@ body::before,body::after,html::before,html::after{content:none!important;display
 </style>
 <style>
 /* MANSI_HEART_BACKGROUND_CLEAN_V2 — remove stray circle outlines, streaks and background layers */
-html,body{background:#070714!important;background-image:none!important;overflow:hidden!important}
+html,body{background:transparent!important;background-image:none!important;overflow:hidden!important}
 body{isolation:isolate!important}
 body::before,body::after,html::before,html::after{display:none!important;content:none!important;background:none!important;border:0!important;outline:0!important;box-shadow:none!important}
 #mansi-final-orb{background:transparent!important;border:0!important;outline:0!important;box-shadow:none!important;filter:none!important}
@@ -71,6 +71,12 @@ body::before,body::after,html::before,html::after{display:none!important;content
 #mansi-final-orb .mansi-ring,#mansi-final-orb .mansi-tapwave{display:none!important;visibility:hidden!important}
 body canvas,body svg:not(#mansi-final-orb svg){display:none!important;visibility:hidden!important}
 body *{outline:none!important;-webkit-tap-highlight-color:transparent}
+/* MANSI_HEART_CIRCLE_SOFT_BG_V3 — restore a soft luminous pink-lilac circle, not black */
+#mansi-final-orb{background:transparent!important}
+#mansi-final-orb .mansi-core{background:radial-gradient(circle at 34% 27%,#ffffff 0%,#fff5ff 26%,#ffe6fb 54%,#f8c9f2 76%,#e8b8f5 100%)!important;border:1px solid rgba(255,255,255,.78)!important;box-shadow:0 0 14px rgba(255,126,226,.72),0 0 32px rgba(255,105,220,.55),0 0 62px rgba(190,118,255,.3),inset 0 0 18px rgba(255,255,255,.72)!important}
+#mansi-final-orb .mansi-heart{filter:drop-shadow(0 0 5px #ff65d9) drop-shadow(0 0 13px rgba(255,72,216,.78))!important}
+#mansi-final-orb .mansi-heart path{fill:#f45acb!important;stroke:#ff9be9!important;stroke-width:1!important}
+#mansi-final-orb.active .mansi-core{background:radial-gradient(circle at 34% 27%,#ffffff 0%,#fff2fe 28%,#ffd8f8 58%,#f3b5ed 100%)!important;box-shadow:0 0 20px rgba(255,100,220,.92),0 0 48px rgba(255,65,214,.72),0 0 82px rgba(177,92,255,.42)!important}
 /* MANSI_REMOVE_ORB_LINES_V1 — keep the heart orb clean, without visible rings/contour bands */
 #mansi-final-orb .mansi-ring,
 #mansi-final-orb .mansi-ring::before,
