@@ -65,7 +65,6 @@ for p in list(VALUES.glob("themes*.xml")) + list(VALUES.glob("styles*.xml")):
         "android:navigationBarColor": "#080D1F",
         "android:windowLightStatusBar": "false",
         "android:windowLightNavigationBar": "false",
-        "android:colorAccent": "@color/colorAccent",
     }.items():
         pattern = re.compile(r'(<item\b[^>]*name=["\']' + re.escape(key) + r'["\'][^>]*>).*?(</item>)', re.S)
         if pattern.search(raw):
