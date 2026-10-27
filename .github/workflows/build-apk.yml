@@ -107,6 +107,7 @@ jobs:
           python3 scripts/fix_mansi_notifications.py
           echo "---- APPLY FINAL BLUE-PURPLE HOLOGRAM ORB ----"
           python3 scripts/apply_mansi_orb.py
+          python3 scripts/apply_mansi_theme_studio.py
           grep -n "MANSI_FINAL_HOLOGRAM_ORB_V3" source/mansi/app/src/main/assets/orb.html
           echo "---- APPLY REQUESTED MANSI AI / SAGAR BRANDING ----"
           python3 - <<'PY'
