@@ -32,6 +32,20 @@ jobs:
           if [ ! -s "$PROJECT_ZIP" ]; then PROJECT_ZIP="MANSI_AI_Android_GitHub_Upload.zip"; fi
           echo "Building Android source from: $PROJECT_ZIP"
           unzip -q "$PROJECT_ZIP" -d source
+          # Apply the dedicated low-latency audio queue fix from the uploaded patch archive.
+          if [ -s "MANSI-AI-Android-voice-latency-patch.zip" ]; then
+            mkdir -p voice-patch
+            unzip -q "MANSI-AI-Android-voice-latency-patch.zip" -d voice-patch
+            PATCH_AUDIO="voice-patch/mansi/app/src/main/java/com/jarvis/assistant/audio/AudioPlayer.kt"
+            TARGET_AUDIO="source/mansi/app/src/main/java/com/jarvis/assistant/audio/AudioPlayer.kt"
+            test -s "$PATCH_AUDIO"
+            test -s "$TARGET_AUDIO"
+            cp "$PATCH_AUDIO" "$TARGET_AUDIO"
+            echo "Applied low-latency AudioPlayer queue patch"
+          else
+            echo "::error::Voice latency patch archive is missing"
+            exit 1
+          fi
           test -f source/mansi/gradlew
           test -f source/mansi/settings.gradle.kts
           chmod +x source/mansi/gradlew
