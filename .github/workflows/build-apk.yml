@@ -11,6 +11,7 @@ on:
       - "scripts/fix_mansi_identity.py"
       - "scripts/fix_mansi_notifications.py"
       - "scripts/apply_mansi_orb.py"
+      - "scripts/add_mansi_tap_feedback.py"
       - "scripts/apply_mansi_full_redesign.py"
       - "scripts/fix_overlay_avatar_gallery.py"
       - "branding/**"
@@ -124,6 +125,8 @@ jobs:
           python3 scripts/apply_mansi_full_redesign.py
           echo "---- APPLY MANSI HEART ORB ----"
           python3 scripts/apply_mansi_orb.py
+          echo "---- ADD NATIVE TAP RIPPLE FEEDBACK TO ACTIONABLE UI ----"
+          python3 scripts/add_mansi_tap_feedback.py
           grep -n "MANSI_FINAL_HOLOGRAM_ORB_V3" source/mansi/app/src/main/assets/orb.html
           echo "---- APPLY REQUESTED MANSI AI / SAGAR BRANDING ----"
           python3 - <<'PY'
