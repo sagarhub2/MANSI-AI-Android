@@ -64,9 +64,9 @@ for path in ROOT.rglob("*.xml"):
         updated = tag
         if "android:foreground=" not in updated:
             updated = add_attribute(updated, ANDROID_FOREGROUND)
-        if 'android:clickable="true"' not in updated and tag_name not in INTERACTIVE_TAGS:
+        if "android:clickable=" not in updated and tag_name not in INTERACTIVE_TAGS:
             updated = add_attribute(updated, ANDROID_CLICKABLE)
-        if 'android:focusable="true"' not in updated:
+        if "android:focusable=" not in updated:
             updated = add_attribute(updated, ANDROID_FOCUSABLE)
         return updated
 
