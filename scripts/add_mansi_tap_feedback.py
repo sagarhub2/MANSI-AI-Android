@@ -6,7 +6,6 @@ actual Android source used for the APK build, without replacing app behavior.
 """
 from pathlib import Path
 import re
-import sys
 
 ROOT = Path("source/mansi/app/src/main/res")
 if not ROOT.exists():
@@ -41,8 +40,12 @@ for path in ROOT.rglob("*.xml"):
     except (OSError, UnicodeDecodeError):
         continue
 
+    def add_attribute(tag, attribute):
+        suffix = "/>" if tag.rstrip().endswith("/>") else ">"
+        core = tag.rstrip()[:-len(suffix)].rstrip()
+        return core + " " + attribute + " " + suffix
+
     def patch_tag(match):
-        nonlocal_placeholder = None
         tag = match.group(0)
         tag_name_match = re.match(r"<([A-Za-z0-9_.$]+)", tag)
         if not tag_name_match:
@@ -60,11 +63,11 @@ for path in ROOT.rglob("*.xml"):
             return tag
         updated = tag
         if "android:foreground=" not in updated:
-            updated = updated[:-1].rstrip() + " " + ANDROID_FOREGROUND + (" />" if updated.rstrip().endswith("/>") else ">")
+            updated = add_attribute(updated, ANDROID_FOREGROUND)
         if 'android:clickable="true"' not in updated and tag_name not in INTERACTIVE_TAGS:
-            updated = updated[:-1].rstrip() + " " + ANDROID_CLICKABLE + (" />" if updated.rstrip().endswith("/>") else ">")
+            updated = add_attribute(updated, ANDROID_CLICKABLE)
         if 'android:focusable="true"' not in updated:
-            updated = updated[:-1].rstrip() + " " + ANDROID_FOCUSABLE + (" />" if updated.rstrip().endswith("/>") else ">")
+            updated = add_attribute(updated, ANDROID_FOCUSABLE)
         return updated
 
     # Match only XML opening tags, preserving all unrelated source text.
