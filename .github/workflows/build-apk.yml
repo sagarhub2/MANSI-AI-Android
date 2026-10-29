@@ -6,6 +6,7 @@ on:
     paths:
       - "MANSI-AI-neon-heart-modified.zip"
       - "MANSI_AI_Android_GitHub_Upload.zip"
+      - "MANSI-AI-Android-voice-latency-patch.zip"
       - ".github/workflows/build-apk.yml"
       - "scripts/apply_mansi_branding.py"
       - "scripts/fix_mansi_identity.py"
