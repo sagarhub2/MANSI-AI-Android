@@ -175,10 +175,10 @@ if motion_marker not in html:
 })();
 </script>
 """
-    if re.search(r"</body\\s*>", html, re.I):
-        html = re.sub(r"</body\\s*>", motion_patch + "\\n</body>", html, count=1, flags=re.I)
+    if re.search(r"</body\s*>", html, re.I):
+        html = re.sub(r"</body\\s*>", motion_patch + "\n</body>", html, count=1, flags=re.I)
     else:
-        html += "\\n" + motion_patch
+        html += "\n" + motion_patch
     orb.write_text(html, encoding="utf-8")
     print("Added touch-follow 3D parallax, eye tracking and listening/speaking expression transitions.")
 else:
