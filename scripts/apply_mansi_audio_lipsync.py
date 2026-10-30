@@ -462,3 +462,76 @@ if "MANSI_GLOW_SENSITIVITY_V1" not in html:
     print("Added a persistent voice-glow intensity slider to the avatar customizer.")
 else:
     print("Voice-glow intensity control already installed.")
+
+
+# MANSI_EYE_TRACKING_SENSITIVITY_V1
+# Add a user-adjustable eye-follow/parallax strength to the existing avatar customizer.
+html = orb.read_text(encoding="utf-8")
+if "MANSI_EYE_TRACKING_SENSITIVITY_V1" not in html:
+    html = html.replace(
+        "(nx*2.4).toFixed(2)",
+        "(nx*2.4*(Number(window.MANSIAvatarEyeSensitivity)||1)).toFixed(2)"
+    )
+    html = html.replace(
+        "(ny*1.8).toFixed(2)",
+        "(ny*1.8*(Number(window.MANSIAvatarEyeSensitivity)||1)).toFixed(2)"
+    )
+    html = html.replace(
+        "(nx*5.5).toFixed(2)",
+        "(nx*5.5*(Number(window.MANSIAvatarEyeSensitivity)||1)).toFixed(2)"
+    )
+    html = html.replace(
+        "(-ny*4.5).toFixed(2)",
+        "(-ny*4.5*(Number(window.MANSIAvatarEyeSensitivity)||1)).toFixed(2)"
+    )
+    html = html.replace(
+        "(nx*2.1)+'px,'+(ny*1.5)+'px'",
+        "(nx*2.1*(Number(window.MANSIAvatarEyeSensitivity)||1))+'px,'+(ny*1.5*(Number(window.MANSIAvatarEyeSensitivity)||1))+'px'"
+    )
+    eye_ui = r"""
+<style>
+/* MANSI_EYE_TRACKING_SENSITIVITY_V1 */
+#mansi-avatar-customizer .mansi-eye-control{margin-top:12px;padding-top:10px;border-top:1px solid rgba(255,255,255,.12)}
+#mansi-avatar-customizer .mansi-eye-control label{display:flex;justify-content:space-between;font-size:11px;opacity:.85;margin-bottom:6px}
+#mansi-avatar-customizer .mansi-eye-control input{width:100%;accent-color:#8bdcff}
+</style>
+<script>
+(function(){
+  function mountEyeControl(){
+    const panel=document.querySelector('#mansi-avatar-customizer .mansi-customizer-panel');
+    if(!panel || panel.querySelector('.mansi-eye-control')) return !!panel;
+    const control=document.createElement('div');
+    control.className='mansi-eye-control';
+    control.innerHTML='<label for="mansi-eye-sensitivity"><span>EYE FOLLOW SENSITIVITY</span><span id="mansi-eye-value">100%</span></label><input id="mansi-eye-sensitivity" type="range" min="0" max="200" step="5" value="100">';
+    const footer=panel.querySelector('.mansi-customizer-footer');
+    panel.insertBefore(control,footer||null);
+    const slider=control.querySelector('input');
+    const output=control.querySelector('#mansi-eye-value');
+    let saved=100;
+    try{saved=Number(localStorage.getItem('mansiAvatarEyeSensitivity'));if(!Number.isFinite(saved))saved=100;}catch(e){}
+    slider.value=String(Math.max(0,Math.min(200,saved)));
+    function apply(){
+      const amount=Number(slider.value);
+      window.MANSIAvatarEyeSensitivity=amount/100;
+      output.textContent=amount+'%';
+      try{localStorage.setItem('mansiAvatarEyeSensitivity',String(amount));}catch(e){}
+    }
+    slider.addEventListener('input',apply);
+    apply();
+    return true;
+  }
+  if(!mountEyeControl()){
+    const observer=new MutationObserver(()=>{if(mountEyeControl())observer.disconnect();});
+    observer.observe(document.documentElement,{childList:true,subtree:true});
+    setTimeout(()=>observer.disconnect(),10000);
+  }
+})();
+</script>
+"""
+    close=html.lower().rfind("</body>")
+    if close>=0: html=html[:close]+eye_ui+"\n"+html[close:]
+    else: html += "\n"+eye_ui
+    orb.write_text(html,encoding="utf-8")
+    print("Added eye-follow sensitivity slider to the avatar customizer.")
+else:
+    print("Eye-follow sensitivity control already installed.")
