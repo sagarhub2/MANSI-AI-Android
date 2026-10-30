@@ -413,7 +413,7 @@ html = orb.read_text(encoding="utf-8")
 if "MANSI_GLOW_SENSITIVITY_V1" not in html:
     html = html.replace(
         "smooth=smooth*.58+value*.42;",
-        "const sensitivity=Math.max(.35,Math.min(2,Number(window.MANSIAvatarGlowSensitivity)||1));\\n      smooth=smooth*.58+Math.min(1,value*sensitivity)*.42;"
+        "const sensitivity=Math.max(.35,Math.min(2,Number(window.MANSIAvatarGlowSensitivity)||1));\n      smooth=smooth*.58+Math.min(1,value*sensitivity)*.42;"
     )
     sensitivity_ui = r"""
 <style>
@@ -456,8 +456,8 @@ if "MANSI_GLOW_SENSITIVITY_V1" not in html:
 </script>
 """
     close = html.lower().rfind("</body>")
-    if close >= 0: html = html[:close] + sensitivity_ui + "\\n" + html[close:]
-    else: html += "\\n" + sensitivity_ui
+    if close >= 0: html = html[:close] + sensitivity_ui + "\n" + html[close:]
+    else: html += "\n" + sensitivity_ui
     orb.write_text(html, encoding="utf-8")
     print("Added a persistent voice-glow intensity slider to the avatar customizer.")
 else:
