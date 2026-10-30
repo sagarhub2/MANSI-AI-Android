@@ -45,6 +45,9 @@ jobs:
             test -s "$TARGET_AUDIO"
             cp "$PATCH_AUDIO" "$TARGET_AUDIO"
             echo "Applied low-latency AudioPlayer queue patch"
+            echo "---- AUDIO PLAYER SOURCE FOR AVATAR SYNC REVIEW ----"
+            sed -n "1,280p" "$TARGET_AUDIO"
+            echo "---- END AUDIO PLAYER SOURCE ----"
           else
             echo "::error::Voice latency patch archive is missing"
             exit 1
