@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Install the cute anime-girl portrait into MANSI's existing pink-heart center orb."""
+"""Install MANSI's cute anime portrait with gentle idle, blink and orb reactions."""
 from pathlib import Path
 import re
 
@@ -8,12 +8,8 @@ orb = ROOT / "orb.html"
 if not orb.is_file():
     raise SystemExit(f"Required orb asset not found: {orb}")
 html = orb.read_text(encoding="utf-8")
-marker = "MANSI_CUTE_ANIME_CENTER_AVATAR_V1"
-if marker in html:
-    print("MANSI anime center avatar already installed.")
-    raise SystemExit(0)
 
-# Original, locally bundled SVG: no remote image request and no runtime network dependency.
+# This build starts from the source ZIP, so replace the previous generated SVG safely.
 avatar = r'''<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
 <defs>
  <linearGradient id="hair" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#282044"/><stop offset=".55" stop-color="#514078"/><stop offset="1" stop-color="#a36cc4"/></linearGradient>
@@ -39,16 +35,16 @@ avatar = r'''<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
 <path d="M350 166c10 36 7 78-9 116 0-45-12-77-30-99 14-2 27-8 39-17Z" fill="#493363"/>
 <!-- eyebrows -->
 <path d="M188 224q28-19 53 0M271 224q28-19 53 0" fill="none" stroke="#76506e" stroke-width="7" stroke-linecap="round"/>
-<!-- eyes -->
-<ellipse cx="216" cy="258" rx="27" ry="34" fill="#fff"/>
-<ellipse cx="297" cy="258" rx="27" ry="34" fill="#fff"/>
-<ellipse cx="218" cy="263" rx="19" ry="27" fill="url(#eye)"/>
-<ellipse cx="295" cy="263" rx="19" ry="27" fill="url(#eye)"/>
+<!-- eyes with gentle periodic blinks -->
+<ellipse cx="216" cy="258" rx="27" ry="34" fill="#fff"><animate attributeName="ry" values="34;2;34;34" keyTimes="0;.035;.075;1" dur="4.8s" begin="1.2s" repeatCount="indefinite"/></ellipse>
+<ellipse cx="297" cy="258" rx="27" ry="34" fill="#fff"><animate attributeName="ry" values="34;2;34;34" keyTimes="0;.035;.075;1" dur="4.8s" begin="1.2s" repeatCount="indefinite"/></ellipse>
+<ellipse cx="218" cy="263" rx="19" ry="27" fill="url(#eye)"><animate attributeName="ry" values="27;1;27;27" keyTimes="0;.035;.075;1" dur="4.8s" begin="1.2s" repeatCount="indefinite"/></ellipse>
+<ellipse cx="295" cy="263" rx="19" ry="27" fill="url(#eye)"><animate attributeName="ry" values="27;1;27;27" keyTimes="0;.035;.075;1" dur="4.8s" begin="1.2s" repeatCount="indefinite"/></ellipse>
 <ellipse cx="222" cy="253" rx="7" ry="10" fill="#fff"/>
 <ellipse cx="299" cy="253" rx="7" ry="10" fill="#fff"/>
 <path d="M188 243q28-30 55-1M270 242q28-29 55 1" fill="none" stroke="#453052" stroke-width="8" stroke-linecap="round"/>
 <path d="M187 281q28 18 55 0M269 280q28 18 55 0" fill="none" stroke="#bd6f9b" stroke-width="4" stroke-linecap="round"/>
-<!-- blush, nose, smile -->
+<!-- blush, nose, warm smile -->
 <ellipse cx="183" cy="298" rx="20" ry="10" fill="#f29bb8" opacity=".45"/>
 <ellipse cx="329" cy="298" rx="20" ry="10" fill="#f29bb8" opacity=".45"/>
 <path d="M254 282q-7 12 2 14" fill="none" stroke="#d69a9e" stroke-width="3" stroke-linecap="round"/>
@@ -60,6 +56,10 @@ avatar = r'''<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
 </svg>'''
 asset = ROOT / "mansi-anime-avatar.svg"
 asset.write_text(avatar, encoding="utf-8")
+
+# Remove an earlier generated injection if this script is re-run against an already patched tree.
+html = re.sub(r'<img class="mansi-anime-avatar"[^>]*>', '', html)
+html = re.sub(r'<style>\s*/\* MANSI_CUTE_ANIME_CENTER_AVATAR_V1 \*/.*?</style>', '', html, flags=re.S)
 
 # Inject the portrait into the existing orb markup, leaving the pink heart element intact.
 needle = "orb.innerHTML="
@@ -82,12 +82,13 @@ html = html[:start] + statement_new + html[end+1:]
 
 css = r'''
 <style>
-/* MANSI_CUTE_ANIME_CENTER_AVATAR_V1 */
+/* MANSI_CUTE_ANIME_CENTER_AVATAR_V2 */
 #mansi-final-orb .mansi-anime-avatar{
  position:absolute;z-index:3;left:50%;top:48%;transform:translate(-50%,-50%);
  width:48%;height:48%;object-fit:contain;object-position:center;
  filter:drop-shadow(0 2px 8px rgba(108,62,150,.22));
  pointer-events:none;user-select:none;-webkit-user-drag:none;
+ animation:mansi-anime-idle 3.6s ease-in-out infinite;
 }
 #mansi-final-orb .mansi-heart{
  z-index:5!important;width:12%!important;height:12%!important;
@@ -95,10 +96,29 @@ css = r'''
  filter:drop-shadow(0 0 5px #ff65d9) drop-shadow(0 0 13px rgba(255,72,216,.85))!important;
 }
 #mansi-final-orb .mansi-core{overflow:hidden!important}
-#mansi-final-orb.listening .mansi-anime-avatar{filter:drop-shadow(0 0 10px #67e6ff) brightness(1.04)}
-#mansi-final-orb.speaking .mansi-anime-avatar{animation:mansi-anime-speak 0.42s ease-in-out infinite alternate}
-@keyframes mansi-anime-speak{from{transform:translate(-50%,-50%) scale(1)}to{transform:translate(-50%,-51%) scale(1.025)}}
-@media(prefers-reduced-motion:reduce){#mansi-final-orb .mansi-anime-avatar{animation:none!important}}
+#mansi-final-orb.listening .mansi-anime-avatar{
+ filter:drop-shadow(0 0 10px #67e6ff) brightness(1.07);
+ animation:mansi-anime-listen 1.8s ease-in-out infinite;
+}
+#mansi-final-orb.speaking .mansi-anime-avatar{
+ filter:drop-shadow(0 0 12px #ff75db) brightness(1.06);
+ animation:mansi-anime-speak .48s ease-in-out infinite alternate;
+}
+@keyframes mansi-anime-idle{
+ 0%,100%{transform:translate(-50%,-50%) rotate(-.6deg)}
+ 50%{transform:translate(-50%,-51.2%) rotate(.6deg)}
+}
+@keyframes mansi-anime-listen{
+ 0%,100%{transform:translate(-50%,-50%) rotate(-1deg) scale(1)}
+ 50%{transform:translate(-50%,-51%) rotate(1deg) scale(1.018)}
+}
+@keyframes mansi-anime-speak{
+ from{transform:translate(-50%,-50%) scale(1)}
+ to{transform:translate(-50%,-51%) scale(1.025)}
+}
+@media(prefers-reduced-motion:reduce){
+ #mansi-final-orb .mansi-anime-avatar{animation:none!important}
+}
 </style>
 '''
 if re.search(r"</body\s*>", html, re.I):
@@ -106,4 +126,4 @@ if re.search(r"</body\s*>", html, re.I):
 else:
     html += "\n" + css
 orb.write_text(html, encoding="utf-8")
-print("Installed local anime-girl SVG in MANSI center orb; preserved existing pink heart and orb state classes.")
+print("Installed animated MANSI anime portrait: blinking eyes, idle float, listening reaction and speaking motion; preserved pink heart.")
