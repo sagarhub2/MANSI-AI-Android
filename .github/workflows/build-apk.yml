@@ -16,7 +16,6 @@ on:
       - "scripts/apply_mansi_full_redesign.py"
       - "scripts/fix_overlay_avatar_gallery.py"
       - "scripts/apply_mansi_anime_avatar.py"
-      - "scripts/add_mansi_avatar_lipsync.py"
       - "branding/**"
 
 permissions:
@@ -120,7 +119,7 @@ jobs:
               if after != before:
                   path.write_text(after, encoding="utf-8")
                   changed.append(str(path))
-          print("Updated feminine persona/voice in:", *changed, sep=" | ")
+          print("Updated feminine persona/voice in:", *changed, sep="\\n  ")
           PY
           echo "---- FIX VISIBLE NOTIFICATION BRANDING ----"
           python3 scripts/fix_mansi_notifications.py
@@ -130,8 +129,6 @@ jobs:
           python3 scripts/apply_mansi_orb.py
           echo "---- INSTALL CUTE ANIME GIRL IN CENTER ORB (KEEP PINK HEART) ----"
           python3 scripts/apply_mansi_anime_avatar.py
-          echo "---- ADD MANSI AVATAR EXPRESSIONS, GAZE AND VOICE-REACTIVE MOUTH ----"
-          python3 scripts/add_mansi_avatar_lipsync.py
           echo "---- ADD NATIVE TAP RIPPLE FEEDBACK TO ACTIONABLE UI ----"
           python3 scripts/add_mansi_tap_feedback.py
           grep -n "MANSI_FINAL_HOLOGRAM_ORB_V3" source/mansi/app/src/main/assets/orb.html
@@ -229,12 +226,9 @@ jobs:
               # Replace the Voice Biometrics wake phrase without changing other voice settings.
               after = re.sub(r'(?i)hey\s+jarvis\s*,?\s*wake\s+up', 'Hey MANSI, wake up', after)
               # Force the exact visible developer/copyright labels, regardless of old brand spelling/case.
-              after = re.sub(r'(?i)(AP\s+Developer\s*:\s*)[^\r
-<"]+', r'\1SAGAR', after)
-              after = re.sub(r'(?i)(Developer\s*:\s*)[^\r
-<"]+', r'\1SAGAR', after)
-              after = re.sub(r'(?i)(Copyright\s*:\s*)[^\r
-<"]+', r'\1SAGAR', after)
+              after = re.sub(r'(?i)(AP\s+Developer\s*:\s*)[^\r\n<"]+', r'\1SAGAR', after)
+              after = re.sub(r'(?i)(Developer\s*:\s*)[^\r\n<"]+', r'\1SAGAR', after)
+              after = re.sub(r'(?i)(Copyright\s*:\s*)[^\r\n<"]+', r'\1SAGAR', after)
               # Android IDs are implementation symbols, not visible branding.
               if path.suffix.lower() == ".xml":
                   after = re.sub(r'((?:android:)?id\s*=\s*["\']@\+?id/)([^"\']*)(["\'])',
