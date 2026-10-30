@@ -405,3 +405,60 @@ if audio_visual_marker not in html:
     print("Added RMS-reactive hologram glow and pink heart pulse.")
 else:
     print("Audio-reactive hologram visualizer already installed.")
+
+
+# MANSI_GLOW_SENSITIVITY_V1
+# Let users tune how strongly the hologram and pink heart react to MANSI's voice.
+html = orb.read_text(encoding="utf-8")
+if "MANSI_GLOW_SENSITIVITY_V1" not in html:
+    html = html.replace(
+        "smooth=smooth*.58+value*.42;",
+        "const sensitivity=Math.max(.35,Math.min(2,Number(window.MANSIAvatarGlowSensitivity)||1));\\n      smooth=smooth*.58+Math.min(1,value*sensitivity)*.42;"
+    )
+    sensitivity_ui = r"""
+<style>
+/* MANSI_GLOW_SENSITIVITY_V1 */
+#mansi-avatar-customizer .mansi-glow-control{margin-top:12px;padding-top:10px;border-top:1px solid rgba(255,255,255,.12)}
+#mansi-avatar-customizer .mansi-glow-control label{display:flex;justify-content:space-between;font-size:11px;opacity:.85;margin-bottom:6px}
+#mansi-avatar-customizer .mansi-glow-control input{width:100%;accent-color:#ff8bdc}
+</style>
+<script>
+(function(){
+  function mountSensitivity(){
+    const panel=document.querySelector('#mansi-avatar-customizer .mansi-customizer-panel');
+    if(!panel || panel.querySelector('.mansi-glow-control')) return !!panel;
+    const control=document.createElement('div');
+    control.className='mansi-glow-control';
+    control.innerHTML='<label for="mansi-glow-sensitivity"><span>VOICE GLOW INTENSITY</span><span id="mansi-glow-value">100%</span></label><input id="mansi-glow-sensitivity" type="range" min="35" max="200" step="5" value="100">';
+    const footer=panel.querySelector('.mansi-customizer-footer');
+    panel.insertBefore(control,footer||null);
+    const slider=control.querySelector('input');
+    const output=control.querySelector('#mansi-glow-value');
+    let saved=100;
+    try{saved=Number(localStorage.getItem('mansiAvatarGlowSensitivity'))||100;}catch(e){}
+    slider.value=String(Math.max(35,Math.min(200,saved)));
+    function apply(){
+      const amount=Number(slider.value);
+      window.MANSIAvatarGlowSensitivity=amount/100;
+      output.textContent=amount+'%';
+      try{localStorage.setItem('mansiAvatarGlowSensitivity',String(amount));}catch(e){}
+    }
+    slider.addEventListener('input',apply);
+    apply();
+    return true;
+  }
+  if(!mountSensitivity()){
+    const observer=new MutationObserver(()=>{if(mountSensitivity())observer.disconnect();});
+    observer.observe(document.documentElement,{childList:true,subtree:true});
+    setTimeout(()=>observer.disconnect(),10000);
+  }
+})();
+</script>
+"""
+    close = html.lower().rfind("</body>")
+    if close >= 0: html = html[:close] + sensitivity_ui + "\\n" + html[close:]
+    else: html += "\\n" + sensitivity_ui
+    orb.write_text(html, encoding="utf-8")
+    print("Added a persistent voice-glow intensity slider to the avatar customizer.")
+else:
+    print("Voice-glow intensity control already installed.")
