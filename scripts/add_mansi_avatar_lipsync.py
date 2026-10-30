@@ -122,3 +122,5 @@ else:
     html += "\n" + patch
 asset.write_text(html, encoding="utf-8")
 print("Installed face overlays, voice-state mouth animation, gaze response and pink/purple/blue theme hooks.")
+
+# Build trigger: ensure this avatar enhancement is included in the next debug APK.
