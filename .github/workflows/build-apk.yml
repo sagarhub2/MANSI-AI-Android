@@ -48,6 +48,11 @@ jobs:
             echo "---- AUDIO PLAYER SOURCE FOR AVATAR SYNC REVIEW ----"
             sed -n "1,280p" "$TARGET_AUDIO"
             echo "---- END AUDIO PLAYER SOURCE ----"
+            echo "---- AUDIO PLAYER CALL SITES ----"
+            grep -RniE 'AudioPlayer\\(|onPlaybackAmplitude|onPlaybackStateChanged' source/mansi/app/src/main --include='*.kt' --include='*.java' | head -220 || true
+            echo "---- WEBVIEW / ORB BRIDGE CALL SITES ----"
+            grep -RniE 'evaluateJavascript|addJavascriptInterface|WebView|MANSIAvatarAudioLevel|orb.html' source/mansi/app/src/main/java --include='*.kt' --include='*.java' | head -260 || true
+            echo "---- END AUDIO / WEBVIEW CALL SITE DIAGNOSTICS ----"
           else
             echo "::error::Voice latency patch archive is missing"
             exit 1
