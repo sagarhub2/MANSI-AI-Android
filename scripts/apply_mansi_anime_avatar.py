@@ -74,12 +74,9 @@ if end < 0:
 statement = html[start:end+1]
 if "mansi-heart" not in statement:
     raise SystemExit("Expected heart markup was not found in the orb template.")
-statement_new = statement.replace(
-    '<div class="mansi-core"></div>',
-    '<div class="mansi-core"></div><img class="mansi-anime-avatar" src="file:///android_asset/mansi-anime-avatar.svg" alt="MANSI anime girl"/>'
-)
-if statement_new == statement:
-    raise SystemExit("Could not safely insert avatar into orb template.")
+# MANSI_APPROVED_HEART_ONLY_V1: do not inject the anime portrait into the center orb.
+# Keep the existing orb core and pink heart markup untouched.
+statement_new = statement
 html = html[:start] + statement_new + html[end+1:]
 
 css = r'''
