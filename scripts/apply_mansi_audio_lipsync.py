@@ -340,3 +340,68 @@ if panel_marker not in html:
     print("Installed persistent in-app MANSI avatar mood and glow customizer.")
 else:
     print("MANSI avatar customizer panel already installed.")
+
+
+# MANSI_AUDIO_REACTIVE_HOLOGRAM_V1: pulse the existing hologram from real TTS RMS.
+html = orb.read_text(encoding="utf-8")
+audio_visual_marker = "MANSI_AUDIO_REACTIVE_HOLOGRAM_V1"
+if audio_visual_marker not in html:
+    visual_patch = r"""
+<style>
+/* MANSI_AUDIO_REACTIVE_HOLOGRAM_V1 */
+#mansi-final-orb .mansi-core {
+  transition:transform .07s linear,filter .08s linear,box-shadow .08s linear;
+  transform:scale(var(--mansi-audio-scale,1));
+  filter:brightness(var(--mansi-audio-brightness,1));
+  box-shadow:0 0 calc(8px + var(--mansi-audio-glow,0px)) rgba(115,203,255,.34),
+             0 0 calc(12px + var(--mansi-audio-pink,0px)) rgba(255,105,215,.28);
+}
+#mansi-final-orb .mansi-heart {
+  transform:translate(-50%,-50%) scale(var(--mansi-heart-pulse,1));
+  transition:transform .08s linear,filter .08s linear;
+  filter:drop-shadow(0 0 calc(4px + var(--mansi-audio-pink,0px)) #ff65d9)
+         drop-shadow(0 0 12px rgba(255,72,216,.72));
+}
+@media(prefers-reduced-motion:reduce){
+  #mansi-final-orb .mansi-core,#mansi-final-orb .mansi-heart{transition:none!important}
+}
+</style>
+<script>
+(function(){
+  if(window.__MANSI_AUDIO_VISUALIZER_V1) return;
+  window.__MANSI_AUDIO_VISUALIZER_V1=true;
+  function attach(){
+    const orb=document.getElementById('mansi-final-orb');
+    if(!orb || typeof window.MANSIAvatarAudioLevel!=='function') return false;
+    if(orb.dataset.mansiAudioVisual==='1') return true;
+    orb.dataset.mansiAudioVisual='1';
+    const original=window.MANSIAvatarAudioLevel;
+    let smooth=0;
+    window.MANSIAvatarAudioLevel=function(level){
+      const value=Math.max(0,Math.min(1,Number(level)||0));
+      smooth=smooth*.58+value*.42;
+      const glow=(smooth*22).toFixed(1)+'px';
+      orb.style.setProperty('--mansi-audio-glow',glow);
+      orb.style.setProperty('--mansi-audio-pink',(smooth*16).toFixed(1)+'px');
+      orb.style.setProperty('--mansi-audio-scale',(1+smooth*.13).toFixed(3));
+      orb.style.setProperty('--mansi-audio-brightness',(1+smooth*.22).toFixed(3));
+      orb.style.setProperty('--mansi-heart-pulse',(1+smooth*.24).toFixed(3));
+      return original.apply(this,arguments);
+    };
+    return true;
+  }
+  if(!attach()){
+    const observer=new MutationObserver(()=>{if(attach())observer.disconnect();});
+    observer.observe(document.documentElement,{childList:true,subtree:true});
+    setTimeout(()=>observer.disconnect(),10000);
+  }
+})();
+</script>
+"""
+    body_close=html.lower().rfind("</body>")
+    if body_close >= 0: html=html[:body_close]+visual_patch+"\n"+html[body_close:]
+    else: html += "\n"+visual_patch
+    orb.write_text(html,encoding="utf-8")
+    print("Added RMS-reactive hologram glow and pink heart pulse.")
+else:
+    print("Audio-reactive hologram visualizer already installed.")
