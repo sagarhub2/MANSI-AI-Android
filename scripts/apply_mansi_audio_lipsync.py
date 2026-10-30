@@ -230,3 +230,113 @@ if api_marker not in html:
     print("Added public mood and pink/purple/blue theme customization hooks.")
 else:
     print("MANSI avatar customization API already installed.")
+
+
+# Install a compact, real in-app avatar customizer in the orb WebView.
+html = orb.read_text(encoding="utf-8")
+panel_marker = "MANSI_AVATAR_CUSTOMIZER_PANEL_V1"
+if panel_marker not in html:
+    panel_script = r"""
+<style>
+/* MANSI_AVATAR_CUSTOMIZER_PANEL_V1 */
+#mansi-avatar-customizer{position:fixed;z-index:2147483000;top:max(12px,env(safe-area-inset-top));right:max(12px,env(safe-area-inset-right));font:500 13px/1.35 system-ui,-apple-system,sans-serif;color:#fff}
+#mansi-avatar-customizer *{box-sizing:border-box}
+#mansi-avatar-customizer .mansi-customizer-trigger{width:42px;height:42px;border:1px solid rgba(255,255,255,.32);border-radius:50%;background:linear-gradient(145deg,rgba(87,72,151,.94),rgba(33,39,79,.94));color:#fff;font-size:19px;box-shadow:0 4px 18px rgba(120,91,255,.38);backdrop-filter:blur(12px)}
+#mansi-avatar-customizer .mansi-customizer-panel{display:none;position:absolute;right:0;top:50px;width:min(246px,calc(100vw - 28px));padding:14px;border:1px solid rgba(224,204,255,.28);border-radius:18px;background:linear-gradient(150deg,rgba(38,31,68,.97),rgba(18,23,49,.97));box-shadow:0 12px 34px rgba(0,0,0,.35);backdrop-filter:blur(18px)}
+#mansi-avatar-customizer.open .mansi-customizer-panel{display:block;animation:mansi-panel-in .18s ease-out}
+#mansi-avatar-customizer .mansi-customizer-title{font-weight:750;font-size:14px;letter-spacing:.2px;margin:0 0 10px}
+#mansi-avatar-customizer .mansi-customizer-label{font-size:11px;opacity:.75;margin:12px 0 7px}
+#mansi-avatar-customizer .mansi-customizer-row{display:flex;gap:7px;flex-wrap:wrap}
+#mansi-avatar-customizer button[data-mansi-choice]{border:1px solid rgba(255,255,255,.22);border-radius:999px;padding:7px 10px;background:rgba(255,255,255,.08);color:#fff;font:600 12px system-ui;min-height:32px}
+#mansi-avatar-customizer button[data-mansi-choice][aria-pressed="true"]{border-color:#ff9bdf;background:rgba(255,125,218,.22);box-shadow:0 0 0 1px rgba(255,155,223,.2) inset}
+#mansi-avatar-customizer .mansi-customizer-footer{display:flex;justify-content:space-between;align-items:center;margin-top:12px}
+#mansi-avatar-customizer .mansi-customizer-reset{border:0;background:none;color:#d9c7ff;text-decoration:underline;padding:4px;font:500 11px system-ui}
+@keyframes mansi-panel-in{from{opacity:0;transform:translateY(-5px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
+@media(prefers-reduced-motion:reduce){#mansi-avatar-customizer .mansi-customizer-panel{animation:none}}
+</style>
+<script>
+(function(){
+  if(window.__MANSI_CUSTOMIZER_PANEL__) return;
+  window.__MANSI_CUSTOMIZER_PANEL__=true;
+  function mount(){
+    if(!document.body || document.getElementById('mansi-avatar-customizer')) return;
+    const root=document.createElement('div');
+    root.id='mansi-avatar-customizer';
+    root.innerHTML=
+      '<button class="mansi-customizer-trigger" type="button" aria-label="Customize MANSI avatar" aria-expanded="false">🎨</button>'+
+      '<section class="mansi-customizer-panel" aria-label="Avatar customization">'+
+        '<p class="mansi-customizer-title">MANSI look & mood ✨</p>'+
+        '<div class="mansi-customizer-label">MOOD</div>'+
+        '<div class="mansi-customizer-row" data-group="mood">'+
+          '<button type="button" data-mansi-choice="happy">😊 Happy</button>'+
+          '<button type="button" data-mansi-choice="shy">🥹 Shy</button>'+
+          '<button type="button" data-mansi-choice="surprised">😮 Wow</button>'+
+          '<button type="button" data-mansi-choice="sleepy">😴 Sleepy</button>'+
+          '<button type="button" data-mansi-choice="neutral">🤍 Calm</button>'+
+        '</div>'+
+        '<div class="mansi-customizer-label">GLOW COLOR</div>'+
+        '<div class="mansi-customizer-row" data-group="theme">'+
+          '<button type="button" data-mansi-choice="pink">🩷 Pink</button>'+
+          '<button type="button" data-mansi-choice="purple">💜 Purple</button>'+
+          '<button type="button" data-mansi-choice="blue">💙 Blue</button>'+
+        '</div>'+
+        '<div class="mansi-customizer-footer"><span>Saved on this device</span><button class="mansi-customizer-reset" type="button">Reset look</button></div>'+
+      '</section>';
+    document.body.appendChild(root);
+    const trigger=root.querySelector('.mansi-customizer-trigger');
+    const panel=root.querySelector('.mansi-customizer-panel');
+    const defaults={mood:'happy',theme:'pink'};
+    let state={...defaults};
+    try{state={...state,...JSON.parse(localStorage.getItem('mansiAvatarLook')||'{}')};}catch(e){}
+    function apply(group,value){
+      if(group==='mood' && window.MANSIAvatarSetMood(value)) state.mood=value;
+      if(group==='theme' && window.MANSIAvatarSetTheme(value)) state.theme=value;
+      root.querySelectorAll('[data-group="'+group+'"] [data-mansi-choice]').forEach(b=>{
+        b.setAttribute('aria-pressed',String(b.dataset.mansiChoice===value));
+      });
+      try{localStorage.setItem('mansiAvatarLook',JSON.stringify(state));}catch(e){}
+    }
+    function restore(){
+      if(typeof window.MANSIAvatarSetMood!=='function'||typeof window.MANSIAvatarSetTheme!=='function') return false;
+      apply('mood',state.mood);apply('theme',state.theme);return true;
+    }
+    trigger.addEventListener('click',e=>{
+      e.stopPropagation();
+      const open=root.classList.toggle('open');
+      trigger.setAttribute('aria-expanded',String(open));
+    });
+    panel.addEventListener('click',e=>{
+      e.stopPropagation();
+      const choice=e.target.closest('[data-mansi-choice]');
+      if(choice){
+        const group=choice.closest('[data-group]').dataset.group;
+        apply(group,choice.dataset.mansiChoice);
+      }
+      if(e.target.closest('.mansi-customizer-reset')){
+        state={...defaults};restore();
+      }
+    });
+    document.addEventListener('click',e=>{
+      if(!root.contains(e.target)){root.classList.remove('open');trigger.setAttribute('aria-expanded','false');}
+    });
+    document.addEventListener('keydown',e=>{
+      if(e.key==='Escape'){root.classList.remove('open');trigger.setAttribute('aria-expanded','false');}
+    });
+    if(!restore()){
+      const retry=new MutationObserver(()=>{if(restore())retry.disconnect();});
+      retry.observe(document.documentElement,{childList:true,subtree:true});
+      setTimeout(()=>retry.disconnect(),8000);
+    }
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',mount,{once:true});
+  else mount();
+})();
+</script>
+"""
+    body_close=html.lower().rfind("</body>")
+    if body_close >= 0: html=html[:body_close]+panel_script+"\n"+html[body_close:]
+    else: html += "\n"+panel_script
+    orb.write_text(html,encoding="utf-8")
+    print("Installed persistent in-app MANSI avatar mood and glow customizer.")
+else:
+    print("MANSI avatar customizer panel already installed.")
