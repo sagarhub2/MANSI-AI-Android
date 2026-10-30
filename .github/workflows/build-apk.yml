@@ -15,6 +15,7 @@ on:
       - "scripts/add_mansi_tap_feedback.py"
       - "scripts/apply_mansi_full_redesign.py"
       - "scripts/fix_overlay_avatar_gallery.py"
+      - "scripts/apply_mansi_anime_avatar.py"
       - "branding/**"
 
 permissions:
@@ -126,6 +127,8 @@ jobs:
           python3 scripts/apply_mansi_full_redesign.py
           echo "---- APPLY MANSI HEART ORB ----"
           python3 scripts/apply_mansi_orb.py
+          echo "---- INSTALL CUTE ANIME GIRL IN CENTER ORB (KEEP PINK HEART) ----"
+          python3 scripts/apply_mansi_anime_avatar.py
           echo "---- ADD NATIVE TAP RIPPLE FEEDBACK TO ACTIONABLE UI ----"
           python3 scripts/add_mansi_tap_feedback.py
           grep -n "MANSI_FINAL_HOLOGRAM_ORB_V3" source/mansi/app/src/main/assets/orb.html
