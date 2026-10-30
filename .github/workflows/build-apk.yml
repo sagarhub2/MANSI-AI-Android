@@ -1,3 +1,4 @@
+# MANSI_CLEAN_HEART_ONLY_BUILD_V1
 name: Build MANSI AI Debug APK
 
 on:
@@ -15,6 +16,9 @@ on:
       - "scripts/add_mansi_tap_feedback.py"
       - "scripts/apply_mansi_full_redesign.py"
       - "scripts/fix_overlay_avatar_gallery.py"
+      - "scripts/apply_mansi_anime_avatar.py"
+      - "scripts/apply_mansi_audio_lipsync.py"
+      - "scripts/remove_mansi_colored_anime.py"
       - "branding/**"
 
 permissions:
@@ -44,6 +48,14 @@ jobs:
             test -s "$TARGET_AUDIO"
             cp "$PATCH_AUDIO" "$TARGET_AUDIO"
             echo "Applied low-latency AudioPlayer queue patch"
+            echo "---- AUDIO PLAYER SOURCE FOR AVATAR SYNC REVIEW ----"
+            sed -n "1,280p" "$TARGET_AUDIO"
+            echo "---- END AUDIO PLAYER SOURCE ----"
+            echo "---- AUDIO PLAYER CALL SITES ----"
+            grep -RniE 'AudioPlayer\\(|onPlaybackAmplitude|onPlaybackStateChanged' source/mansi/app/src/main --include='*.kt' --include='*.java' | head -220 || true
+            echo "---- WEBVIEW / ORB BRIDGE CALL SITES ----"
+            grep -RniE 'evaluateJavascript|addJavascriptInterface|WebView|MANSIAvatarAudioLevel|orb.html' source/mansi/app/src/main/java --include='*.kt' --include='*.java' | head -260 || true
+            echo "---- END AUDIO / WEBVIEW CALL SITE DIAGNOSTICS ----"
           else
             echo "::error::Voice latency patch archive is missing"
             exit 1
@@ -126,6 +138,12 @@ jobs:
           python3 scripts/apply_mansi_full_redesign.py
           echo "---- APPLY MANSI HEART ORB ----"
           python3 scripts/apply_mansi_orb.py
+          echo "---- INSTALL CUTE ANIME GIRL IN CENTER ORB (KEEP PINK HEART) ----"
+          python3 scripts/apply_mansi_anime_avatar.py
+          echo "---- CONNECT REAL AUDIO RMS TO ANIME AVATAR LIP SYNC ----"
+          python3 scripts/apply_mansi_audio_lipsync.py
+          echo "---- REMOVE COLORED ANIME PORTRAIT; KEEP HEART ORB ----"
+          python3 scripts/remove_mansi_colored_anime.py
           echo "---- ADD NATIVE TAP RIPPLE FEEDBACK TO ACTIONABLE UI ----"
           python3 scripts/add_mansi_tap_feedback.py
           grep -n "MANSI_FINAL_HOLOGRAM_ORB_V3" source/mansi/app/src/main/assets/orb.html
@@ -414,3 +432,8 @@ jobs:
           name: MANSI-AI-debug-APK
           path: source/mansi/app/build/outputs/apk/debug/*.apk
           if-no-files-found: error
+# Rebuild trigger: avatar mood and palette customization hooks.
+
+# Trigger a fresh debug APK build for the avatar customizer panel.
+
+# Rebuild APK for RMS-reactive hologram effects.
