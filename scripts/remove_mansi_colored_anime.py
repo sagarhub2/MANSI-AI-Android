@@ -31,29 +31,44 @@ clean_marker = "MANSI_CLEAN_HEART_HOME_V1"
 if clean_marker not in html:
     clean_patch = r"""
 <style id="MANSI_CLEAN_HEART_HOME_V1">
-/* One compact soft-pink heart orb; no oversized halo or decorative circle. */
-#mansi-final-orb { filter:none!important; background:transparent!important; box-shadow:none!important; }
-#mansi-final-orb .mansi-core {
-  background:radial-gradient(circle at 38% 30%,#fffaff 0%,#fff2fb 52%,#f8e0fa 100%)!important;
-  border:0!important; outline:0!important;
-  box-shadow:0 0 10px rgba(255,87,218,.30),0 0 22px rgba(255,62,211,.16)!important;
+/* HEART ONLY: remove the blank disc, oversized orb canvas and all halo layers. */
+#mansi-final-orb {
+  width:100px!important;height:100px!important;min-width:0!important;min-height:0!important;
+  filter:none!important;background:transparent!important;box-shadow:none!important;
+  border:0!important;outline:0!important;overflow:visible!important;
 }
-#mansi-final-orb .mansi-core::before,
-#mansi-final-orb .mansi-core::after,
-#mansi-final-orb::before,#mansi-final-orb::after { display:none!important; content:none!important; }
+#mansi-final-orb .mansi-core { display:none!important; }
 #mansi-final-orb .mansi-ring,
-#mansi-final-orb .mansi-tapwave { display:none!important; visibility:hidden!important; }
+#mansi-final-orb .mansi-tapwave,
+#mansi-final-orb::before,#mansi-final-orb::after,
+#mansi-final-orb .mansi-core::before,#mansi-final-orb .mansi-core::after {
+  display:none!important;visibility:hidden!important;content:none!important;
+}
+#mansi-final-orb .mansi-heart {
+  display:block!important;position:absolute!important;
+  width:58px!important;height:54px!important;left:50%!important;top:50%!important;
+  transform:translate(-50%,-50%)!important;animation:none!important;
+  filter:drop-shadow(0 0 5px rgba(255,75,205,.45))!important;
+}
+#mansi-final-orb .mansi-heart path { fill:#f45acb!important;stroke:#ff9be9!important;stroke-width:1!important; }
+#mansi-final-orb.active,#mansi-final-orb.idle,#mansi-final-orb.listening,#mansi-final-orb.speaking {
+  filter:none!important;animation:none!important;box-shadow:none!important;
+}
 </style>
 <script>
 (function(){
   function clean(){
-    // Remove only the visibly broken literal "\\n \\n" placeholder text.
+    // Remove the exact visible escaped-newline placeholder seen below the orb.
     var walker=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT);
     var nodes=[],n;
     while((n=walker.nextNode())){
-      if(/^(?:\\s*\\\\n\\s*){2,}$/.test(n.nodeValue||'')) nodes.push(n);
+      if(/^\\s*\\\\n\\s*\\\\n\\s*$/.test(n.nodeValue||'')) nodes.push(n);
     }
-    nodes.forEach(function(node){node.parentNode&&node.parentNode.removeChild(node);});
+    nodes.forEach(function(node){
+      var p=node.parentElement;
+      if(p && /^(P|SPAN|DIV|TEXTVIEW)$/i.test(p.tagName) && p.textContent.trim()==='\\n \\n') p.remove();
+      else node.nodeValue='';
+    });
     // Remove leftover legacy orb/halo circles outside the active heart orb.
     document.querySelectorAll('[id*="orb" i],[class*="orb" i],[id*="heart" i],[class*="heart" i]').forEach(function(el){
       if(el.id==='mansi-final-orb'||el.closest('#mansi-final-orb')||el.contains(document.getElementById('mansi-final-orb'))) return;
