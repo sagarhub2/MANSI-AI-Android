@@ -80,6 +80,9 @@ patch = r"""
    face.className='mansi-anime-avatar mansi-3d';
    image.classList.remove('mansi-anime-avatar');
    image.classList.add('mansi-anime-art');
+   const syncMood=()=>['mansi-wink','mansi-happy','mansi-shy','mansi-surprised','mansi-sleepy'].forEach(c=>face.classList.toggle(c,image.classList.contains(c)));
+   new MutationObserver(syncMood).observe(image,{attributes:true,attributeFilter:['class']});
+   syncMood();
    image.dataset.faceLayer='1';
    image.parentNode.insertBefore(face,image);
    face.appendChild(image);
