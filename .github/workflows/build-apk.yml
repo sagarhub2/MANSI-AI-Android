@@ -120,8 +120,7 @@ jobs:
               if after != before:
                   path.write_text(after, encoding="utf-8")
                   changed.append(str(path))
-          print("Updated feminine persona/voice in:", *changed, sep="\
-  ")
+          print("Updated feminine persona/voice in:", *changed, sep=" | ")
           PY
           echo "---- FIX VISIBLE NOTIFICATION BRANDING ----"
           python3 scripts/fix_mansi_notifications.py
