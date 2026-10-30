@@ -192,6 +192,6 @@ extra = r"""
 </script>
 """
 if "MANSI_ANIME_REACTIONS_V1" not in html:
-    html = re.sub(r"</body\\s*>", extra + "\\n</body>", html, count=1, flags=re.I) if re.search(r"</body\\s*>", html, re.I) else html + extra
+    html = re.sub(r"</body\s*>", extra + "\\n</body>", html, count=1, flags=re.I) if re.search(r"</body\s*>", html, re.I) else html + extra
     orb.write_text(html, encoding="utf-8")
 print("Added anime reactions: wink, mood states, floating hearts, tap response and sleepy/visibility mode.")
