@@ -62,7 +62,7 @@ if clean_marker not in html:
     var walker=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT);
     var nodes=[],n;
     while((n=walker.nextNode())){
-      if(/^\\s*\\\\n\\s*\\\\n\\s*$/.test(n.nodeValue||'')) nodes.push(n);
+      if(/^\s*\\n\s*\\n\s*$/.test(n.nodeValue||'')) nodes.push(n);
     }
     nodes.forEach(function(node){
       var p=node.parentElement;
