@@ -140,8 +140,6 @@ jobs:
           python3 scripts/apply_mansi_anime_avatar.py
           echo "---- CONNECT REAL AUDIO RMS TO ANIME AVATAR LIP SYNC ----"
           python3 scripts/apply_mansi_audio_lipsync.py
-          echo "---- REMOVE CENTER ANIME AVATAR AND FLOATING OVERLAY ----"
-          python3 scripts/remove_mansi_avatars.py
           echo "---- ADD NATIVE TAP RIPPLE FEEDBACK TO ACTIONABLE UI ----"
           python3 scripts/add_mansi_tap_feedback.py
           grep -n "MANSI_FINAL_HOLOGRAM_ORB_V3" source/mansi/app/src/main/assets/orb.html
