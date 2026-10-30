@@ -324,3 +324,5 @@ print("Installed face overlays, voice-state mouth animation, gaze response and p
 
 # Trigger a fresh APK build with the corrected workflow definition.
 
+
+# Real AudioPlayer RMS amplitude is connected by apply_mansi_audio_lipsync.py during APK builds.
