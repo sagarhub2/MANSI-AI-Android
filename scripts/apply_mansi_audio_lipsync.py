@@ -175,11 +175,58 @@ if motion_marker not in html:
 })();
 </script>
 """
-    if re.search(r"</body\s*>", html, re.I):
-        html = re.sub(r"</body\\s*>", motion_patch + "\n</body>", html, count=1, flags=re.I)
+    body_close = html.lower().rfind("</body>")
+    if body_close >= 0:
+        html = html[:body_close] + motion_patch + "\\n" + html[body_close:]
     else:
-        html += "\n" + motion_patch
+        html += "\\n" + motion_patch
     orb.write_text(html, encoding="utf-8")
     print("Added touch-follow 3D parallax, eye tracking and listening/speaking expression transitions.")
 else:
     print("MANSI 3D avatar motion already installed.")
+
+
+# Expose stable mood and palette controls for future in-app customization.
+html = orb.read_text(encoding="utf-8")
+api_marker = "MANSI_AVATAR_CUSTOMIZATION_API_V1"
+if api_marker not in html:
+    api_script = r"""
+<script>
+/* MANSI_AVATAR_CUSTOMIZATION_API_V1 */
+(function(){
+  function install(){
+    const orb=document.getElementById('mansi-final-orb');
+    const face=orb && orb.querySelector('.mansi-anime-avatar');
+    if(!orb || !face) return false;
+    window.MANSIAvatarSetMood=function(mood){
+      const classes=['mansi-happy','mansi-shy','mansi-surprised','mansi-sleepy'];
+      face.classList.remove(...classes);
+      const map={happy:'mansi-happy',shy:'mansi-shy',surprised:'mansi-surprised',sleepy:'mansi-sleepy',neutral:null};
+      const key=String(mood||'neutral').toLowerCase();
+      if(!(key in map)) return false;
+      if(map[key]) face.classList.add(map[key]);
+      return true;
+    };
+    window.MANSIAvatarSetTheme=function(theme){
+      const palettes={pink:['#ff72d2','#c85bff'],purple:['#bd91ff','#755bff'],blue:['#73e6ff','#6887ff']};
+      const pair=palettes[String(theme||'pink').toLowerCase()];
+      if(!pair) return false;
+      face.style.setProperty('--mansi-avatar-accent',pair[0]);
+      face.style.filter='drop-shadow(0 8px 15px '+pair[1]+'66) drop-shadow(0 0 10px '+pair[0]+'55)';
+      return true;
+    };
+    return true;
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',install);
+  else install();
+  new MutationObserver(install).observe(document.documentElement,{childList:true,subtree:true});
+})();
+</script>
+"""
+    body_close=html.lower().rfind("</body>")
+    if body_close >= 0: html=html[:body_close]+api_script+"\\n"+html[body_close:]
+    else: html += "\\n"+api_script
+    orb.write_text(html,encoding="utf-8")
+    print("Added public mood and pink/purple/blue theme customization hooks.")
+else:
+    print("MANSI avatar customization API already installed.")
