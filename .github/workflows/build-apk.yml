@@ -17,6 +17,7 @@ on:
       - "scripts/fix_overlay_avatar_gallery.py"
       - "scripts/apply_mansi_anime_avatar.py"
       - "scripts/apply_mansi_audio_lipsync.py"
+      - "scripts/remove_mansi_colored_anime.py"
       - "branding/**"
 
 permissions:
