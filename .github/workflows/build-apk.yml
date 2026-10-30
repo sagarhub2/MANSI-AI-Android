@@ -429,3 +429,5 @@ jobs:
           path: source/mansi/app/build/outputs/apk/debug/*.apk
           if-no-files-found: error
 # Rebuild trigger: avatar mood and palette customization hooks.
+
+# Trigger a fresh debug APK build for the avatar customizer panel.
