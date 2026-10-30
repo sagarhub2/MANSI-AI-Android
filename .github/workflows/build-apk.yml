@@ -431,3 +431,5 @@ jobs:
 # Rebuild trigger: avatar mood and palette customization hooks.
 
 # Trigger a fresh debug APK build for the avatar customizer panel.
+
+# Rebuild APK for RMS-reactive hologram effects.
