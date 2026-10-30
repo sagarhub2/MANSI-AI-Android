@@ -54,6 +54,8 @@ avatar = r'''<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
 <circle cx="372" cy="130" r="7" fill="#fff"/>
 <path d="M151 150l-17-21 22-19 19 21Z" fill="#9b8cff" stroke="#e9ddff" stroke-width="4"/>
 </svg>'''
+# Keep the anime portrait completely still: remove SVG SMIL blink animations.
+avatar = re.sub(r"<animate\b[^>]*/>", "", avatar)
 asset = ROOT / "mansi-anime-avatar.svg"
 asset.write_text(avatar, encoding="utf-8")
 
