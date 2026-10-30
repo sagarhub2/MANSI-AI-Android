@@ -428,3 +428,4 @@ jobs:
           name: MANSI-AI-debug-APK
           path: source/mansi/app/build/outputs/apk/debug/*.apk
           if-no-files-found: error
+# Rebuild trigger: avatar mood and palette customization hooks.
