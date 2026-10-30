@@ -127,3 +127,71 @@ else:
     html += "\n" + css
 orb.write_text(html, encoding="utf-8")
 print("Installed animated MANSI anime portrait: blinking eyes, idle float, listening reaction and speaking motion; preserved pink heart.")
+
+
+# Add expressive reactions without replacing the existing hologram or heart.
+html = orb.read_text(encoding="utf-8")
+extra = r"""
+<style>
+/* MANSI_ANIME_REACTIONS_V1 */
+#mansi-final-orb .mansi-anime-avatar.mansi-wink { animation:mansi-wink .42s ease-in-out 1!important; }
+#mansi-final-orb .mansi-anime-avatar.mansi-happy { filter:drop-shadow(0 0 13px #ff9be5) saturate(1.12); }
+#mansi-final-orb .mansi-anime-avatar.mansi-shy { filter:drop-shadow(0 0 12px #ff8fca) hue-rotate(-8deg); }
+#mansi-final-orb .mansi-anime-avatar.mansi-surprised { filter:drop-shadow(0 0 14px #9deaff) brightness(1.12); }
+#mansi-final-orb .mansi-anime-avatar.mansi-sleepy { filter:brightness(.88) saturate(.82); opacity:.88; }
+#mansi-final-orb.mansi-sleep-mode .mansi-anime-avatar { animation:none!important; filter:brightness(.72) saturate(.72)!important; }
+#mansi-final-orb .mansi-heart-particle {
+ position:absolute;z-index:8;left:50%;top:54%;pointer-events:none;
+ color:#ff76cf;font-size:18px;text-shadow:0 0 9px #ff7bd9;
+ animation:mansi-heart-float 1.25s ease-out forwards;
+}
+@keyframes mansi-wink { 0%,100%{transform:translate(-50%,-50%) scale(1)} 45%{transform:translate(-50%,-50%) scaleY(.91) scaleX(1.03)} }
+@keyframes mansi-heart-float { 0%{opacity:0;transform:translate(-50%,0) scale(.55)} 20%{opacity:1} 100%{opacity:0;transform:translate(var(--dx),-85px) scale(1.25)} }
+</style>
+<script>
+(function(){
+ const orb=document.getElementById('mansi-final-orb');
+ if(!orb || orb.dataset.mansiReactions==='1') return;
+ orb.dataset.mansiReactions='1';
+ const avatar=orb.querySelector('.mansi-anime-avatar');
+ if(!avatar) return;
+ const moods=['mansi-happy','mansi-shy','mansi-surprised'];
+ let moodTimer=null, idleTimer=null;
+ function clearMood(){avatar.classList.remove(...moods,'mansi-sleepy','mansi-wink');}
+ function react(mood){clearMood(); if(mood) avatar.classList.add(mood);}
+ function hearts(){
+   for(let i=0;i<3;i++){
+     const h=document.createElement('span'); h.className='mansi-heart-particle'; h.textContent='♥';
+     h.style.setProperty('--dx', (Math.random()*90-45)+'px');
+     h.style.left=(43+Math.random()*14)+'%'; h.style.top=(48+Math.random()*12)+'%';
+     orb.appendChild(h); setTimeout(()=>h.remove(),1400);
+   }
+ }
+ function resetIdle(){
+   clearTimeout(idleTimer); orb.classList.remove('mansi-sleep-mode');
+   react('mansi-happy');
+   idleTimer=setTimeout(()=>{ if(!orb.classList.contains('listening')&&!orb.classList.contains('speaking')) react('mansi-sleepy'); },45000);
+ }
+ orb.addEventListener('click',function(){react('mansi-shy');hearts();resetIdle();});
+ const observer=new MutationObserver(()=>{
+   if(orb.classList.contains('listening')){react(null);clearTimeout(idleTimer);}
+   else if(orb.classList.contains('speaking')){react('mansi-happy');clearTimeout(idleTimer);}
+   else resetIdle();
+ });
+ observer.observe(orb,{attributes:true,attributeFilter:['class']});
+ document.addEventListener('visibilitychange',()=>{
+   if(document.hidden){orb.classList.add('mansi-sleep-mode');}
+   else {orb.classList.remove('mansi-sleep-mode');resetIdle();}
+ });
+ function wink(){if(document.hidden||orb.classList.contains('mansi-sleep-mode'))return;
+   avatar.classList.remove('mansi-wink');void avatar.offsetWidth;avatar.classList.add('mansi-wink');
+ }
+ setInterval(wink,8500);
+ resetIdle();
+})();
+</script>
+"""
+if "MANSI_ANIME_REACTIONS_V1" not in html:
+    html = re.sub(r"</body\\s*>", extra + "\\n</body>", html, count=1, flags=re.I) if re.search(r"</body\\s*>", html, re.I) else html + extra
+    orb.write_text(html, encoding="utf-8")
+print("Added anime reactions: wink, mood states, floating hearts, tap response and sleepy/visibility mode.")
