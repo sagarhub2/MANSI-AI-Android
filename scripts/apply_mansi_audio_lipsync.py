@@ -405,3 +405,46 @@ if audio_visual_marker not in html:
     print("Added RMS-reactive hologram glow and pink heart pulse.")
 else:
     print("Audio-reactive hologram visualizer already installed.")
+
+
+# MANSI_STATIC_AVATAR_V1: final pass after all avatar effects are injected.
+# Keep the portrait and pink heart visible, but remove all avatar/orb motion.
+html = orb.read_text(encoding="utf-8")
+static_patch = r"""
+<style>
+/* MANSI_STATIC_AVATAR_V1 */
+#mansi-final-orb .mansi-anime-avatar {
+  animation:none!important;
+  transition:none!important;
+  transform:translate(-50%,-50%)!important;
+  filter:drop-shadow(0 2px 8px rgba(108,62,150,.22))!important;
+}
+#mansi-final-orb .mansi-core {
+  animation:none!important;
+  transition:none!important;
+  transform:none!important;
+}
+#mansi-final-orb .mansi-heart {
+  animation:none!important;
+  transition:none!important;
+  transform:translate(-50%,-50%) scale(1)!important;
+}
+#mansi-final-orb .mansi-heart-particle {
+  display:none!important;
+  animation:none!important;
+  transition:none!important;
+}
+#mansi-final-orb * {
+  animation:none!important;
+  transition:none!important;
+}
+</style>
+"""
+if "MANSI_STATIC_AVATAR_V1" not in html:
+    body_close = html.lower().rfind("</body>")
+    if body_close >= 0:
+        html = html[:body_close] + static_patch + "\n" + html[body_close:]
+    else:
+        html += "\n" + static_patch
+    orb.write_text(html, encoding="utf-8")
+print("Disabled avatar blinking, floating, 3D tracking, voice-reactive pulsing and heart particles; kept the portrait and pink heart static.")
