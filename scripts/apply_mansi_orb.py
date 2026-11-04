@@ -105,6 +105,15 @@ body *{outline:none!important;-webkit-tap-highlight-color:transparent}
 #mansi-final-orb.speaking .mansi-ring{animation:mansi-speaking 1.1s ease-in-out infinite alternate!important}
 @media(prefers-reduced-motion:reduce){#mansi-final-orb .mansi-ring,#mansi-final-orb .mansi-heart{animation:none!important}}
 </style>
+<style>
+/* MANSI_OLD_HOME_HEART_FINAL_V1 — keep the original simple pink heart orb */
+#mansi-final-orb{width:min(56vw,300px)!important;height:min(56vw,300px)!important;top:27.5%!important;filter:none!important}
+#mansi-final-orb .mansi-ring,#mansi-final-orb .mansi-tapwave{display:none!important;visibility:hidden!important;opacity:0!important}
+#mansi-final-orb .mansi-core{inset:19%!important;border:0!important;border-radius:50%!important;background:radial-gradient(circle at 38% 30%,#fffaff 0%,#fff2fb 52%,#f8e0fa 100%)!important;box-shadow:0 0 18px rgba(255,87,218,.58),0 0 38px rgba(255,62,211,.28)!important}
+#mansi-final-orb .mansi-heart{width:18%!important;height:18%!important;top:50%!important;left:50%!important;filter:drop-shadow(0 0 5px #ff65d9) drop-shadow(0 0 13px rgba(255,72,216,.78))!important}
+#mansi-final-orb .mansi-heart path{fill:#f45acb!important;stroke:#ff9be9!important;stroke-width:1!important}
+#mansi-final-orb.active .mansi-core{transform:scale(1.035)!important;box-shadow:0 0 22px rgba(255,87,218,.72),0 0 48px rgba(255,62,211,.38)!important}
+</style>
 <script>
 (function(){
  function install(){
