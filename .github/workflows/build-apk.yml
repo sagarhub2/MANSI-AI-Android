@@ -21,6 +21,8 @@ on:
       - "scripts/mansi_guard/**"
       - "scripts/apply_mansi_website_builder.py"
       - "scripts/mansi_website_builder/**"
+      - "scripts/apply_mansi_icon_studio.py"
+      - "scripts/mansi_icon_studio/**"
       - "branding/**"
 
 permissions:
@@ -66,6 +68,8 @@ jobs:
           python3 scripts/apply_mansi_guard.py
           echo "---- APPLY MANSI WEBSITE BUILDER ----"
           python3 scripts/apply_mansi_website_builder.py
+          echo "---- APPLY MANSI ICON STUDIO ----"
+          python3 scripts/apply_mansi_icon_studio.py
           echo "---- INSPECT PERSONA SELECTOR / ACTIVE PERSONA MAPPING ----"
           grep -RniE 'Persona:|Jarvis.*Active|Mansi.*Active|activePersona|active_persona|personaId|persona_id|selectedPersona|selected_persona|persona.*Jarvis|Jarvis.*persona|Mansi.*persona' source/mansi/app/src/main --include='*.kt' --include='*.java' --include='*.xml' --include='*.json' --include='*.html' --include='*.js' --include='*.txt' --include='*.properties' | head -300 || true
           echo "---- END PERSONA MAPPING INSPECTION ----"
