@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:background="#090914" android:fillViewport="true">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="vertical" android:padding="22dp">
+        <Button android:id="@+id/btnGuardBack" android:layout_width="wrap_content"
+            android:layout_height="wrap_content" android:text="← Back"
+            android:textColor="#F7F1FF" android:backgroundTint="#292039"/>
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:layout_marginTop="28dp" android:text="MANSI GUARD" android:textColor="#FF78B9"
+            android:textStyle="bold" android:letterSpacing="0.12" android:textSize="13sp"/>
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="8dp" android:text="Advanced Alert Mode"
+            android:textColor="#FFFFFF" android:textSize="28sp" android:textStyle="bold"/>
+        <TextView android:id="@+id/tvGuardStatus" android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:layout_marginTop="26dp" android:padding="22dp"
+            android:background="#21172D" android:text="GUARD STANDBY • NOT PROTECTED"
+            android:textColor="#FF8CC7" android:textStyle="bold" android:gravity="center" android:textSize="16sp"/>
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="22dp"
+            android:text="Arm MANSI GUARD before leaving your phone unattended. A 5-second grace period lets you lock it safely."
+            android:textColor="#C5BED2" android:textSize="14sp" android:lineSpacingExtra="5dp"/>
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="20dp" android:orientation="vertical" android:padding="18dp"
+            android:background="#151421">
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:text="✓ Phone movement / pickup detection" android:textColor="#F6F1FF" android:textSize="14sp" android:paddingVertical="7dp"/>
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:text="✓ Screen wake alert (tap-to-wake)" android:textColor="#F6F1FF" android:textSize="14sp" android:paddingVertical="7dp"/>
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:text="✓ Charger disconnection alert" android:textColor="#F6F1FF" android:textSize="14sp" android:paddingVertical="7dp"/>
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:text="✓ Repeating siren + vibration + notification" android:textColor="#F6F1FF" android:textSize="14sp" android:paddingVertical="7dp"/>
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:text="✓ PIN-protected disarm" android:textColor="#F6F1FF" android:textSize="14sp" android:paddingVertical="7dp"/>
+        </LinearLayout>
+        <Button android:id="@+id/btnGuardAction" android:layout_width="match_parent"
+            android:layout_height="58dp" android:layout_marginTop="28dp"
+            android:text="ACTIVATE GUARD" android:textColor="#FFFFFF"
+            android:textStyle="bold" android:backgroundTint="#C94F9E"/>
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"
+            android:text="Android does not let ordinary apps read every touch event system-wide. Screen-wake alerts catch taps that wake the display; movement and charger events are monitored while this foreground service runs. Battery restrictions may affect background operation."
+            android:textColor="#8F899E" android:textSize="11sp" android:lineSpacingExtra="4dp"/>
+    </LinearLayout>
+</ScrollView>
