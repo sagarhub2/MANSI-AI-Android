@@ -88,6 +88,23 @@ body *{outline:none!important;-webkit-tap-highlight-color:transparent}
 #mansi-final-orb .mansi-core{border:0!important;outline:0!important;background:radial-gradient(circle at 38% 30%,#fffaff 0%,#fff2fb 52%,#f8e0fa 100%)!important;box-shadow:0 0 22px rgba(255,87,218,.62),0 0 48px rgba(255,62,211,.34)!important}
 #mansi-final-orb.active .mansi-core{box-shadow:0 0 28px rgba(255,87,218,.78),0 0 58px rgba(255,62,211,.5)!important}
 </style>
+
+<style>
+/* MANSI_HEART_HOLOGRAM_RESTORE_V1 — glossy pink heart with visible blue-purple orbit rings */
+#mansi-final-orb{width:min(72vw,340px)!important;height:min(72vw,340px)!important;top:28%!important;overflow:visible!important}
+#mansi-final-orb .mansi-ring{display:block!important;visibility:visible!important;opacity:1!important;border:2px solid transparent!important;background:linear-gradient(transparent,transparent) padding-box,conic-gradient(from var(--angle,0deg),#35e8ff,#6475ff,#bd55ff,#ff75dc,#35e8ff) border-box!important;box-shadow:0 0 12px rgba(61,210,255,.62),0 0 25px rgba(155,83,255,.38)!important}
+#mansi-final-orb .mansi-ring.r1{--inset:2%!important;--speed:13s!important;border-width:2px!important}
+#mansi-final-orb .mansi-ring.r2{--inset:11%!important;--speed:9s!important;border-width:1px!important}
+#mansi-final-orb .mansi-ring.r3{--inset:20%!important;--speed:17s!important;border-width:2px!important}
+#mansi-final-orb .mansi-core{inset:30%!important;border-radius:50%!important;background:radial-gradient(circle at 32% 25%,rgba(255,255,255,.95) 0%,rgba(255,224,250,.88) 28%,rgba(226,174,255,.48) 62%,rgba(101,104,255,.18) 100%)!important;border:1px solid rgba(255,210,255,.72)!important;box-shadow:inset 0 0 18px rgba(255,255,255,.75),0 0 18px rgba(255,92,222,.52),0 0 34px rgba(100,112,255,.36)!important}
+#mansi-final-orb .mansi-heart{width:27%!important;height:27%!important;top:50%!important;left:50%!important;filter:drop-shadow(0 0 6px #ff6cdb) drop-shadow(0 0 15px rgba(157,92,255,.9))!important}
+#mansi-final-orb .mansi-heart path{fill:url(#mansiHeartGradient)!important;stroke:#ffd0f8!important;stroke-width:1.8!important}
+#mansi-final-orb .mansi-tapwave{display:block!important;visibility:visible!important;inset:27%!important;border:2px solid rgba(255,115,226,.8)!important;box-shadow:0 0 16px #a86bff!important}
+#mansi-final-orb.active .mansi-core{transform:scale(1.08)!important;box-shadow:inset 0 0 22px rgba(255,255,255,.9),0 0 25px #ff69df,0 0 48px rgba(99,112,255,.75)!important}
+#mansi-final-orb.listening .mansi-ring{animation-duration:3s!important;filter:brightness(1.35)!important}
+#mansi-final-orb.speaking .mansi-ring{animation:mansi-speaking 1.1s ease-in-out infinite alternate!important}
+@media(prefers-reduced-motion:reduce){#mansi-final-orb .mansi-ring,#mansi-final-orb .mansi-heart{animation:none!important}}
+</style>
 <script>
 (function(){
  function install(){
