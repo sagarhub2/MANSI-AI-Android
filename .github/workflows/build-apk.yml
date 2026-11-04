@@ -17,6 +17,8 @@ on:
       - "scripts/apply_mansi_full_redesign.py"
       - "scripts/fix_overlay_avatar_gallery.py"
       - "scripts/apply_mansi_roast_mode.py"
+      - "scripts/apply_mansi_guard.py"
+      - "scripts/mansi_guard/**"
       - "branding/**"
 
 permissions:
@@ -58,6 +60,8 @@ jobs:
           test -f source/mansi/gradlew
           test -f source/mansi/settings.gradle.kts
           chmod +x source/mansi/gradlew
+          echo "---- APPLY MANSI GUARD ADVANCED ALERT MODE ----"
+          python3 scripts/apply_mansi_guard.py
           echo "---- INSPECT PERSONA SELECTOR / ACTIVE PERSONA MAPPING ----"
           grep -RniE 'Persona:|Jarvis.*Active|Mansi.*Active|activePersona|active_persona|personaId|persona_id|selectedPersona|selected_persona|persona.*Jarvis|Jarvis.*persona|Mansi.*persona' source/mansi/app/src/main --include='*.kt' --include='*.java' --include='*.xml' --include='*.json' --include='*.html' --include='*.js' --include='*.txt' --include='*.properties' | head -300 || true
           echo "---- END PERSONA MAPPING INSPECTION ----"
