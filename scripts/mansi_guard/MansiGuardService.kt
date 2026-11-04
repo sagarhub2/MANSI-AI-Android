@@ -75,8 +75,12 @@ class MansiGuardService : Service(), SensorEventListener {
                 }
             }
         }
-        if (Build.VERSION.SDK_INT >= 33) registerReceiver(receiver, filter, Context.RECEIVER_NOT_EXPORTED)
-        else @Suppress("DEPRECATION") registerReceiver(receiver, filter)
+        if (Build.VERSION.SDK_INT >= 33) {
+            registerReceiver(receiver, filter, Context.RECEIVER_NOT_EXPORTED)
+        } else {
+            @Suppress("DEPRECATION")
+            registerReceiver(receiver, filter)
+        }
         receiverRegistered = true
     }
 
@@ -157,7 +161,10 @@ class MansiGuardService : Service(), SensorEventListener {
         tone = null
         try {
             if (Build.VERSION.SDK_INT >= 31) (getSystemService(VIBRATOR_MANAGER_SERVICE) as VibratorManager).defaultVibrator.cancel()
-            else @Suppress("DEPRECATION") (getSystemService(VIBRATOR_SERVICE) as Vibrator).cancel()
+            else {
+                @Suppress("DEPRECATION")
+                (getSystemService(VIBRATOR_SERVICE) as Vibrator).cancel()
+            }
         } catch (_: Exception) { }
         sensors.unregisterListener(this)
         stopForeground(STOP_FOREGROUND_REMOVE)
