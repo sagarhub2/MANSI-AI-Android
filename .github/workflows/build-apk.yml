@@ -31,9 +31,8 @@ jobs:
 
       - name: Unpack Android project
         run: |
-          # Prefer the prepared neon-heart project ZIP; retain the original as a fallback.
-          PROJECT_ZIP="MANSI-AI-Android-Roast-Mode-Updated.zip"
-          if [ ! -s "$PROJECT_ZIP" ]; then PROJECT_ZIP="MANSI-AI-neon-heart-modified.zip"; fi
+          # Prefer the known-good prepared Android source ZIP; the Roast Mode archive has a different folder layout and is not build-ready.
+          PROJECT_ZIP="MANSI-AI-neon-heart-modified.zip"
           if [ ! -s "$PROJECT_ZIP" ]; then PROJECT_ZIP="MANSI_AI_Android_GitHub_Upload.zip"; fi
           echo "Building Android source from: $PROJECT_ZIP"
           unzip -q "$PROJECT_ZIP" -d source
