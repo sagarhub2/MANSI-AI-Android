@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<meta name="color-scheme" content="dark"><title>MANSI Website Builder</title>
+<style>
+:root{--bg:#090914;--panel:#151426;--line:#292541;--pink:#ed78b7;--blue:#8a83ff;--muted:#aaa6bd}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 85% 0,#29204c 0,transparent 34%),var(--bg);color:#f8f5ff;font:14px system-ui,sans-serif}
+header{padding:20px 18px 12px;position:sticky;top:0;background:#090914ed;backdrop-filter:blur(14px);z-index:2;border-bottom:1px solid var(--line)}
+.brand{font-size:11px;letter-spacing:2px;color:var(--pink);font-weight:800}.heading{font-size:25px;font-weight:850;margin:5px 0}.sub{color:var(--muted);font-size:12px}
+main{padding:16px;max-width:850px;margin:auto}.panel{background:linear-gradient(145deg,#1b1930,#11111e);border:1px solid var(--line);border-radius:18px;padding:15px;margin-bottom:14px;box-shadow:0 12px 32px #0003}
+label{display:block;color:#d9d3e8;font-size:12px;font-weight:700;margin:0 0 8px}
+textarea,input,select{width:100%;border:1px solid #393451;background:#0d0d19;color:#fff;border-radius:12px;padding:12px;font:inherit;outline:none}
+textarea:focus,input:focus{border-color:var(--pink)}textarea{min-height:105px;resize:vertical}
+button{border:0;border-radius:12px;padding:12px 15px;color:#fff;font-weight:800;background:linear-gradient(110deg,#b64c9a,#6458ce);cursor:pointer}
+button.secondary{background:#28243c;border:1px solid #3b3557}button:active{transform:scale(.98)}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.actions button{flex:1;min-width:110px}
+.tabs{display:flex;gap:7px;margin:10px 0}.tabs button{background:#211e33;flex:1}.tabs button.active{background:linear-gradient(110deg,#b64c9a,#6458ce)}
+iframe{width:100%;height:440px;border:1px solid var(--line);border-radius:12px;background:#fff}
+#code{min-height:250px;font:12px ui-monospace,monospace;white-space:pre;tab-size:2}
+.note{font-size:11px;color:var(--muted);line-height:1.5}.status{min-height:18px;color:#9de6c0;font-size:12px;margin-top:8px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}@media(max-width:520px){.row{grid-template-columns:1fr}iframe{height:390px}}
+</style></head>
+<body>
+<header><div class="brand">MANSI AI • CREATIVE STUDIO</div><div class="heading">Website Builder ✨</div><div class="sub">Describe it. Generate it. Preview it. Export it.</div></header>
+<main>
+<section class="panel">
+<label for="prompt">WHAT WEBSITE SHOULD I CREATE?</label>
+<textarea id="prompt" placeholder="Example: Create a premium boutique website named Dosi Brothers with products, prices, WhatsApp order button and contact details..."></textarea>
+<div class="row" style="margin-top:10px"><div><label for="siteName">WEBSITE / BRAND NAME</label><input id="siteName" value="My Website" maxlength="45"></div><div><label for="kind">STARTER STYLE</label><select id="kind"><option value="business">Business / Services</option><option value="portfolio">Personal Portfolio</option><option value="store">Online Store</option><option value="school">School / Institute</option><option value="restaurant">Cafe / Restaurant</option><option value="landing">Product Landing Page</option></select></div></div>
+<div class="actions"><button onclick="generate()">✦ Generate Website</button><button class="secondary" onclick="resetBuilder()">Reset</button></div>
+<div class="status" id="status"></div><p class="note">Prompt generation currently uses built-in starter layouts on your device. Connect an AI provider later for truly custom AI-generated code.</p>
+</section>
+<section class="panel">
+<label>LIVE WEBSITE WORKSPACE</label>
+<div class="tabs"><button id="previewTab" class="active" onclick="showTab('preview')">Live Preview</button><button id="codeTab" onclick="showTab('code')">HTML Code</button></div>
+<div id="previewPane"><iframe id="preview" title="Website preview" sandbox="allow-forms allow-scripts"></iframe></div>
+<div id="codePane" hidden><textarea id="code" spellcheck="false" aria-label="Generated HTML code"></textarea><div class="actions"><button class="secondary" onclick="refreshPreview()">Run Code</button><button class="secondary" onclick="copyCode()">Copy Code</button></div></div>
+<div class="actions"><button onclick="saveWebsite()">⬇ Export HTML</button><button class="secondary" onclick="showTab('code')">Edit Source</button></div>
+<p class="note">Export saves a standalone HTML file using Android's save dialog. You can open it in a browser or upload it to your hosting provider.</p>
+</section>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+let generated='';
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function makeSite(name,desc,type){
+const title=esc(name||'My Website'), blurb=esc(desc||'A fresh digital experience, designed around your goals.');
+const accent=type==='school'?'#e0a84c':type==='restaurant'?'#e59b68':'#a78bfa';
+const items=type==='store'?['Featured Collection','New Arrivals','Best Sellers']:type==='school'?['Admissions','Academics','Campus Life']:type==='restaurant'?['Our Menu','Chef Specials','Visit Us']:type==='portfolio'?['About Me','My Work','Get In Touch']:['Our Services','Why Choose Us','Contact'];
+return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${title}</title><style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;color:#182033;background:#f7f7fb}header{padding:22px 7%;display:flex;justify-content:space-between;align-items:center;background:#fff}header b{font-size:21px}nav a{margin-left:16px;color:#40465b;text-decoration:none;font-size:14px}.hero{padding:100px 8%;background:linear-gradient(120deg,#17152b,#39305b);color:white}.hero small{color:${accent};font-weight:bold;letter-spacing:2px}.hero h1{font-size:clamp(38px,7vw,68px);max-width:760px;margin:15px 0}.hero p{max-width:650px;line-height:1.7;color:#dedced;font-size:17px}.btn{display:inline-block;margin-top:20px;padding:14px 22px;border-radius:30px;background:${accent};color:#17152b;text-decoration:none;font-weight:bold}.cards{padding:65px 8%;display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:18px}.card{background:#fff;padding:25px;border-radius:16px;box-shadow:0 8px 25px #19203b10}.card h3{margin-top:0}.about{padding:35px 8% 75px;line-height:1.8;background:#eeedf5}footer{padding:28px;text-align:center;background:#17152b;color:#ddd} @media(max-width:600px){header{align-items:flex-start;gap:10px;flex-direction:column}nav a{margin:0 12px 0 0}.hero{padding:75px 7%}}
+</style></head><body><header><b>${title}</b><nav><a href="#home">Home</a><a href="#services">Explore</a><a href="#contact">Contact</a></nav></header><section class="hero" id="home"><small>WELCOME TO ${title.toUpperCase()}</small><h1>Build something people remember.</h1><p>${blurb}</p><a class="btn" href="#contact">Get Started</a></section><section class="cards" id="services">${items.map((x,i)=>'<article class="card"><h3>'+x+'</h3><p>Discover what makes '+title+' special. Quality, care and a better experience in every detail.</p></article>').join('')}</section><section class="about"><h2>A little about us</h2><p>${blurb} We believe in thoughtful service, clear communication and experiences that make a difference.</p></section><footer id="contact">Contact ${title} • Add your email, phone and social links here.</footer></body></html>`;
+}
+function generate(){const prompt=$('prompt').value.trim();const name=$('siteName').value.trim()||'My Website';if(!prompt){$('status').textContent='Pehle website ka idea / prompt likho.';return;}generated=makeSite(name,prompt,$('kind').value);$('code').value=generated;refreshPreview();showTab('preview');$('status').textContent='Starter website generated. Preview dekho aur HTML edit kar sakte ho.';}
+function refreshPreview(){const source=$('code').value||generated;if(!source){$('status').textContent='Pehle website generate karo.';return;}generated=source;$('preview').srcdoc=source;$('status').textContent='Preview updated.';}
+function showTab(tab){const preview=tab==='preview';$('previewPane').hidden=!preview;$('codePane').hidden=preview;$('previewTab').classList.toggle('active',preview);$('codeTab').classList.toggle('active',!preview);if(preview)refreshPreview();}
+function resetBuilder(){$('prompt').value='';$('siteName').value='My Website';$('code').value='';generated='';$('preview').srcdoc='<h2 style="font-family:Arial;text-align:center;margin-top:100px">Your website preview appears here</h2>';$('status').textContent='Workspace reset.';showTab('preview');}
+function copyCode(){const text=$('code').value;navigator.clipboard?.writeText(text).then(()=>{$('status').textContent='HTML copied.'}).catch(()=>{$('code').select();$('status').textContent='Code select karke copy kar lo.'});}
+function saveWebsite(){const html=$('code').value||generated;if(!html){$('status').textContent='Pehle website generate karo.';return;}if(window.MansiBuilder){MansiBuilder.saveHtml(($('siteName').value||'mansi-website').replace(/\s+/g,'-')+'.html',html);}else{$('status').textContent='Native save bridge unavailable.';}}
+window.onNativeSaveResult=message=>$('status').textContent=message;
+$('preview').srcdoc='<div style="font-family:Arial;text-align:center;padding:70px;color:#333"><h2>Your website preview appears here</h2><p>Write a prompt and tap Generate Website.</p></div>';
+</script></body></html>
