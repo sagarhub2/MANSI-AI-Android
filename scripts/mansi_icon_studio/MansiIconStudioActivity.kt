@@ -27,11 +27,12 @@ import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.ComponentActivity
 import androidx.activity.result.contract.ActivityResultContracts
 import java.io.ByteArrayOutputStream
 import java.io.OutputStream
 
-class MansiIconStudioActivity : Activity() {
+class MansiIconStudioActivity : ComponentActivity() {
     private var chosenBitmap: Bitmap? = null
     private var selectedA = Color.rgb(25, 105, 255)
     private var selectedB = Color.rgb(190, 65, 255)
