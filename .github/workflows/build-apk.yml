@@ -24,6 +24,7 @@ on:
       - "scripts/apply_mansi_website_builder.py"
       - "scripts/mansi_website_builder/**"
       - "scripts/apply_mansi_icon_studio.py"
+      - "scripts/optimize_mansi_performance.py"
       - "scripts/mansi_icon_studio/**"
       - "branding/**"
 
@@ -413,6 +414,9 @@ jobs:
                   changed.append(str(path))
           print("Feminine MANSI voice configuration updated:", changed)
           PY
+
+      - name: Optimize MANSI playback latency and cute female voice defaults
+        run: python3 scripts/optimize_mansi_performance.py
 
       - name: Diagnose actual identity and assistant prompt sources
         run: |
