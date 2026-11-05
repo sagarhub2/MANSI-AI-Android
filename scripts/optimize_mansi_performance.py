@@ -72,9 +72,4 @@ if persona_text.count(aoede_case) > 1:
     persona.write_text(persona_text, encoding="utf-8")
     print("Removed duplicate Aoede voice branch:", persona)
 
-home = ROOT / "java/com/jarvis/assistant/ui/home/HomeFragment.kt"
-edit(home, [
-    ("if (!show || snapshot == null) return", "if (!show) return"),
-])
-
 print("MANSI optimization pass finished. Review WARNING lines; Gradle remains the build validation.")
