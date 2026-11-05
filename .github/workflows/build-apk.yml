@@ -4,6 +4,7 @@ on:
   workflow_dispatch:
   push:
     paths:
+      - "MANSI_AI_Android_GitHub_Upload_ROAST_PERSONA.zip"
       - "MANSI-AI-Android-Roast-Mode-Updated.zip"
       - "MANSI-AI-neon-heart-modified.zip"
       - "MANSI_AI_Android_GitHub_Upload.zip"
