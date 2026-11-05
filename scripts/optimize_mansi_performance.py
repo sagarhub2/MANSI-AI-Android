@@ -62,4 +62,14 @@ edit(layout, [
     ('Aoede (Warm, expressive female voice)', 'Aoede (Cute, warm expressive female voice)'),
 ])
 
+# Remove a duplicate Aoede case introduced by legacy voice mapping variants.
+persona_text = persona.read_text(encoding="utf-8") if persona.is_file() else ""
+aoede_case = '            "aoede" -> binding.rbVoiceAoede.isChecked = true'
+if persona_text.count(aoede_case) > 1:
+    first = persona_text.find(aoede_case)
+    second = persona_text.find(aoede_case, first + len(aoede_case))
+    persona_text = persona_text[:second] + persona_text[second + len(aoede_case):]
+    persona.write_text(persona_text, encoding="utf-8")
+    print("Removed duplicate Aoede voice branch:", persona)
+
 print("MANSI optimization pass finished. Review WARNING lines; Gradle remains the build validation.")
