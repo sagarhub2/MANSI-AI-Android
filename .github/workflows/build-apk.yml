@@ -39,8 +39,9 @@ jobs:
       - name: Unpack Android project
         run: |
           # This prepared source archive already contains Roast Mode as the fifth AI Persona card.
-          PROJECT_ZIP="MANSI-AI-Android-Roast-Mode-Updated.zip"
-          if [ ! -s "$PROJECT_ZIP" ]; then PROJECT_ZIP="MANSI_AI_Android_GitHub_Upload_ROAST_PERSONA.zip"; fi
+          # Keep the source archive used by the last successful build first.
+          PROJECT_ZIP="MANSI_AI_Android_GitHub_Upload_ROAST_PERSONA.zip"
+          if [ ! -s "$PROJECT_ZIP" ]; then PROJECT_ZIP="MANSI-AI-Android-Roast-Mode-Updated.zip"; fi
           if [ ! -s "$PROJECT_ZIP" ]; then PROJECT_ZIP="MANSI-AI-neon-heart-modified.zip"; fi
           if [ ! -s "$PROJECT_ZIP" ]; then PROJECT_ZIP="MANSI_AI_Android_GitHub_Upload.zip"; fi
           echo "Building Android source from: $PROJECT_ZIP"
