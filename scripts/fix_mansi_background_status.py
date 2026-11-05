@@ -6,10 +6,10 @@ if not ROOT.is_dir():
     raise SystemExit(f"MANSI background branding: missing source tree {ROOT}")
 
 replacements = [
-    (re.compile(r"(?i)\\bJarvis\\s+is\\s+in\\s+the\\s+background\\b"), "MANSI AI is running in the background"),
-    (re.compile(r"(?i)\\bJarvis\\s+in\\s+the\\s+background\\b"), "MANSI AI running in the background"),
-    (re.compile(r"(?i)\\bJarvis\\s+is\\s+running\\s+in\\s+the\\s+background\\b"), "MANSI AI is running in the background"),
-    (re.compile(r"(?i)\\bJarvis\\s+is\\s+in\\s+background\\b"), "MANSI AI is running in the background"),
+    (re.compile(r"(?i)\bJarvis\s+is\s+in\s+the\s+background\b"), "MANSI AI is running in the background"),
+    (re.compile(r"(?i)\bJarvis\s+in\s+the\s+background\b"), "MANSI AI running in the background"),
+    (re.compile(r"(?i)\bJarvis\s+is\s+running\s+in\s+the\s+background\b"), "MANSI AI is running in the background"),
+    (re.compile(r"(?i)\bJarvis\s+is\s+in\s+background\b"), "MANSI AI is running in the background"),
 ]
 
 changed = []
