@@ -42,7 +42,7 @@ edit(prefs, [
                 stored.equals("Kore", ignoreCase = true)) "Aoede"
             else stored ?: GeminiConstants.DEFAULT_VOICE
             if (selected != stored) prefs.edit().putString(KEY_VOICE, selected).apply()
-            selected
+            return selected
         }'''),
 ])
 
