@@ -52,6 +52,8 @@ edit(persona, [
      'GeminiConstants.PERSONALITY_TECHGPT_X -> selectVoice("Aoede")'),
     ('else -> binding.rbVoicePuck.isChecked = true',
      'else -> binding.rbVoiceAoede.isChecked = true'),
+    ('"aoede" -> binding.rbVoicePuck.isChecked = true',
+     '"aoede" -> binding.rbVoiceAoede.isChecked = true'),
     ('else -> "Puck"', 'else -> "Aoede"'),
 ])
 
