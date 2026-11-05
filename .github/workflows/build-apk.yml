@@ -369,6 +369,7 @@ jobs:
                   ("JARVIS SPEAKING…", "MANSI SPEAKING…"),
                   ("Jarvis Speaking...", "Mansi Speaking..."),
                   ("Rehaan Sir", "Sagar"),
+                  ("Jarvis requires Unrestricted Battery access", "MANSI AI requires Unrestricted Battery access"),
                   ("Jarvis speaking…", "Mansi speaking…"),
               ):
                   after = after.replace(old, new)
