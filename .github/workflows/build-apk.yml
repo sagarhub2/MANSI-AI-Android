@@ -12,6 +12,7 @@ on:
       - "scripts/apply_mansi_branding.py"
       - "scripts/fix_mansi_identity.py"
       - "scripts/fix_mansi_notifications.py"
+      - "scripts/fix_mansi_background_status.py"
       - "scripts/apply_mansi_orb.py"
       - "scripts/add_mansi_tap_feedback.py"
       - "scripts/apply_mansi_full_redesign.py"
@@ -141,6 +142,8 @@ jobs:
           PY
           echo "---- FIX VISIBLE NOTIFICATION BRANDING ----"
           python3 scripts/fix_mansi_notifications.py
+          echo "---- FIX MANSI BACKGROUND STATUS BRANDING ----"
+          python3 scripts/fix_mansi_background_status.py
           echo "---- APPLY MANSI FULL APP VISUAL REDESIGN (NO THEME PICKER) ----"
           python3 scripts/apply_mansi_full_redesign.py
           echo "---- APPLY MANSI HEART ORB ----"
