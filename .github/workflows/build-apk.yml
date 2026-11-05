@@ -416,7 +416,14 @@ jobs:
           PY
 
       - name: Optimize MANSI playback latency and cute female voice defaults
-        run: python3 scripts/optimize_mansi_performance.py
+        run: |
+          python3 scripts/optimize_mansi_performance.py
+          echo "---- VERIFY FINAL VOICE SELECTOR MAPPING ----"
+          nl -ba source/mansi/app/src/main/java/com/jarvis/assistant/ui/settings/PersonaActivity.kt | sed -n '112,148p'
+          echo "---- VERIFY FINAL VOICE DEFAULT AND PREF MIGRATION ----"
+          grep -n -E 'DEFAULT_VOICE|KEY_VOICE|Aoede|Puck|Kore' source/mansi/app/src/main/java/com/jarvis/assistant/data/model/GeminiLiveModels.kt source/mansi/app/src/main/java/com/jarvis/assistant/data/preferences/AppPreferences.kt | head -100
+          echo "---- VERIFY HOME WARNING CONTEXT ----"
+          nl -ba source/mansi/app/src/main/java/com/jarvis/assistant/ui/home/HomeFragment.kt | sed -n '580,598p'
 
       - name: Diagnose actual identity and assistant prompt sources
         run: |
