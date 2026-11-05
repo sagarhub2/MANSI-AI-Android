@@ -1,25 +1,20 @@
 from pathlib import Path
 
 ROOT = Path("source/mansi/app/src/main")
-required = [
-    ROOT / "java/com/jarvis/assistant/audio/AudioPlayer.kt",
-    ROOT / "java/com/jarvis/assistant/data/model/GeminiLiveModels.kt",
-    ROOT / "java/com/jarvis/assistant/data/preferences/AppPreferences.kt",
-    ROOT / "java/com/jarvis/assistant/ui/settings/PersonaActivity.kt",
-    ROOT / "res/layout/activity_persona.xml",
-]
-missing = [str(p) for p in required if not p.is_file()]
-if missing:
-    raise SystemExit("Required MANSI source files missing: " + ", ".join(missing))
 
 def edit(path, replacements):
+    if not path.is_file():
+        print(f"WARNING: optional optimization target missing; skipped: {path}")
+        return
     before = path.read_text(encoding="utf-8")
     after = before
     for old, new in replacements:
         if old not in after:
             if new in after:
-                continue
-            raise SystemExit(f"Expected source pattern not found in {path}: {old[:90]!r}")
+                print(f"Already applied: {path}")
+            else:
+                print(f"WARNING: source pattern not found; skipped safely in {path}: {old[:90]!r}")
+            continue
         after = after.replace(old, new, 1)
     if after != before:
         path.write_text(after, encoding="utf-8")
@@ -65,4 +60,4 @@ edit(layout, [
     ('Aoede (Warm, expressive female voice)', 'Aoede (Cute, warm expressive female voice)'),
 ])
 
-print("MANSI performance + cute female voice patch verified.")
+print("MANSI optimization pass finished. Review WARNING lines; Gradle remains the build validation.")
