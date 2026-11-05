@@ -362,7 +362,8 @@ jobs:
               after = before
               # Visible UI labels.
               for old, new in (
-                  ("Persona: Jarvis Active", "Persona: Mansi Active"),
+                  ("Persona: Jarvis Active", "Persona: MANSI AI Active"),
+                  ("Persona: MANSI AI Active", "Persona: MANSI AI Active"),
                   ("Persona: JARVIS Active", "Persona: Mansi Active"),
                   ("Persona: JARVIS ACTIVE", "Persona: Mansi Active"),
                   ("JARVIS SPEAKING...", "MANSI SPEAKING..."),
