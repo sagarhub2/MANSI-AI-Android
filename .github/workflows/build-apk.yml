@@ -476,14 +476,14 @@ jobs:
 
           root = Path("source/mansi/app/src/main")
           text_suffixes = {".json", ".html", ".js", ".txt", ".properties"}
-          word = re.compile(r"(?i)\\bJarvis\\b")
+          word = re.compile(r"(?i)\bJarvis\b")
           # Only these XML attributes can render user-facing text. Never rewrite
           # element names, class names, package names, resource names, or IDs.
           visible_attrs = re.compile(
-              r"""((?:android:)?(?:text|hint|contentDescription|title|summary|label|prompt|description|dialogTitle|dialogMessage|textOn|textOff|accessibilityPaneTitle|stateDescription)\\s*=\\s*)(["'])(.*?)\\2""",
+              r"""((?:android:)?(?:text|hint|contentDescription|title|summary|label|prompt|description|dialogTitle|dialogMessage|textOn|textOff|accessibilityPaneTitle|stateDescription)\s*=\s*)(["'])(.*?)\2""",
               re.IGNORECASE | re.DOTALL,
           )
-          string_nodes = re.compile(r"(<string\\b[^>]*>)(.*?)(</string\\s*>)", re.IGNORECASE | re.DOTALL)
+          string_nodes = re.compile(r"(<string\b[^>]*>)(.*?)(</string\s*>)", re.IGNORECASE | re.DOTALL)
           changed = []
 
           for path in root.rglob("*"):
@@ -500,18 +500,18 @@ jobs:
               if suffix == ".xml":
                   def update_attr(match):
                       value = match.group(3)
-                      value = re.sub(r"(?i)\\bJarvis\\s+did\\s+not\\s+reply\\b", "MANSI AI couldn't reply", value)
+                      value = re.sub(r"(?i)\bJarvis\s+did\s+not\s+reply\b", "MANSI AI couldn't reply", value)
                       value = word.sub("MANSI AI", value)
                       return match.group(1) + match.group(2) + value + match.group(2)
 
                   after = visible_attrs.sub(update_attr, before)
                   def update_string(match):
-                      value = re.sub(r"(?i)\\bJarvis\\s+did\\s+not\\s+reply\\b", "MANSI AI couldn't reply", match.group(2))
+                      value = re.sub(r"(?i)\bJarvis\s+did\s+not\s+reply\b", "MANSI AI couldn't reply", match.group(2))
                       value = word.sub("MANSI AI", value)
                       return match.group(1) + value + match.group(3)
                   after = string_nodes.sub(update_string, after)
               else:
-                  after = re.sub(r"(?i)\\bJarvis\\s+did\\s+not\\s+reply\\b", "MANSI AI couldn't reply", before)
+                  after = re.sub(r"(?i)\bJarvis\s+did\s+not\s+reply\b", "MANSI AI couldn't reply", before)
                   after = word.sub("MANSI AI", after)
 
               if after != before:
@@ -519,7 +519,7 @@ jobs:
                   changed.append(str(path))
 
           print("Safely removed visible Jarvis labels; XML class/tag/resource identifiers were preserved.")
-          print("Files changed:", *changed, sep="\\n  ")
+          print("Files changed:", *changed, sep="\n  ")
           PY
 
       - name: Set up Java
