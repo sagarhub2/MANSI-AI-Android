@@ -62,7 +62,7 @@ print("Files changed:", *changed, sep="\\n  ")
 
 # Remove the stale creator/channel claim from the actual runtime prompt generator.
 # The workflow's generic prompt replacement does not catch these explicit multilingual
-// creator instructions, so patch this source directly before compiling the APK.
+# creator instructions, so patch this source directly before compiling the APK.
 prompt_file = ROOT / "java/com/jarvis/assistant/util/PromptGenerator.kt"
 if prompt_file.exists():
     before = prompt_file.read_text(encoding="utf-8")
