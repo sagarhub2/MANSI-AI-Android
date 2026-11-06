@@ -425,6 +425,7 @@ jobs:
           python3 - <<'PY'
           from pathlib import Path
           import xml.etree.ElementTree as ET
+          ET.register_namespace("android", "http://schemas.android.com/apk/res/android")
           layout = Path("source/mansi/app/src/main/res/layout/activity_persona.xml")
           if layout.is_file():
               tree = ET.parse(layout)
