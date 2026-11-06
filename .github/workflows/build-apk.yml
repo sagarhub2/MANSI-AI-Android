@@ -468,6 +468,55 @@ jobs:
           echo "---- ASSISTANT PROMPT / VOICE SOURCE HITS ----"
           grep -RniE 'systemInstruction|system instruction|You are |Puck|Aoede|voiceName|voice_name|Gemini' source/mansi/app/src/main --include='*.kt' --include='*.java' --include='*.xml' --include='*.json' --include='*.txt' | head -240 || true
 
+      - name: Remove legacy Jarvis name from all visible MANSI text
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+
+          root = Path("source/mansi/app/src/main")
+          suffixes = {".kt", ".java", ".xml", ".json", ".html", ".js", ".txt", ".properties", ".xml"}
+          # Touch quoted UI/prompt/resource text only; preserve package names,
+          # class names, imports, and other internal identifiers.
+          literal = re.compile(r'"(?:\\.|[^"\\])*"|\'(?:\\.|[^\'\\])*\'', re.DOTALL)
+          changed = []
+          replacements = (
+              (re.compile(r"(?i)\\bJarvis\\s+did\\s+not\\s+reply\\b"), "MANSI AI couldn't reply"),
+              (re.compile(r"(?i)\\bJarvis\\s+is\\s+listening\\b"), "MANSI AI is listening"),
+              (re.compile(r"(?i)\\bJarvis\\s+is\\s+typing\\b"), "MANSI AI is typing"),
+              (re.compile(r"(?i)\\bJarvis\\s+is\\s+speaking\\b"), "MANSI AI is speaking"),
+              (re.compile(r"(?i)\\bJarvis\\b"), "MANSI AI"),
+          )
+
+          for path in root.rglob("*"):
+              if not path.is_file() or path.suffix.lower() not in suffixes:
+                  continue
+              try:
+                  before = path.read_text(encoding="utf-8")
+              except (OSError, UnicodeDecodeError):
+                  continue
+
+              def clean(match):
+                  value = match.group(0)
+                  # Human-readable strings only; avoid changing quoted identifiers
+                  # such as application IDs or internal class/package references.
+                  if not re.search(r"(?i)\\bJarvis\\b", value):
+                      return value
+                  inner = value[1:-1]
+                  if not re.search(r"\\s", inner) and inner.strip().lower() != "jarvis":
+                      return value
+                  for pattern, replacement in replacements:
+                      inner = pattern.sub(replacement, inner)
+                  return value[0] + inner + value[-1]
+
+              after = literal.sub(clean, before)
+              if after != before:
+                  path.write_text(after, encoding="utf-8")
+                  changed.append(str(path))
+
+          print("Removed legacy Jarvis name from visible strings in:", changed)
+          PY
+
       - name: Set up Java
         uses: actions/setup-java@v4
         with:
