@@ -58,3 +58,34 @@ for path in ROOT.rglob("*"):
 
 print("Applied MANSI identity/persona fixes to assistant prompt text.")
 print("Files changed:", *changed, sep="\\n  ")
+
+
+// Remove the stale creator/channel claim from the actual runtime prompt generator.
+// The workflow's generic prompt replacement does not catch these explicit multilingual
+// creator instructions, so patch this source directly before compiling the APK.
+prompt_file = ROOT / "java/com/jarvis/assistant/util/PromptGenerator.kt"
+if prompt_file.exists():
+    before = prompt_file.read_text(encoding="utf-8")
+    after = before
+    bad_phrases = [
+        "the pinnacle of advanced AI engineering created by the @TechGptX team.",
+        "Mention that Sagar is an expert AI developer, tech innovator, and creator who runs the popular YouTube channel @TechGptX.",
+        'In English: "I was created and developed by Sagar, an expert AI creator who runs the @TechGptX YouTube channel!"',
+        'In Hindi/Hinglish: "Mujhe Sagar ne banaya aur train kiya hai, jo ek expert AI developer hain aur YouTube par @TechGptX channel chalate hain!"',
+        'In Telugu: "Nannu Sagar create chesi train chesaru. Aayana oka expert AI developer mariyu YouTube lo @TechGptX channel run chestunnaru!"',
+        'In Tamil: "Ennai Sagar thaan create seithu train panninar. Avar oru expert AI developer matrum YouTube-il @TechGptX channel nadathugirar!"',
+        'In Bengali: "Amake Sagar baniechen ebong train korechen, jini ekjon expert AI developer ebong YouTube-e @TechGptX channel chalanchhen!"',
+        'In Marathi: "Mala Sagar ni banavla ani train kela ahe, te ek expert AI developer ahet ani YouTube var @TechGptX channel chalavtat!"',
+        'In Punjabi: "Mainu Sagar ne banaya te train kita hai, jo ik expert AI developer han te YouTube te @TechGptX channel chalaunde han!"',
+        'In Bhojpuri/Bihari: "Hamaar nirmaan aur training Sagar kayile baani, je ek expert AI developer hauin aur YouTube par @TechGptX channel chalawele!"',
+        "the @TechGptX team",
+    ]
+    for phrase in bad_phrases:
+        after = after.replace(phrase, "MANSI AI was created by Sagar. Do not claim Sagar owns or runs a YouTube channel.")
+    # Catch any remaining explicit handle or channel-ownership claim in this prompt source.
+    after = re.sub(r"(?i)@TechGptX", "Sagar", after)
+    after = re.sub(r"(?i)YouTube channel", "social channel", after)
+    after = re.sub(r"(?i)runs the social channel", "does not run a social channel", after)
+    if after != before:
+        prompt_file.write_text(after, encoding="utf-8")
+        print("Removed stale YouTube creator claims from PromptGenerator.kt")
