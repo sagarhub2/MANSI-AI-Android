@@ -21,6 +21,8 @@ phrase_patterns = (
     (re.compile(r"(?i)\bJarvis\s+is\s+typing\b"), "MANSI AI is typing"),
     (re.compile(r"(?i)\bJarvis\s+is\s+speaking\b"), "MANSI AI is speaking"),
     (re.compile(r"(?i)\bJarvis\s+is\s+ready\b"), "MANSI AI is ready"),
+    (re.compile(r"(?i)\bJarvis\s+is\s+reconnecting\b"), "MANSI AI is reconnecting"),
+    (re.compile(r"(?i)\bJarvis\s+is\s+in\s+the\s+background\b"), "MANSI AI is running in the background"),
     (re.compile(r"(?i)\bhye\s+Jarvis\b"), "Hey MANSI"),
     (re.compile(r"(?i)\bHey\s+Jarvis\b"), "Hey MANSI"),
 )
