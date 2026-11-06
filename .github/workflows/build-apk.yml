@@ -421,35 +421,39 @@ jobs:
       - name: Optimize MANSI playback latency and cute female voice defaults
         run: |
           python3 scripts/optimize_mansi_performance.py
-          echo "---- KEEP ONE CUTE FEMALE VOICE OPTION ONLY ----"
+          echo "---- KEEP ALL FEMALE VOICE TONES; HIDE KNOWN MALE OPTION ----"
           python3 - <<'PY'
           from pathlib import Path
           import xml.etree.ElementTree as ET
           ET.register_namespace("android", "http://schemas.android.com/apk/res/android")
           layout = Path("source/mansi/app/src/main/res/layout/activity_persona.xml")
-          if layout.is_file():
-              tree = ET.parse(layout)
-              root = tree.getroot()
-              android_text = "{http://schemas.android.com/apk/res/android}text"
-              android_visibility = "{http://schemas.android.com/apk/res/android}visibility"
-              kept_aoede = False
-              hidden = []
-              for node in root.iter():
-                  label = node.attrib.get(android_text, "")
-                  if not any(name in label.lower() for name in ("aoede", "kore", "puck")):
-                      continue
-                  if "aoede" in label.lower() and not kept_aoede:
-                      kept_aoede = True
-                      node.attrib.pop(android_visibility, None)
-                  else:
-                      node.set(android_visibility, "gone")
-                      hidden.append(label)
-              tree.write(layout, encoding="utf-8", xml_declaration=True)
-              print("Kept first Aoede option; hid duplicate/legacy voice choices:", hidden)
-              if not kept_aoede:
-                  raise SystemExit("No Aoede voice option found in Persona layout")
-          else:
+          if not layout.is_file():
               raise SystemExit("Persona layout missing")
+          tree = ET.parse(layout)
+          root = tree.getroot()
+          android_text = "{http://schemas.android.com/apk/res/android}text"
+          android_visibility = "{http://schemas.android.com/apk/res/android}visibility"
+          female_names = ("aoede", "kore", "leda", "zephyr", "autonoe", "callirrhoe", "despina", "erinome", "gaia", " laomedeia", "pulcherrima", "sulafat", "achernar", "vindemiatrix", "gacrux", "algenib", "alnilam", "schedar", "achird", "zubenelgenubi", "sadachbia", "sadaltager", "iapetus", "umbriel", "algieba", "algieba")
+          male_names = ("puck", "charon", "fenrir", "orus")
+          seen = set()
+          hidden = []
+          for node in root.iter():
+              label = node.attrib.get(android_text, "")
+              low = label.lower()
+              if not any(name.strip() in low for name in female_names + male_names):
+                  continue
+              voice = next((name.strip() for name in female_names + male_names if name.strip() in low), None)
+              if voice in male_names:
+                  node.set(android_visibility, "gone")
+                  hidden.append(label)
+              else:
+                  node.attrib.pop(android_visibility, None)
+                  seen.add(voice)
+          tree.write(layout, encoding="utf-8", xml_declaration=True)
+          print("Female voice tone options preserved:", sorted(seen))
+          print("Known male voice options hidden:", hidden)
+          if "aoede" not in seen:
+              raise SystemExit("Default Aoede voice option missing")
           PY
           echo "---- DEFAULT FEMININE VOICE SET BY OPTIMIZATION SCRIPT ----"
           echo "---- VERIFY FINAL VOICE SELECTOR MAPPING ----"
