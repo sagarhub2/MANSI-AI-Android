@@ -475,22 +475,11 @@ jobs:
           import re
 
           root = Path("source/mansi/app/src/main")
-          suffixes = {".kt", ".java", ".xml", ".json", ".html", ".js", ".txt", ".properties"}
-          literal = re.compile(r'"(?:\\.|[^"\\])*"|\'(?:\\.|[^\'\\])*\'', re.DOTALL)
+          # Resource files only: do not rewrite Kotlin/Java source, where raw
+          # triple-quoted prompts and escaped strings need language-aware parsing.
+          suffixes = {".xml", ".json", ".html", ".js", ".txt", ".properties"}
           word = re.compile(r"(?i)\bJarvis\b")
           changed = []
-
-          def clean_literal(match):
-              value = match.group(0)
-              inner = value[1:-1]
-              if not word.search(inner):
-                  return value
-              # A bare quoted Jarvis label or any phrase is user-facing text.
-              if not re.search(r"\s", inner) and inner.lower() != "jarvis":
-                  return value
-              inner = re.sub(r"(?i)\bJarvis\s+did\s+not\s+reply\b", "MANSI AI couldn't reply", inner)
-              inner = word.sub("MANSI AI", inner)
-              return value[0] + inner + value[-1]
 
           for path in root.rglob("*"):
               if not path.is_file() or path.suffix.lower() not in suffixes:
@@ -500,21 +489,13 @@ jobs:
               except (OSError, UnicodeDecodeError):
                   continue
 
-              after = literal.sub(clean_literal, before)
-              if path.suffix.lower() == ".xml":
-                  # Also clean plain XML text nodes and attribute values.
-                  after = re.sub(r">([^<>]*Jarvis[^<>]*)<",
-                                 lambda m: ">" + re.sub(r"(?i)\bJarvis\b", "MANSI AI", m.group(1)) + "<",
-                                 after)
-                  after = re.sub(r'(?i)(android:(?:text|contentDescription|label|title)\s*=\s*")([^"]*Jarvis[^"]*)(")',
-                                 lambda m: m.group(1) + re.sub(r"(?i)\bJarvis\b", "MANSI AI", m.group(2)) + m.group(3),
-                                 after)
-
+              after = re.sub(r"(?i)\bJarvis\s+did\s+not\s+reply\b", "MANSI AI couldn't reply", before)
+              after = word.sub("MANSI AI", after)
               if after != before:
                   path.write_text(after, encoding="utf-8")
                   changed.append(str(path))
 
-          print("Removed legacy Jarvis wording from visible app text:", changed)
+          print("Removed legacy Jarvis branding from Android resource/text files:", changed)
           PY
 
       - name: Set up Java
