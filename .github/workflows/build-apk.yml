@@ -503,10 +503,10 @@ jobs:
               after = literal.sub(clean_literal, before)
               if path.suffix.lower() == ".xml":
                   # Also clean plain XML text nodes and attribute values.
-                  after = re.sub(r">(\\s*[^<>]*?)<",
+                  after = re.sub(r">([^<>]*Jarvis[^<>]*)<",
                                  lambda m: ">" + re.sub(r"(?i)\bJarvis\b", "MANSI AI", m.group(1)) + "<",
                                  after)
-                  after = re.sub(r'(?i)(android:(?:text|contentDescription|label|title)\\s*=\\s*")([^"]*Jarvis[^"]*)(")',
+                  after = re.sub(r'(?i)(android:(?:text|contentDescription|label|title)\s*=\s*")([^"]*Jarvis[^"]*)(")',
                                  lambda m: m.group(1) + re.sub(r"(?i)\bJarvis\b", "MANSI AI", m.group(2)) + m.group(3),
                                  after)
 
