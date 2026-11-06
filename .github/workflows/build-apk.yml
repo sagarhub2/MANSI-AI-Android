@@ -381,8 +381,8 @@ jobs:
               )
               # Ensure assistant identity instructions explicitly reject the legacy name.
               if path.suffix.lower() in {".kt", ".java", ".json", ".html", ".js", ".txt", ".properties", ".xml"}:
-                  after = re.sub(r"(?i)(You are )Jarvis\b", r"\\1MANSI AI", after)
-                  after = re.sub(r"(?i)(My name is )Jarvis\b", r"\\1Mansi", after)
+                  after = re.sub(r"(?i)(You are )Jarvis\b", r"\1MANSI AI", after)
+                  after = re.sub(r"(?i)(My name is )Jarvis\b", r"\1Mansi", after)
               if after != before:
                   path.write_text(after, encoding="utf-8")
                   changed.append(str(path))
@@ -419,6 +419,35 @@ jobs:
       - name: Optimize MANSI playback latency and cute female voice defaults
         run: |
           python3 scripts/optimize_mansi_performance.py
+          echo "---- KEEP ONE CUTE FEMALE VOICE OPTION ONLY ----"
+          python3 - <<'PY'
+          from pathlib import Path
+          import xml.etree.ElementTree as ET
+          layout = Path("source/mansi/app/src/main/res/layout/activity_persona.xml")
+          if layout.is_file():
+              tree = ET.parse(layout)
+              root = tree.getroot()
+              android_text = "{http://schemas.android.com/apk/res/android}text"
+              android_visibility = "{http://schemas.android.com/apk/res/android}visibility"
+              kept_aoede = False
+              hidden = []
+              for node in root.iter():
+                  label = node.attrib.get(android_text, "")
+                  if not any(name in label.lower() for name in ("aoede", "kore", "puck")):
+                      continue
+                  if "aoede" in label.lower() and not kept_aoede:
+                      kept_aoede = True
+                      node.attrib.pop(android_visibility, None)
+                  else:
+                      node.set(android_visibility, "gone")
+                      hidden.append(label)
+              tree.write(layout, encoding="utf-8", xml_declaration=True)
+              print("Kept first Aoede option; hid duplicate/legacy voice choices:", hidden)
+              if not kept_aoede:
+                  raise SystemExit("No Aoede voice option found in Persona layout")
+          else:
+              raise SystemExit("Persona layout missing")
+          PY
           echo "---- ENFORCE ONE CONSISTENT CUTE FEMALE VOICE ACROSS ALL MODES ----"
           python3 - <<'PY'
           from pathlib import Path
@@ -435,9 +464,9 @@ jobs:
                   continue
               after = before
               # Every explicit Gemini voice configuration/fallback resolves to Aoede.
-              after = re.sub(r'(?i)((?:voiceName|voice_name)\\s*[:=]\\s*["\\']?)(?:Puck|Kore|Charon|Fenrir|Orus|Zephyr|Leda|Callirrhoe|Autonoe|Despina|Erinome|Laomedeia|Pulcherrima|Sulafat|Vindemiatrix)(?=["\\']?)', r'\\1Aoede', after)
-              after = re.sub(r'(?i)(selectVoice\\s*\\(\\s*["\\'])(?:Puck|Kore|Charon|Fenrir|Orus|Zephyr|Leda|Callirrhoe|Autonoe|Despina|Erinome|Laomedeia|Pulcherrima|Sulafat|Vindemiatrix)(["\\']\\s*\\))', r'\\1Aoede\\2', after)
-              after = re.sub(r'(?i)(MANSI\\s*(?:PRO)?\\s*[·•-]?\\s*Voice\\s*:\\s*)(?:Puck|Kore|Charon|Fenrir|Orus|Zephyr|Leda|Callirrhoe|Autonoe|Despina|Erinome|Laomedeia|Pulcherrima|Sulafat|Vindemiatrix)', r'\\1Aoede', after)
+              after = re.sub(r'(?i)((?:voiceName|voice_name)\s*[:=]\s*["\\']?)(?:Puck|Kore|Charon|Fenrir|Orus|Zephyr|Leda|Callirrhoe|Autonoe|Despina|Erinome|Laomedeia|Pulcherrima|Sulafat|Vindemiatrix)(?=["\\']?)', r'\1Aoede', after)
+              after = re.sub(r'(?i)(selectVoice\s*\(\s*["\\'])(?:Puck|Kore|Charon|Fenrir|Orus|Zephyr|Leda|Callirrhoe|Autonoe|Despina|Erinome|Laomedeia|Pulcherrima|Sulafat|Vindemiatrix)(["\\']\s*\))', r'\1Aoede\2', after)
+              after = re.sub(r'(?i)(MANSI\s*(?:PRO)?\s*[·•-]?\s*Voice\s*:\s*)(?:Puck|Kore|Charon|Fenrir|Orus|Zephyr|Leda|Callirrhoe|Autonoe|Despina|Erinome|Laomedeia|Pulcherrima|Sulafat|Vindemiatrix)', r'\1Aoede', after)
               if after != before:
                   path.write_text(after, encoding="utf-8")
                   changed.append(str(path))
