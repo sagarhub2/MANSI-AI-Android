@@ -544,3 +544,4 @@ jobs:
           name: MANSI-AI-debug-APK
           path: source/mansi/app/build/outputs/apk/debug/*.apk
           if-no-files-found: error
+# Rebuild trigger: include the latest all-female voice tone configuration.
