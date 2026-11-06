@@ -121,11 +121,11 @@ jobs:
           root = Path("source/mansi/app/src/main")
           suffixes = {".kt", ".java", ".xml", ".json", ".html", ".js", ".txt", ".properties"}
           replacements = [
-              ("Voice: Puck", "Voice: Kore"),
-              ('voiceName = "Puck"', 'voiceName = "Kore"'),
-              ('voiceName: "Puck"', 'voiceName: "Kore"'),
-              ('"voiceName": "Puck"', '"voiceName": "Kore"'),
-              ('"name": "Puck"', '"name": "Kore"'),
+              ("Voice: Puck", "Voice: Aoede"),
+              ('voiceName = "Puck"', 'voiceName = "Aoede"'),
+              ('voiceName: "Puck"', 'voiceName: "Aoede"'),
+              ('"voiceName": "Puck"', '"voiceName": "Aoede"'),
+              ('"name": "Puck"', '"name": "Aoede"'),
               ("You are MANSI AI", "You are MANSI AI, a distinctly feminine virtual assistant. Always speak and write in a natural feminine voice and persona. In Hinglish, use feminine self-reference such as 'kar rahi hoon', 'bata sakti hoon', and 'main sun rahi hoon', never masculine forms like 'kar raha hoon'. Be warm, playful, expressive, caring, lightly teasing, and conversational; avoid robotic 'Sir, orders ka wait' phrasing. Keep the user's language and context, and do not overuse emojis."),
           ]
           changed = []
