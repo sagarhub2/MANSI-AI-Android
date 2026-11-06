@@ -419,6 +419,30 @@ jobs:
       - name: Optimize MANSI playback latency and cute female voice defaults
         run: |
           python3 scripts/optimize_mansi_performance.py
+          echo "---- ENFORCE ONE CONSISTENT CUTE FEMALE VOICE ACROSS ALL MODES ----"
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          root = Path("source/mansi/app/src/main")
+          suffixes = {".kt", ".java", ".xml", ".json", ".html", ".js", ".txt", ".properties"}
+          changed = []
+          for path in root.rglob("*"):
+              if not path.is_file() or path.suffix.lower() not in suffixes:
+                  continue
+              try:
+                  before = path.read_text(encoding="utf-8")
+              except (OSError, UnicodeDecodeError):
+                  continue
+              after = before
+              # Every explicit Gemini voice configuration/fallback resolves to Aoede.
+              after = re.sub(r'(?i)((?:voiceName|voice_name)\\s*[:=]\\s*["\\']?)(?:Puck|Kore|Charon|Fenrir|Orus|Zephyr|Leda|Callirrhoe|Autonoe|Despina|Erinome|Laomedeia|Pulcherrima|Sulafat|Vindemiatrix)(?=["\\']?)', r'\\1Aoede', after)
+              after = re.sub(r'(?i)(selectVoice\\s*\\(\\s*["\\'])(?:Puck|Kore|Charon|Fenrir|Orus|Zephyr|Leda|Callirrhoe|Autonoe|Despina|Erinome|Laomedeia|Pulcherrima|Sulafat|Vindemiatrix)(["\\']\\s*\\))', r'\\1Aoede\\2', after)
+              after = re.sub(r'(?i)(MANSI\\s*(?:PRO)?\\s*[·•-]?\\s*Voice\\s*:\\s*)(?:Puck|Kore|Charon|Fenrir|Orus|Zephyr|Leda|Callirrhoe|Autonoe|Despina|Erinome|Laomedeia|Pulcherrima|Sulafat|Vindemiatrix)', r'\\1Aoede', after)
+              if after != before:
+                  path.write_text(after, encoding="utf-8")
+                  changed.append(str(path))
+          print("Unified voice configuration/UI to cute female-presenting Aoede:", changed)
+          PY
           echo "---- VERIFY FINAL VOICE SELECTOR MAPPING ----"
           nl -ba source/mansi/app/src/main/java/com/jarvis/assistant/ui/settings/PersonaActivity.kt | sed -n '112,148p'
           echo "---- VERIFY FINAL VOICE DEFAULT AND PREF MIGRATION ----"
