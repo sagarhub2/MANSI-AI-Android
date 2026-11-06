@@ -23,8 +23,30 @@ export default function Home() {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message: value, persona, roast })
       });
-      const data = await response.json();
-      setMessages((m) => [...m, { role: "assistant", content: data.reply ?? data.error ?? "AI response missing." }]);
+      if (!response.ok) {
+        const data = await response.json().catch(() => ({}));
+        setMessages((m) => [...m, { role: "assistant", content: data.error ?? "MANSI abhi reply nahi kar paayi. Please try again." }]);
+        return;
+      }
+      if (!response.body) throw new Error("Streaming response unavailable");
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let reply = "";
+      setMessages((m) => [...m, { role: "assistant", content: "" }]);
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+        reply += decoder.decode(value, { stream: true });
+        const current = reply;
+        setMessages((m) => {
+          const next = [...m];
+          const last = next[next.length - 1];
+          if (last?.role === "assistant") next[next.length - 1] = { ...last, content: current };
+          return next;
+        });
+      }
+      reply += decoder.decode();
+      if (!reply.trim()) throw new Error("Empty AI response");
     } catch {
       setMessages((m) => [...m, { role: "assistant", content: "Backend abhi connect nahi hai. Deployment settings check karo." }]);
     } finally { setBusy(false); }
